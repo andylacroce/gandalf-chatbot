@@ -15,12 +15,14 @@ body {
   line-height: 1.6;
 }
 
+/* Container Styles */
 .container {
   max-width: 800px;
   margin: 20px auto;
   padding: 20px;
 }
 
+/* Headings */
 h1 {
   font-size: 2.5rem;
   margin-bottom: 20px;
@@ -28,16 +30,17 @@ h1 {
   color: #333;
 }
 
-/* Chatbox Styles */
+/* Chatbox General Styles */
 .chatbox {
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  max-width: 800px; /* Adjust the maximum width to your preference */
+  max-width: 800px;
   margin: 0 auto;
 }
 
+/* Chatbox Messages */
 .chatbox-messages {
   height: 500px;
   overflow-y: auto;
@@ -48,17 +51,23 @@ h1 {
 .chatbox-messages div {
   margin-bottom: 10px;
   padding: 10px;
-  background-color: #f8f8f8;
   border-radius: 4px;
 }
 
-.chatbox-messages div.user {
-  text-align: right;
-  background-color: #e3f2fd;
+/* User and Gandalf Message Styles */
+.user-message {
+  background-color: #D1F2EB; /* Default for user messages */
+  text-align: right; /* Default for user messages */
 }
 
-.chatbox input {
-  width: 70%;
+.gandalf-message {
+  background-color: #FADBD8;
+  text-align: left;
+}
+
+/* Chatbox Input and Button Styles */
+.chatbox input, .chatbox button {
+  width: 70%; /* Default for input */
   padding: 10px;
   border: none;
   border-radius: 0;
@@ -66,26 +75,20 @@ h1 {
 
 .chatbox button {
   width: 30%;
-  padding: 10px;
-  border: none;
-  cursor: pointer;
   background: #515ca3;
+  cursor: pointer;
 }
 
 .chatbox button:hover {
   background: #3949ab;
 }
 
-/* Disabled styles */
-.chatbox button[disabled] {
-  background: #ccc; /* Gray background when disabled */
-  color: #666; /* Adjust text color when disabled */
-}
-
-.chatbox input[disabled] {
+/* Disabled Styles */
+.chatbox button[disabled], .chatbox input[disabled] {
   background: #ccc;
+  color: #666; /* Only affects button */
 }
 
-/* Placeholder text styles */
-/* Placeholder text styles cannot be controlled purely through CSS. */
-/* They are typically set dynamically in the component logic. */
+.user-sender, .gandalf-sender {
+  font-weight: bold;
+}

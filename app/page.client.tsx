@@ -101,7 +101,7 @@ const Page: React.FC = () => {
             } px-4 py-2 rounded-r-lg hover:bg-blue-600`}
             disabled={isWaitingForResponse}
           >
-            {isWaitingForResponse ? '...' : 'Send'}
+            {isWaitingForResponse ? '\u00A0' : 'Send'}
           </button>
         </div>
       </div>
