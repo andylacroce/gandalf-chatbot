@@ -1,4 +1,20 @@
-/* globals.css */
+/* globals.css - Refactored Version */
+
+/* CSS Variables */
+:root {
+  --font-primary: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  --color-background: #f4f4f4;
+  --color-text: #333;
+  --container-max-width: 800px;
+  --heading-font-size: 2.0rem;
+  --chatbox-background: #fff;
+  --user-message-bg: #D1F2EB;
+  --gandalf-message-bg: #FADBD8;
+  --button-bg: #515ca3;
+  --button-hover-bg: #3949ab;
+  --disabled-bg: #ccc;
+  --disabled-text: #666;
+}
 
 /* Basic Reset */
 * {
@@ -7,88 +23,89 @@
   padding: 0;
 }
 
+/* Body Style */
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
-    Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  background-color: #f4f4f4;
-  color: #333;
-  line-height: 1.6;
+  font-family: var(--font-primary);
+  background-color: var(--color-background);
+  color: var(--color-text);
+  line-height: 1.0;
 }
 
 /* Container Styles */
 .container {
-  max-width: 800px;
-  margin: 20px auto;
-  padding: 20px;
+  max-width: var(--container-max-width);
+  margin: 10px auto;
+  padding: 10px;
 }
 
-/* Headings */
+/* Headings Styles */
 h1 {
-  font-size: 2.5rem;
-  margin-bottom: 20px;
+  font-size: var(--heading-font-size);
+  margin-bottom: 10px;
   text-align: center;
-  color: #333;
+  color: var(--color-text);
 }
 
 /* Chatbox General Styles */
 .chatbox {
-  background-color: #fff;
+  background-color: var(--chatbox-background);
   border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  max-width: 800px;
+  max-width: var(--container-max-width);
   margin: 0 auto;
 }
 
-/* Chatbox Messages */
+/* Chatbox Messages Styles */
 .chatbox-messages {
-  height: 500px;
+  height: 600px;
   overflow-y: auto;
   padding: 10px;
   border-bottom: 1px solid #ddd;
 }
 
 .chatbox-messages div {
-  margin-bottom: 10px;
+  margin-bottom: 5px;
   padding: 10px;
   border-radius: 4px;
 }
 
 /* User and Gandalf Message Styles */
 .user-message {
-  background-color: #D1F2EB; /* Default for user messages */
-  text-align: right; /* Default for user messages */
+  background-color: var(--user-message-bg);
+  text-align: right;
 }
 
 .gandalf-message {
-  background-color: #FADBD8;
+  background-color: var(--gandalf-message-bg);
   text-align: left;
 }
 
 /* Chatbox Input and Button Styles */
 .chatbox input, .chatbox button {
-  width: 70%; /* Default for input */
+  width: 80%; /* Default for input */
   padding: 10px;
   border: none;
   border-radius: 0;
 }
 
 .chatbox button {
-  width: 30%;
-  background: #515ca3;
+  width: 20%;
+  background: var(--button-bg);
   cursor: pointer;
 }
 
 .chatbox button:hover {
-  background: #3949ab;
+  background: var(--button-hover-bg);
 }
 
 /* Disabled Styles */
 .chatbox button[disabled], .chatbox input[disabled] {
-  background: #ccc;
-  color: #666; /* Only affects button */
+  background: var(--disabled-bg);
+  color: var(--disabled-text); /* Only affects button */
 }
 
+/* Sender Styles */
 .user-sender, .gandalf-sender {
   font-weight: bold;
 }

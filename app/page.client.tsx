@@ -2,25 +2,46 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './globals.css';
 
+// Interface for messages
 interface Message {
   text: string;
   sender: string;
 }
 
-const Page: React.FC = () => {
-  const [input, setInput] = useState('');
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [isWaitingForResponse, setIsWaitingForResponse] = useState(false);
+// Chat message component
+const ChatMessage = ({ message }: { message: Message }) => {
+  const messageClass = message.sender === 'User' ? 'user-message' : 'gandalf-message';
+  const senderClass = message.sender === 'User' ? 'user-sender' : 'gandalf-sender';
 
+  return (
+    <div className={`my-2 ${messageClass}`}>
+      <div className={`rounded p-2 text-sm`}>
+        <div className={`mb-1 ${senderClass}`}>
+          {message.sender}
+        </div>
+        {message.text}
+      </div>
+    </div>
+  );
+};
+
+// Main Page component
+const Page: React.FC = () => {
+  // State declarations
+  const [input, setInput] = useState<string>('');
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [isWaitingForResponse, setIsWaitingForResponse] = useState<boolean>(false);
+
+  // Refs for scrolling and input focus
   const chatWindowRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
+  // Effect to scroll chat window
   useEffect(() => {
-    if (chatWindowRef.current) {
-      chatWindowRef.current.scrollTop = chatWindowRef.current.scrollHeight;
-    }
+    chatWindowRef.current?.scrollTo(0, chatWindowRef.current.scrollHeight);
   }, [messages]);
 
+  // Handlers for input change and key down events
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInput(e.target.value);
   };
@@ -32,31 +53,27 @@ const Page: React.FC = () => {
     }
   };
 
+  // Function to send a message
   const sendMessage = async () => {
-    if (isWaitingForResponse) {
-      // User is waiting for Gandalf's response
-      return;
-    }
+    if (input.trim() === '' || isWaitingForResponse) return;
 
-    // Disable input and send button while waiting for Gandalf's response
     setIsWaitingForResponse(true);
 
     const userMessage: Message = { text: input, sender: 'User' };
-    setMessages((messages) => [...messages, userMessage]);
+    setMessages((prevMessages) => [...prevMessages, userMessage]);
     setInput('');
 
     try {
       const response = await axios.post('/api/chat', { message: input });
       const gandalfResponse: Message = { text: response.data.reply, sender: 'Gandalf' };
-      setMessages((messages) => [...messages, gandalfResponse]);
+      setMessages((prevMessages) => [...prevMessages, gandalfResponse]);
     } catch (error) {
       console.error('Error fetching Gandalf response:', error);
-      setMessages((messages) => [
-        ...messages,
+      setMessages((prevMessages) => [
+        ...prevMessages,
         { text: 'I am unable to answer at the moment.', sender: 'Gandalf' },
       ]);
     } finally {
-      // Re-enable input and send button after Gandalf responds
       setIsWaitingForResponse(false);
       inputRef.current?.focus();
     }
@@ -68,19 +85,7 @@ const Page: React.FC = () => {
       <div className="chatbox">
         <div className="chatbox-messages" ref={chatWindowRef}>
           {messages.map((message, index) => (
-            <div
-              key={index}
-              className={`my-2 ${
-                message.sender === 'User' ? 'user-message' : 'gandalf-message'
-              }`}
-            >
-              <div className={`rounded p-2 text-sm`}>
-                <div className={`mb-1 ${message.sender === 'User' ? 'user-sender' : 'gandalf-sender'}`}>
-                  {message.sender}
-                </div>
-                {message.text}
-              </div>
-            </div>
+            <ChatMessage key={index} message={message} />
           ))}
         </div>
         <div className="flex">
@@ -96,9 +101,7 @@ const Page: React.FC = () => {
           />
           <button
             onClick={sendMessage}
-            className={`${
-              isWaitingForResponse ? 'bg-gray-400 text-gray-800' : 'bg-blue-500 text-white'
-            } px-4 py-2 rounded-r-lg hover:bg-blue-600`}
+            className={`${isWaitingForResponse ? 'bg-gray-400 text-gray-800' : 'bg-blue-500 text-white'} px-4 py-2 rounded-r-lg hover:bg-blue-600`}
             disabled={isWaitingForResponse}
           >
             {isWaitingForResponse ? '\u00A0' : 'Send'}
