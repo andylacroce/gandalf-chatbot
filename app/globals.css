@@ -68,7 +68,7 @@ h1 {
 }
 
 /* Chatbox Input and Button Styles */
-.chatbox input, .chatbox button {
+.chatbox input.form-control, .chatbox button {
   width: 80%;
   padding: 10px;
   border: none;
@@ -94,4 +94,30 @@ h1 {
 /* Sender Styles */
 .user-sender, .gandalf-sender {
   font-weight: bold;
+}
+
+
+/* Override Bootstrap's btn-primary class */
+button.btn.btn-primary {
+  margin-left: .5em;
+  background-color: var(--button-bg); /* Custom background color */
+  border-color: var(--button-bg); /* Custom border color */
+  color: white; /* Text color */
+}
+
+button.btn.btn-primary:hover {
+  background-color: var(--button-hover-bg); /* Custom hover background color */
+  border-color: var(--button-hover-bg); /* Custom hover border color */
+}
+
+/* Override Bootstrap's btn-secondary class */
+button.btn.btn-secondary {
+  background-color: #6c757d; /* Custom background color */
+  border-color: #6c757d; /* Custom border color */
+  color: white; /* Text color */
+}
+
+button.btn.btn-secondary:hover {
+  background-color: #5a6268; /* Custom hover background color */
+  border-color: #5a6268; /* Custom hover border color */
 }
