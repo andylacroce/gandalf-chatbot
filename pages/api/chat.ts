@@ -11,7 +11,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   const openai = new OpenAI({
-    apiKey: "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",
+    apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
   });
 
   try {
