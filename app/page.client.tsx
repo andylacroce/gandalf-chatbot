@@ -81,7 +81,7 @@ const Page: React.FC = () => {
 
   return (
     <div className="container">
-      <h1>Gandalf Chatbot</h1>
+      <center><img src="gandalf.jpg" alt="Image of Gandalf" width="150" height="180" /><br /><br /></center>
       <div className="chatbox">
         <div className="chatbox-messages" ref={chatWindowRef}>
           {messages.map((message, index) => (
