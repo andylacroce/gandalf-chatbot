@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './globals.css';
+import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
 
 // Interface for messages
 interface Message {
@@ -80,32 +81,40 @@ const Page: React.FC = () => {
   };
 
   return (
-    <div className="container">
-      <center><img src="gandalf.jpg" alt="Image of Gandalf" width="150" height="180" /><br /><br /></center>
-      <div className="chatbox">
-        <div className="chatbox-messages" ref={chatWindowRef}>
-          {messages.map((message, index) => (
-            <ChatMessage key={index} message={message} />
-          ))}
+    <div className="container mt-5">
+      <center>
+        <img src="gandalf.jpg" alt="Image of Gandalf" width="150" height="180" /><br /><br />
+      </center>
+      <div className="card">
+        <div className="card-body">
+          <div className="chatbox-messages" ref={chatWindowRef} style={{ maxHeight: '500px', overflowY: 'auto' }}>
+            {messages.map((message, index) => (
+              <ChatMessage key={index} message={message} />
+            ))}
+          </div>
         </div>
-        <div className="flex">
-          <input
-            type="text"
-            value={input}
-            onChange={handleInputChange}
-            onKeyDown={handleInputKeyDown}
-            className="flex-grow p-2 border rounded-l-lg focus:outline-none focus:border-blue-300"
-            placeholder={isWaitingForResponse ? 'Please wait...' : 'Type your message here...'}
-            disabled={isWaitingForResponse}
-            ref={inputRef}
-          />
-          <button
-            onClick={sendMessage}
-            className={`${isWaitingForResponse ? 'bg-gray-400 text-gray-800' : 'bg-blue-500 text-white'} px-4 py-2 rounded-r-lg hover:bg-blue-600`}
-            disabled={isWaitingForResponse}
-          >
-            {isWaitingForResponse ? '\u00A0' : 'Send'}
-          </button>
+        <div className="card-footer">
+          <div className="input-group">
+            <input
+              type="text"
+              value={input}
+              onChange={handleInputChange}
+              onKeyDown={handleInputKeyDown}
+              className="form-control"
+              placeholder={isWaitingForResponse ? 'Please wait...' : 'Type your message here...'}
+              disabled={isWaitingForResponse}
+              ref={inputRef}
+            />
+            <div className="input-group-append">
+              <button
+                onClick={sendMessage}
+                className={`btn ${isWaitingForResponse ? 'btn-secondary' : 'btn-primary'}`}
+                disabled={isWaitingForResponse}
+              >
+                {isWaitingForResponse ? '\u00A0' : 'Send'}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
