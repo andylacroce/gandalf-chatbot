@@ -111,7 +111,7 @@ const Page: React.FC = () => {
                 className={`btn ${isWaitingForResponse ? 'btn-secondary' : 'btn-primary'}`}
                 disabled={isWaitingForResponse}
               >
-                {isWaitingForResponse ? '\u00A0' : 'Send'}
+                {isWaitingForResponse ? 'HOLD' : 'Send'}
               </button>
             </div>
           </div>
