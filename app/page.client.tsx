@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './globals.css';
 
@@ -13,10 +13,9 @@ const Page: React.FC = () => {
   const [isWaitingForResponse, setIsWaitingForResponse] = useState(false);
 
   const chatWindowRef = useRef<HTMLDivElement | null>(null);
-  const inputRef = useRef<HTMLInputElement | null>(null); // Create a ref for the input field
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    // Scroll to the latest message when messages change
     if (chatWindowRef.current) {
       chatWindowRef.current.scrollTop = chatWindowRef.current.scrollHeight;
     }
@@ -28,26 +27,23 @@ const Page: React.FC = () => {
 
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-      e.preventDefault(); // Prevent the default behavior (e.g., form submission)
+      e.preventDefault();
       sendMessage();
     }
   };
 
   const sendMessage = async () => {
     if (isWaitingForResponse) {
-      // Inform the user to continue waiting
-      const waitingMessage: Message = {
-        text: 'Please wait for Gandalf to respond...',
-        sender: 'System',
-      };
-      setMessages((messages) => [...messages, waitingMessage]);
-      return; // Don't accept new requests while waiting for Gandalf's reply
+      // User is waiting for Gandalf's response
+      return;
     }
+
+    // Disable input and send button while waiting for Gandalf's response
+    setIsWaitingForResponse(true);
 
     const userMessage: Message = { text: input, sender: 'User' };
     setMessages((messages) => [...messages, userMessage]);
     setInput('');
-    setIsWaitingForResponse(true);
 
     try {
       const response = await axios.post('/api/chat', { message: input });
@@ -60,8 +56,9 @@ const Page: React.FC = () => {
         { text: 'I am unable to answer at the moment.', sender: 'Gandalf' },
       ]);
     } finally {
+      // Re-enable input and send button after Gandalf responds
       setIsWaitingForResponse(false);
-      inputRef.current?.focus(); // Set focus back to the input field after Gandalf responds
+      inputRef.current?.focus();
     }
   };
 
@@ -93,16 +90,18 @@ const Page: React.FC = () => {
             onChange={handleInputChange}
             onKeyDown={handleInputKeyDown}
             className="flex-grow p-2 border rounded-l-lg focus:outline-none focus:border-blue-300"
-            placeholder="Type your message here..."
+            placeholder={isWaitingForResponse ? 'Please wait...' : 'Type your message here...'}
             disabled={isWaitingForResponse}
-            ref={inputRef} // Assign the ref to the input field
+            ref={inputRef}
           />
           <button
             onClick={sendMessage}
-            className="bg-blue-500 text-white px-4 py-2 rounded-r-lg hover:bg-blue-600"
+            className={`${
+              isWaitingForResponse ? 'bg-gray-400 text-gray-800' : 'bg-blue-500 text-white'
+            } px-4 py-2 rounded-r-lg hover:bg-blue-600`}
             disabled={isWaitingForResponse}
           >
-            Send
+            {isWaitingForResponse ? '...' : 'Send'}
           </button>
         </div>
       </div>

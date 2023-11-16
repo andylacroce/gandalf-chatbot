@@ -1,4 +1,4 @@
-/* styles/globals.css */
+/* globals.css */
 
 /* Basic Reset */
 * {
@@ -66,44 +66,26 @@ h1 {
 
 .chatbox button {
   width: 30%;
-  background: #5c6bc0;
-  color: white;
   padding: 10px;
   border: none;
   cursor: pointer;
+  background: #515ca3;
 }
 
 .chatbox button:hover {
   background: #3949ab;
 }
 
-.user-message {
-  text-align: right;
-  margin-left: auto;
-  background-color: #DCF8C6; /* Light green for user messages */
-  color: #333;
-  border-radius: 0.5rem;
-  margin-right: 0.5rem;
-  padding: 0.5rem 1rem;
+/* Disabled styles */
+.chatbox button[disabled] {
+  background: #ccc; /* Gray background when disabled */
+  color: #666; /* Adjust text color when disabled */
 }
 
-.user-sender {
-  text-align: right;
-  font-weight: bold;
-  margin-bottom: 0.2rem;
+.chatbox input[disabled] {
+  background: #ccc;
 }
 
-.gandalf-message {
-  text-align: left;
-  background-color: #C2DFFF; /* Light blue for Gandalf messages */
-  color: #333;
-  border-radius: 0.5rem;
-  margin-left: 0.5rem;
-  padding: 0.5rem 1rem;
-}
-
-.gandalf-sender {
-  text-align: left;
-  font-weight: bold;
-  margin-bottom: 0.2rem;
-}
+/* Placeholder text styles */
+/* Placeholder text styles cannot be controlled purely through CSS. */
+/* They are typically set dynamically in the component logic. */
