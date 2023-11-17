@@ -99,7 +99,7 @@ const Page: React.FC = () => {
         /><br /><br />
         <div className="card">
           <div className="card-body">
-            <div className="chatbox-messages" ref={chatWindowRef} style={{ maxHeight: '500px', overflowY: 'auto' }}>
+            <div className="chatbox-messages" ref={chatWindowRef} style={{ height: '500px', overflowY: 'auto' }}>
               {messages.map((message, index) => (
                 <ChatMessage key={index} message={message} />
               ))}
