@@ -33,7 +33,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     Using this history, respond to this message:\n${userMessage}\n
     `;
 
-    const timeout = new Promise((resolve) => setTimeout(() => resolve({ timeout: true }), 15000));
+    const timeout = new Promise((resolve) => setTimeout(() => resolve({ timeout: true }), 20000));
 
     const result = await Promise.race([
       openai.chat.completions.create({
