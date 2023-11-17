@@ -38,6 +38,12 @@ const Page: React.FC = () => {
   const chatWindowRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
+  // Refocus on the input field after messages update
+  useEffect(() => {
+    chatWindowRef.current?.scrollTo(0, chatWindowRef.current.scrollHeight);
+    inputRef.current?.focus(); // Set focus on the input field
+  }, [messages]);
+
   // Effect to scroll chat window
   useEffect(() => {
     chatWindowRef.current?.scrollTo(0, chatWindowRef.current.scrollHeight);
