@@ -285,6 +285,7 @@ button.btn.btn-secondary:hover {
 .disclaimer {
   font-size: small;
   padding: 1.0em;
+  max-width: 90%;
 }
 
 .ai-disclaimer {
@@ -292,4 +293,5 @@ button.btn.btn-secondary:hover {
   font-style: italic;
   color: rgb(175, 175, 175);
   padding: 1.0em;
+  max-width: 90%;
 }
