@@ -128,6 +128,12 @@ const Page: React.FC = () => {
             </div>
           </div>
         </div>
+        <div className="disclaimer">
+            Take heed:<br /> 
+            Gandalf is busy keeping the forces of evil at bay.<br />  
+            He may take up to 20 seconds to respond, or ask you to repeat.<br />
+            Do not fret!  He will respond precisely when he means to!
+        </div>
       </center>
     </div>
   );

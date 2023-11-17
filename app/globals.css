@@ -281,3 +281,7 @@ button.btn.btn-secondary:hover {
 .card {
   max-width: 90%;
 }
+
+.disclaimer {
+  font-size: small;
+}
