@@ -17,7 +17,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     const userMessage = req.body.message;
     const formattedHistory = conversationHistory.map((entry) => `User: ${entry}`).join('\n');
-    const prompt = `You are Gandalf from the Lord of the Rings. Keep your response to 30 words or less. Don't include "Gandalf:" or "User:" in your responses. This is the conversation you have been having with the user so far:\n(((${formattedHistory})))\nDon't greet the user if the formatted history is not null. Using this history, respond to this message:\n${userMessage}\n`;
+    const prompt = 
+    `
+    You are Gandalf from the Lord of the Rings. 
+    Keep your response to 30 words or less. 
+    Don't include "Gandalf:" or "User:" in your responses. 
+    If you don't know the user's name, 
+    try to get it so that you remember it.  
+    If not, then ask if it is ok for you to make up 
+    a full name for them, and do so.  
+    This is the conversation you have been having with the 
+    user so far:\n(((${formattedHistory})))\n
+    Don't greet the user if the formatted history is not null. 
+    Using this history, respond to this message:\n${userMessage}\n
+    `;
 
     const timeout = new Promise((resolve) => setTimeout(() => resolve({ timeout: true }), 15000));
 
