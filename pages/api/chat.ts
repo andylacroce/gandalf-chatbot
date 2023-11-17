@@ -15,28 +15,36 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   });
 
   try {
-    // Extract the user's message from the request
     const userMessage = req.body.message;
-
-    // Create a prompt using the entire conversation history
     const formattedHistory = conversationHistory.map((entry) => `User: ${entry}`).join('\n');
-    console.log(conversationHistory);
-    const prompt = `You are Gandalf from the Lord of the Rings. Keep your response to 30 words or less.  Don't include "Gandalf:" or "User:" in your responses.  This is the conversation you have been having with the user so far:\n(((${formattedHistory})))\nDon't greet the user if the formatted history is not null. Using this history, respond to this message:\n${userMessage}\n`;
+    const prompt = `You are Gandalf from the Lord of the Rings. Keep your response to 30 words or less. Don't include "Gandalf:" or "User:" in your responses. This is the conversation you have been having with the user so far:\n(((${formattedHistory})))\nDon't greet the user if the formatted history is not null. Using this history, respond to this message:\n${userMessage}\n`;
 
-    // Make the API call with the updated prompt
-    const response = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo", // or another model of your choice
-      messages: [{ "role": "user", "content": prompt }],
-      max_tokens: 50,
-    });
+    const timeout = new Promise((resolve) => setTimeout(() => resolve({ timeout: true }), 15000));
 
-    const gandalfReply = response?.choices?.[0]?.message?.content?.trim() ?? '';
+    const result = await Promise.race([
+      openai.chat.completions.create({
+        model: "gpt-3.5-turbo",
+        messages: [{ "role": "user", "content": prompt }],
+        max_tokens: 50,
+      }),
+      timeout
+    ]);
 
-    // Add the user's message and Gandalf's response to the conversation history
-    conversationHistory.push(`User: ${userMessage}`);
-    conversationHistory.push(`Gandalf: ${gandalfReply}`);
+    if (result && typeof result === 'object' && 'timeout' in result) {
+      return res.status(408).json({ reply: 'Request timed out.' });
+    }
 
-    res.status(200).json({ reply: gandalfReply });
+    // Check if the result has the 'choices' property and handle it as an array
+    if (result && typeof result === 'object' && 'choices' in result && Array.isArray(result.choices)) {
+      const gandalfReply = result.choices[0]?.message?.content?.trim() ?? '';
+      conversationHistory.push(`User: ${userMessage}`);
+      conversationHistory.push(`Gandalf: ${gandalfReply}`);
+      console.log(conversationHistory);
+
+      res.status(200).json({ reply: gandalfReply });
+    } else {
+      throw new Error('Invalid response');
+    }
   } catch (error) {
     console.error('OpenAI API error:', error);
     res.status(500).json({ reply: 'Error fetching response from Gandalf.' });

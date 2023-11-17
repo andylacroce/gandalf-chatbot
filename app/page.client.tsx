@@ -79,7 +79,7 @@ const Page: React.FC = () => {
       console.error('Error fetching Gandalf response:', error);
       setMessages((prevMessages) => [
         ...prevMessages,
-        { text: 'I am unable to answer at the moment.', sender: 'Gandalf' },
+        { text: 'Sorry, I was choking on my pipe.  Try again, please.', sender: 'Gandalf' },
       ]);
     } finally {
       setIsWaitingForResponse(false);
