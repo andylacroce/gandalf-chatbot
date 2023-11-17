@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './globals.css';
-import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
+import 'bootstrap/dist/css/bootstrap.min.css';
+import Image from 'next/image';
 
 // Interface for messages
 interface Message {
@@ -83,7 +84,13 @@ const Page: React.FC = () => {
   return (
     <div className="container mt-5">
       <center>
-        <img src="gandalf.jpg" alt="Image of Gandalf" width="150" height="180" /><br /><br />
+        <Image
+          src="/gandalf.jpg" // Assuming the image is in the 'public' folder
+          alt="Image of Gandalf"
+          width={150}
+          height={180}
+          layout="fixed" // Optional: you can specify different layout modes
+        /><br /><br />
       </center>
       <div className="card">
         <div className="card-body">
