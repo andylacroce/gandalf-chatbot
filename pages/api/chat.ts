@@ -53,7 +53,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const gandalfReply = result.choices[0]?.message?.content?.trim() ?? '';
       conversationHistory.push(`User: ${userMessage}`);
       conversationHistory.push(`Gandalf: ${gandalfReply}`);
-      console.log(conversationHistory);
 
       res.status(200).json({ reply: gandalfReply });
     } else {
