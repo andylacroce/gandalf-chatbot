@@ -1,4 +1,4 @@
-Next.js 14 App
+# Next.js Gandalf ChatBot Powered By ChatGPT
 
 You'll need a paid OpenAI API key, then you can create a `.env.local` file in the root project dir with this line:
 
