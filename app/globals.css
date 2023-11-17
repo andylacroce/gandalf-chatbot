@@ -277,3 +277,7 @@ button.btn.btn-secondary:hover {
   border-color: #5a6268;
   /* Custom hover border color */
 }
+
+.card {
+  max-width: 75%;
+}

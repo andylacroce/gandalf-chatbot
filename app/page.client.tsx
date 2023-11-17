@@ -97,39 +97,39 @@ const Page: React.FC = () => {
           height={180}
           layout="fixed" // Optional: you can specify different layout modes
         /><br /><br />
-      </center>
-      <div className="card">
-        <div className="card-body">
-          <div className="chatbox-messages" ref={chatWindowRef} style={{ maxHeight: '500px', overflowY: 'auto' }}>
-            {messages.map((message, index) => (
-              <ChatMessage key={index} message={message} />
-            ))}
+        <div className="card">
+          <div className="card-body">
+            <div className="chatbox-messages" ref={chatWindowRef} style={{ maxHeight: '500px', overflowY: 'auto' }}>
+              {messages.map((message, index) => (
+                <ChatMessage key={index} message={message} />
+              ))}
+            </div>
           </div>
-        </div>
-        <div className="card-footer">
-          <div className="input-group">
-            <input
-              type="text"
-              value={input}
-              onChange={handleInputChange}
-              onKeyDown={handleInputKeyDown}
-              className="form-control"
-              placeholder={isWaitingForResponse ? 'Please wait...' : 'Type your message here...'}
-              disabled={isWaitingForResponse}
-              ref={inputRef}
-            />
-            <div className="input-group-append">
-              <button
-                onClick={sendMessage}
-                className={`btn ${isWaitingForResponse ? 'btn-secondary' : 'btn-primary'}`}
+          <div className="card-footer">
+            <div className="input-group">
+              <input
+                type="text"
+                value={input}
+                onChange={handleInputChange}
+                onKeyDown={handleInputKeyDown}
+                className="form-control"
+                placeholder={isWaitingForResponse ? 'Please wait...' : 'Type your message here...'}
                 disabled={isWaitingForResponse}
-              >
-                {isWaitingForResponse ? 'HOLD' : 'Send'}
-              </button>
+                ref={inputRef}
+              />
+              <div className="input-group-append">
+                <button
+                  onClick={sendMessage}
+                  className={`btn ${isWaitingForResponse ? 'btn-secondary' : 'btn-primary'}`}
+                  disabled={isWaitingForResponse}
+                >
+                  {isWaitingForResponse ? 'HOLD' : 'Send'}
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </center>
     </div>
   );
 };
