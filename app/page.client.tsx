@@ -19,7 +19,7 @@ const ChatMessage = ({ message }: { message: Message }) => {
     <div className={`my-2 ${messageClass}`}>
       <div className={`rounded p-2 text-sm`}>
         <div className={`mb-1 ${senderClass}`}>
-          {message.sender}
+          {message.sender === 'User' ? 'Me' : 'Gandalf'}
         </div>
         {message.text}
       </div>
