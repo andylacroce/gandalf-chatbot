@@ -113,8 +113,7 @@ const Page: React.FC = () => {
                 onChange={handleInputChange}
                 onKeyDown={handleInputKeyDown}
                 className="form-control"
-                placeholder={isWaitingForResponse ? 'Please wait...' : 'Type your message here...'}
-                disabled={isWaitingForResponse}
+                placeholder = 'Type in your message here...'
                 ref={inputRef}
               />
               <div className="input-group-append">
