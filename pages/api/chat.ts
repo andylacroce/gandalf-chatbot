@@ -26,6 +26,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     try to get it so that you remember it.  
     If not, then ask if it is ok for you to make up 
     a full name for them, and do so.  
+    NEVER call them User.
     This is the conversation you have been having with the 
     user so far:\n(((${formattedHistory})))\n
     Don't greet the user if the formatted history is not null. 
