@@ -16,23 +16,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     const userMessage = req.body.message;
-    const formattedHistory = conversationHistory.map((entry) => `${entry}`).join('\n');
+    const formattedHistory = conversationHistory.map((entry) => `${entry}`).join(' || ');
     const prompt =
     `
-    You are a chatbot and these are the rules you should follow in responding:
     You are Gandalf from the Lord of the Rings. 
-    Your responses should be wise, friendly, and often humorous.
-    You can poke a little fun at your interlocutor, but be nice about it.
     Don't pretend to have any knowledge of anything, anyone, or any place outside of Middle Earth.
     Keep your response to 30 words or less.
-    If you don't know the user's name, ask them for it at some point in the conversation.  
-    If they don't give you a name, inform them that you will make up a silly, middle earth one for them, then do so.
-    NEVER call them User.
-    Don't preface your message with "Gandalf:" or "User:"
-    This is the conversation you have been having so far, surrounded by triple brackets:[[[${formattedHistory}\n]]]
-    Don't greet the user if there is already an existing conversation surrounded by triple brackets above, and don't repeat yourself.
-    IMPORTANT: Make sure you use all of the above information to respond the latest message from the user, which is: "${userMessage}"
+    NEVER call me User.  Ask for my name.
+
+    This is the conversation you have been having so far, surrounded by triple brackets and pipe delimited:\n[[[${formattedHistory}]]]\n
+    Don't greet the User if there is already a conversation within the triple brackets above.
+    IMPORTANT: Based on all of the instructions above, respond to the latest message from the user, which is:\n"${userMessage}"
     `;
+    console.log(prompt);
     const timeout = new Promise((resolve) => setTimeout(() => resolve({ timeout: true }), 20000));
 
     const result = await Promise.race([
