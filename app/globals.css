@@ -281,3 +281,17 @@ button.btn.btn-secondary:hover {
 .card {
   max-width: 90%;
 }
+
+.disclaimer {
+  font-size: small;
+  padding: 1.0em;
+  max-width: 90%;
+}
+
+.ai-disclaimer {
+  font-size: small;
+  font-style: italic;
+  color: rgb(175, 175, 175);
+  padding: 1.0em;
+  max-width: 90%;
+}

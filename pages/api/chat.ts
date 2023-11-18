@@ -37,7 +37,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     This is the new message you need to respond to: \n${userMessage}\n
     `;
 
-    const timeout = new Promise((resolve) => setTimeout(() => resolve({ timeout: true }), 15000));
+    const timeout = new Promise((resolve) => setTimeout(() => resolve({ timeout: true }), 20000));
 
     const result = await Promise.race([
       openai.chat.completions.create({
@@ -57,7 +57,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const gandalfReply = result.choices[0]?.message?.content?.trim() ?? '';
       conversationHistory.push(`User: ${userMessage}`);
       conversationHistory.push(`Gandalf: ${gandalfReply}`);
-      console.log(conversationHistory);
 
       res.status(200).json({ reply: gandalfReply });
     } else {

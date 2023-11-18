@@ -128,6 +128,21 @@ const Page: React.FC = () => {
             </div>
           </div>
         </div>
+        <div className="disclaimer">
+            Take heed:
+            Gandalf is busy keeping the forces of evil at bay. 
+            He may take up to 20 seconds to respond, or ask you to repeat.
+            Do not fret!  He will respond precisely when he means to!
+        </div>
+        <div className="ai-disclaimer">
+            Disclaimer: Please be aware this content is generated 
+            by ChatGPT and may contain errors, inconsistencies, or outdated information. 
+            It is provided as-is without any warranties or guarantees of accuracy. 
+            We strongly recommend using this content as a starting point for further research 
+            and consultation with relevant experts or authorities. We disclaim any liability 
+            for damages or losses resulting from the use or reliance on this content.
+        </div>
+
       </center>
     </div>
   );
