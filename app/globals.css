@@ -2,24 +2,17 @@
 
 /* CSS Variables */
 :root {
-  --font-primary: 'Merriweather', serif;
-  /* Traditional serif font */
-  --color-background: #f0e6d6;
-  /* Parchment-like background color */
-  --color-text: #3a3a3c;
-  /* Darker text color for contrast */
-  --heading-font-size: 2.2rem;
-  /* Larger heading size */
-  --chatbox-background: #faf8f5;
-  /* Light chatbox background */
-  --user-message-bg: #c7d4c5;
-  /* Earthy green for user messages */
-  --gandalf-message-bg: #e8dfd6;
-  /* Light beige for Gandalf messages */
-  --button-bg: #8b7f70;
-  /* Muted brown for buttons */
-  --button-hover-bg: #72695c;
-  /* Darker brown for button hover */
+  --font-primary: 'Merriweather', serif; /* Traditional serif font */
+  --color-background: #f0e6d6; /* Parchment-like background color */
+  --color-text: #3a3a3c; /* Darker text color for contrast */
+  --heading-font-size: 2.2rem; /* Larger heading size */
+  --chatbox-background: #faf8f5; /* Light chatbox background */
+  --user-message-bg: #c7d4c5; /* Earthy green for user messages */
+  --gandalf-message-bg: #e8dfd6; /* Light beige for Gandalf messages */
+  --button-bg: #8b7f70; /* Muted brown for buttons */
+  --button-hover-bg: #72695c; /* Darker brown for button hover */
+  --disabled-bg: #b8b8b8; /* Disabled background color */
+  --disabled-text: #747474; /* Disabled text color */
 }
 
 /* Basic Reset */
@@ -37,7 +30,7 @@ body {
 
 /* Bootstrap Overrides and Middle Earth Styling */
 .container {
-  max-width: var(--container-max-width);
+  max-width: 960px; /* Adjusted to a specific value */
 }
 
 /* Headings Styles */
@@ -88,150 +81,18 @@ h1 {
 
 .chatbox button {
   width: 20%;
-  background: var(--button-bg);
-  color: white;
-  /* Ensure text is visible on the button */
+  background-color: var(--button-bg);
+  color: white; /* Ensure text is visible on the button */
 }
 
 .chatbox button:hover {
-  background: var(--button-hover-bg);
-}
-
-/* Disabled Styles */
-.chatbox button[disabled],
-.chatbox input[disabled] {
-  background: var(--disabled-bg);
-  color: var(--disabled-text);
-}
-
-/* Sender Styles */
-.user-sender,
-.gandalf-sender {
-  font-weight: bold;
-}
-
-
-/* Override Bootstrap's btn-primary class */
-button.btn.btn-primary {
-  margin-left: .5em;
-  background-color: var(--button-bg);
-  /* Custom background color */
-  border-color: var(--button-bg);
-  /* Custom border color */
-  color: white;
-  /* Text color */
-}
-
-button.btn.btn-primary:hover {
   background-color: var(--button-hover-bg);
-  /* Custom hover background color */
-  border-color: var(--button-hover-bg);
-  /* Custom hover border color */
-}
-
-/* globals.css - Middle Earth Themed Version */
-
-/* CSS Variables */
-:root {
-  --font-primary: 'Merriweather', serif;
-  /* Traditional serif font */
-  --color-background: #f0e6d6;
-  /* Parchment-like background color */
-  --color-text: #3a3a3c;
-  /* Darker text color for contrast */
-  --heading-font-size: 2.2rem;
-  /* Larger heading size */
-  --chatbox-background: #faf8f5;
-  /* Light chatbox background */
-  --user-message-bg: #c7d4c5;
-  /* Earthy green for user messages */
-  --gandalf-message-bg: #e8dfd6;
-  /* Light beige for Gandalf messages */
-  --button-bg: #8b7f70;
-  /* Muted brown for buttons */
-  --button-hover-bg: #72695c;
-  /* Darker brown for button hover */
-}
-
-/* Basic Reset */
-* {
-  box-sizing: border-box;
-}
-
-/* Body Style */
-body {
-  font-family: var(--font-primary);
-  background-color: var(--color-background);
-  color: var(--color-text);
-  line-height: 1.2;
-}
-
-/* Bootstrap Overrides and Middle Earth Styling */
-.container {
-  max-width: var(--container-max-width);
-}
-
-/* Headings Styles */
-h1 {
-  font-size: var(--heading-font-size);
-  color: var(--color-text);
-}
-
-/* Chatbox General Styles */
-.chatbox {
-  background-color: var(--chatbox-background);
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-}
-
-/* Chatbox Messages Styles */
-.chatbox-messages {
-  max-height: 600px;
-  overflow-y: auto;
-}
-
-/* Message Bubble Styles */
-.user-message,
-.gandalf-message {
-  background-color: transparent;
-  padding: 10px;
-  border-radius: 4px;
-}
-
-.user-message {
-  background-color: var(--user-message-bg);
-  text-align: right;
-}
-
-.gandalf-message {
-  background-color: var(--gandalf-message-bg);
-  text-align: left;
-}
-
-/* Chatbox Input and Button Styles */
-.chatbox input.form-control,
-.chatbox .input-group-append button {
-  width: 80%;
-  padding: 10px;
-  border: none;
-  border-radius: 0;
-}
-
-.chatbox .input-group-append button {
-  width: 20%;
-  background: var(--button-bg);
-  color: white;
-  /* Ensure text is visible on the button */
-}
-
-.chatbox .input-group-append button:hover {
-  background: var(--button-hover-bg);
 }
 
 /* Disabled Styles */
 .chatbox button[disabled],
 .chatbox input[disabled] {
-  background: var(--disabled-bg);
+  background-color: var(--disabled-bg);
   color: var(--disabled-text);
 }
 
@@ -245,53 +106,29 @@ h1 {
 .chatbox .btn-primary,
 .chatbox .btn-secondary {
   background-color: var(--button-bg);
-  /* Custom background color */
   border-color: var(--button-bg);
-  /* Custom border color */
   color: white;
-  /* Text color */
 }
 
 .chatbox .btn-primary:hover,
 .chatbox .btn-secondary:hover {
   background-color: var(--button-hover-bg);
-  /* Custom hover background color */
   border-color: var(--button-hover-bg);
-  /* Custom hover border color */
 }
 
-
-/* Override Bootstrap's btn-secondary class */
-button.btn.btn-secondary {
-  background-color: #6c757d;
-  /* Custom background color */
-  border-color: #6c757d;
-  /* Custom border color */
-  color: white;
-  /* Text color */
-}
-
-button.btn.btn-secondary:hover {
-  background-color: #5a6268;
-  /* Custom hover background color */
-  border-color: #5a6268;
-  /* Custom hover border color */
-}
-
+/* Additional Styles */
 .card {
   max-width: 90%;
 }
 
-.disclaimer {
+.disclaimer,
+.ai-disclaimer {
   font-size: small;
   padding: 1.0em;
   max-width: 90%;
 }
 
 .ai-disclaimer {
-  font-size: small;
   font-style: italic;
   color: rgb(175, 175, 175);
-  padding: 1.0em;
-  max-width: 90%;
 }

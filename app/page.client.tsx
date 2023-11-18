@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import './globals.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './globals.css';
 import Image from 'next/image';
 
 // Interface for messages
