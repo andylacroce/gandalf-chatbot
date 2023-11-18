@@ -30,7 +30,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     NEVER call them User.
     Don't preface your message with "Gandalf:" or "User:"
     This is the conversation you have been having so far, surrounded by triple brackets:[[[${formattedHistory}\n]]]
-    Don't greet the user if there is already an existing conversation surrounded by triple brackets above.
+    Don't greet the user if there is already an existing conversation surrounded by triple brackets above, and don't repeat yourself.
     IMPORTANT: Make sure you use all of the above information to respond the latest message from the user, which is: "${userMessage}"
     `;
     const timeout = new Promise((resolve) => setTimeout(() => resolve({ timeout: true }), 20000));
