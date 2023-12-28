@@ -3,6 +3,7 @@ import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './globals.css';
 import Image from 'next/image';
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 // Interface for messages
 interface Message {
