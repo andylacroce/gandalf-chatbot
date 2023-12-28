@@ -3,6 +3,7 @@ import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './globals.css';
 import Image from 'next/image';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 // Interface for messages
 interface Message {
@@ -88,6 +89,7 @@ const Page: React.FC = () => {
   };
 
   return (
+    <><SpeedInsights />
     <div className="container mt-5">
       <center>
         <Image
@@ -113,9 +115,8 @@ const Page: React.FC = () => {
                 onChange={handleInputChange}
                 onKeyDown={handleInputKeyDown}
                 className="form-control"
-                placeholder = 'Type in your message here...'
-                ref={inputRef}
-              />
+                placeholder='Type in your message here...'
+                ref={inputRef} />
               <div className="input-group-append">
                 <button
                   onClick={sendMessage}
@@ -129,22 +130,22 @@ const Page: React.FC = () => {
           </div>
         </div>
         <div className="disclaimer">
-            Take heed:
-            Gandalf is busy keeping the forces of evil at bay. 
-            He may take up to 20 seconds to respond, or ask you to repeat.
-            Do not fret!  He will respond precisely when he means to!
+          Take heed:
+          Gandalf is busy keeping the forces of evil at bay.
+          He may take up to 20 seconds to respond, or ask you to repeat.
+          Do not fret!  He will respond precisely when he means to!
         </div>
         <div className="ai-disclaimer">
-            Disclaimer: Please be aware this content is generated 
-            by ChatGPT and may contain errors, inconsistencies, or outdated information. 
-            It is provided as-is without any warranties or guarantees of accuracy. 
-            We strongly recommend using this content as a starting point for further research 
-            and consultation with relevant experts or authorities. We disclaim any liability 
-            for damages or losses resulting from the use or reliance on this content.
+          Disclaimer: Please be aware this content is generated
+          by ChatGPT and may contain errors, inconsistencies, or outdated information.
+          It is provided as-is without any warranties or guarantees of accuracy.
+          We strongly recommend using this content as a starting point for further research
+          and consultation with relevant experts or authorities. We disclaim any liability
+          for damages or losses resulting from the use or reliance on this content.
         </div>
 
       </center>
-    </div>
+    </div></>
   );
 };
 
