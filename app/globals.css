@@ -1,7 +1,7 @@
 /* globals.css - Middle Earth Themed Version */
 
 :root {
-  --font-primary: 'Merriweather', serif;
+  --font-primary: 'Cinzel', serif;
   --color-background: #1e3441; /* Dark slate blue, like a stormy sea */
   --color-text: #000000; /* Black text color for contrast against the light bubble backgrounds */
   --heading-font-size: 2.2rem;
@@ -114,7 +114,7 @@ h1 {
 
 .disclaimer,
 .ai-disclaimer {
-  font-size: small;
+  font-size: 1em;
   padding: 1.0em;
   max-width: 90%;
   color: rgb(255, 255, 255);
