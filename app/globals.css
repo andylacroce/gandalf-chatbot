@@ -21,6 +21,13 @@
 }
 
 /* Body Style */
+html, body {
+  height: 100%;
+  min-height: 100vh; /* Fallback for browsers that do not support fill-available */
+  min-height: -webkit-fill-available; /* Fixes viewport height in iOS Safari */
+  margin: 0; /* Resets any default margin */
+}
+
 body {
   font-family: var(--font-primary);
   background-color: var(--color-background);
@@ -44,11 +51,12 @@ h1 {
   background-color: var(--chatbox-background);
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  padding-bottom: env(safe-area-inset-bottom); /* Use environment variables for safe areas on mobile */
 }
 
 /* Chatbox Messages Styles */
 .chatbox-messages {
-  max-height: 600px;
+  max-height: 50vh; /* Adjusted to ensure visibility above the mobile keyboard */
   overflow-y: auto;
 }
 
@@ -73,10 +81,13 @@ h1 {
 /* Chatbox Input and Button Styles */
 .chatbox input.form-control,
 .chatbox button {
-  width: 80%;
   padding: 10px;
   border: none;
   border-radius: 0;
+}
+
+.chatbox input.form-control {
+  width: calc(100% - 20%);
 }
 
 .chatbox button {
