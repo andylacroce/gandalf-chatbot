@@ -41,6 +41,9 @@ h1 {
 }
 
 .chatbox-messages {
+  display: flex;
+  flex-direction: column; /* Stack messages from bottom to top */
+  justify-content: end; /* Align content to bottom */
   max-height: 600px;
   overflow-y: auto;
 }
