@@ -2,16 +2,16 @@
 
 :root {
   --font-primary: 'Merriweather', serif;
-  --color-background: #eae0d5; /* Warm, soft beige */
-  --color-text: #3c3629; /* Dark brown reminiscent of fertile soil */
+  --color-background: #1e3441; /* Dark slate blue, like a stormy sea */
+  --color-text: #000000; /* Black text color for contrast against the light bubble backgrounds */
   --heading-font-size: 2.2rem;
-  --chatbox-background: #d8cfc4; /* Lighter shade of earth */
-  --user-message-bg: #a3bfa8; /* Sage green, evoking lush foliage */
-  --gandalf-message-bg: #c5beb4; /* Muted taupe, versatile and subdued */
-  --button-bg: #8a7967; /* Deep khaki, inspired by tree bark */
-  --button-hover-bg: #746950; /* Even deeper shade for hover effect */
-  --disabled-bg: #ccc2b2; /* Pale brown like dry clay */
-  --disabled-text: #93867f; /* Greyish-brown, as if weather-worn stone */
+  --chatbox-background: #2a475e; /* Navy bluish-grey, reminiscent of a wizard's cloak in the twilight */
+  --user-message-bg: #d0dae3; /* Light greyish-blue that is soft to the eye at dawn */
+  --gandalf-message-bg: #c5ced9; /* Slightly lighter shade, well suited for elegant black text */
+  --button-bg: #5b788e; /* Steel blue with a touch of green, like weathered copper */
+  --button-hover-bg: #507180; /* A darker shade that suggests an enigmatic presence for hover effect */
+  --disabled-bg: #3e5567; /* Dark greyish-blue like distant mountains */
+  --disabled-text: #cad2d3; /* Pale silver-grey, stands out on dark backgrounds while suggesting aged wisdom */
 }
 
 * {
@@ -47,6 +47,7 @@ h1 {
 
 .user-message,
 .gandalf-message {
+  color: var(--color-text);
   padding: 10px;
   border-radius: 4px;
 }
@@ -116,6 +117,7 @@ h1 {
   font-size: small;
   padding: 1.0em;
   max-width: 90%;
+  color: rgb(255, 255, 255);
 }
 
 .ai-disclaimer {
