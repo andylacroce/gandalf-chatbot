@@ -90,56 +90,47 @@ const Page: React.FC = () => {
 
   return (
     <><SpeedInsights />
-    <div className="container mt-5">
-      <center>
-        <Image
-          src="/gandalf.jpg" // Assuming the image is in the 'public' folder
-          alt="Image of Gandalf"
-          width={150}
-          height={180}
-          layout="fixed" // Optional: you can specify different layout modes
-        /><br /><br />
-        <div className="card">
-          <div className="card-body">
-            <div className="chatbox-messages" ref={chatWindowRef} style={{ height: '400px', overflowY: 'auto' }}>
-              {messages.map((message, index) => (
-                <ChatMessage key={index} message={message} />
-              ))}
+      <div className="container mt-5">
+        <center>
+          <Image
+            src="/gandalf.jpg" // Assuming the image is in the 'public' folder
+            alt="Image of Gandalf"
+            width={150}
+            height={180}
+            layout="fixed" // Optional: you can specify different layout modes
+          /><br /><br />
+          <div className="card">
+            <div className="card-body">
+              <div className="chatbox-messages">
+                {messages.map((message, index) => (
+                  <ChatMessage key={index} message={message} />
+                ))}
+              </div>
             </div>
-          </div>
-          <div className="card-footer">
-            <div className="input-group">
-              <input
-                type="text"
-                value={input}
-                onChange={handleInputChange}
-                onKeyDown={handleInputKeyDown}
-                className="form-control"
-                placeholder='Type in your message here...'
-                ref={inputRef} />
-              <div className="input-group-append">
-                <button
-                  onClick={sendMessage}
-                  className={`btn ${isWaitingForResponse ? 'btn-secondary' : 'btn-primary'}`}
-                  disabled={isWaitingForResponse}
-                >
-                  {isWaitingForResponse ? 'HOLD' : 'Send'}
-                </button>
+            <div className="card-footer">
+              <div className="input-group">
+                <input
+                  type="text"
+                  value={input}
+                  onChange={handleInputChange}
+                  onKeyDown={handleInputKeyDown}
+                  className="form-control"
+                  placeholder='Type in your message here...'
+                  ref={inputRef} />
+                <div className="input-group-append">
+                  <button
+                    onClick={sendMessage}
+                    className={`btn ${isWaitingForResponse ? 'btn-secondary' : 'btn-primary'}`}
+                    disabled={isWaitingForResponse}
+                  >
+                    {isWaitingForResponse ? 'HOLD' : 'Send'}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <div className="ai-disclaimer">
-          Disclaimer: Please be aware this content is generated
-          by ChatGPT and may contain errors, inconsistencies, or outdated information.
-          It is provided as-is without any warranties or guarantees of accuracy.
-          We strongly recommend using this content as a starting point for further research
-          and consultation with relevant experts or authorities. We disclaim any liability
-          for damages or losses resulting from the use or reliance on this content.
-        </div>
-
-      </center>
-    </div></>
+        </center>
+      </div></>
   );
 };
 

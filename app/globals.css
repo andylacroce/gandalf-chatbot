@@ -4,17 +4,14 @@
 :root {
   --font-primary: 'Alegreya', serif;
   --font-gandalf: 'Lora', serif;
-
   --color-background: #0E131F;
   --color-text: #FEFBF3;
-
+  --card-body-bg: #1C1C1C;
   --chatbox-background: #162A3A;
   --user-message-bg: #5583b4;
-  --gandalf-message-bg: #9dbdce;
-
+  --gandalf-message-bg: #DAD7CD;
   --button-bg: #34515E;
   --button-hover-bg: #56707C;
-
   --disabled-bg: #273D49;
   --disabled-text: #5B6975;
 }
@@ -34,14 +31,8 @@ body {
   max-width: 600px;
 }
 
-.card,
-.disclaimer,
-.ai-disclaimer {
+.card {
   max-width: 90%;
-}
-
-h1 {
-  font-size: var(--heading-font-size);
 }
 
 .chatbox {
@@ -54,7 +45,7 @@ h1 {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  height: 600px;
+  height: 400px;
   overflow-y: auto;
 }
 
@@ -75,10 +66,10 @@ h1 {
   font-family: var(--font-gandalf);
 }
 
-.chatbox input.form-control,
-.chatbox button,
-.chatbox .btn-primary,
-.chatbox .btn-secondary {
+input.form-control,
+button,
+.btn-primary,
+.btn-secondary {
   padding: 10px;
   border: none;
   color: white;
@@ -89,14 +80,14 @@ h1 {
   margin-left: 10px;
 }
 
-.chatbox button:hover,
-.chatbox .btn-primary:hover,
-.chatbox .btn-secondary:hover {
+button:hover,
+.btn-primary:hover,
+.btn-secondary:hover {
   background-color: var(--button-hover-bg);
 }
 
-.chatbox button[disabled],
-.chatbox input[disabled] {
+button[disabled],
+input[disabled] {
   background-color: var(--disabled-bg);
   color: var(--disabled-text);
 }
@@ -107,9 +98,7 @@ h1 {
   font-size: x-large;
 }
 
-.ai-disclaimer {
-  font-size: 1em;
-  padding: 1.0em;
-  font-style: italic;
-  color: #AFBFBF;
+.card-body,
+.card-footer {
+  background-color: var(--card-body-bg);
 }
