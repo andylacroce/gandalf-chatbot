@@ -1,19 +1,18 @@
-@import url('https://fonts.googleapis.com/css2?family=Alegreya:wght@400;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IM+Fell+DW+Pica&family=Cormorant+Garamond:wght@400;700&display=swap');
 
 :root {
-  --font-primary: 'Alegreya', serif;
-  --font-gandalf: 'Lora', serif;
-  --color-background: #0E131F;
-  --color-text: #FEFBF3;
-  --card-body-bg: #1C1C1C;
-  --chatbox-background: #162A3A;
-  --user-message-bg: #5583b4;
-  --gandalf-message-bg: #DAD7CD;
-  --button-bg: #34515E;
-  --button-hover-bg: #56707C;
-  --disabled-bg: #273D49;
-  --disabled-text: #5B6975;
+  --font-primary: 'Cormorant Garamond', serif;
+  --font-gandalf: 'IM Fell DW Pica', serif;
+  --color-background: #283036;
+  --color-text: #ffffff;
+  --card-body-bg: #3A3A38;
+  --chatbox-background: #2F373F;
+  --user-message-bg: #505C53;
+  --gandalf-message-bg: #7a9280;
+  --button-bg: #4F6258;
+  --button-hover-bg: #687D70;
+  --disabled-bg: #434D49;
+  --disabled-text: #A0A096;
 }
 
 * {
@@ -23,7 +22,6 @@
 body {
   font-family: var(--font-primary);
   background-color: var(--color-background);
-  color: var(--color-text);
   line-height: 1.2;
 }
 
@@ -43,9 +41,10 @@ body {
 
 .chatbox-messages {
   display: flex;
+  color: var(--color-text);
   flex-direction: column;
   justify-content: flex-end;
-  height: 400px;
+  height: 550px;
   overflow-y: auto;
 }
 
@@ -53,6 +52,7 @@ body {
 .gandalf-message {
   padding: 10px;
   border-radius: 4px;
+  font-size: large;
 }
 
 .user-message {
