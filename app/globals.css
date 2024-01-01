@@ -107,14 +107,9 @@ h1 {
   font-size: x-large;
 }
 
-.disclaimer,
 .ai-disclaimer {
   font-size: 1em;
   padding: 1.0em;
-  color: white;
-}
-
-.ai-disclaimer {
   font-style: italic;
   color: #AFBFBF;
 }
