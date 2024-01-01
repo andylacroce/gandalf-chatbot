@@ -1,17 +1,22 @@
-/* globals.css - Middle Earth Themed Version */
+@import url('https://fonts.googleapis.com/css2?family=Alegreya:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;700&display=swap');
 
 :root {
-  --font-primary: 'Cinzel', serif;
-  --color-background: #1e3441; /* Dark slate blue, like a stormy sea */
-  --color-text: #000000; /* Black text color for contrast against the light bubble backgrounds */
-  --heading-font-size: 2.2rem;
-  --chatbox-background: #2a475e; /* Navy bluish-grey, reminiscent of a wizard's cloak in the twilight */
-  --user-message-bg: #d0dae3; /* Light greyish-blue that is soft to the eye at dawn */
-  --gandalf-message-bg: #c5ced9; /* Slightly lighter shade, well suited for elegant black text */
-  --button-bg: #5b788e; /* Steel blue with a touch of green, like weathered copper */
-  --button-hover-bg: #507180; /* A darker shade that suggests an enigmatic presence for hover effect */
-  --disabled-bg: #3e5567; /* Dark greyish-blue like distant mountains */
-  --disabled-text: #cad2d3; /* Pale silver-grey, stands out on dark backgrounds while suggesting aged wisdom */
+  --font-primary: 'Alegreya', serif;
+  --font-gandalf: 'Lora', serif;
+
+  --color-background: #0E131F;
+  --color-text: #FEFBF3;
+
+  --chatbox-background: #162A3A;
+  --user-message-bg: #5583b4;
+  --gandalf-message-bg: #9dbdce;
+
+  --button-bg: #34515E;
+  --button-hover-bg: #56707C;
+
+  --disabled-bg: #273D49;
+  --disabled-text: #5B6975;
 }
 
 * {
@@ -26,12 +31,17 @@ body {
 }
 
 .container {
-  max-width: 960px;
+  max-width: 600px;
+}
+
+.card,
+.disclaimer,
+.ai-disclaimer {
+  max-width: 90%;
 }
 
 h1 {
   font-size: var(--heading-font-size);
-  color: var(--color-text);
 }
 
 .chatbox {
@@ -42,15 +52,14 @@ h1 {
 
 .chatbox-messages {
   display: flex;
-  flex-direction: column; /* Stack messages from bottom to top */
-  justify-content: flex-end; /* Align content to bottom */
+  flex-direction: column;
+  justify-content: flex-end;
   height: 600px;
   overflow-y: auto;
 }
 
 .user-message,
 .gandalf-message {
-  color: var(--color-text);
   padding: 10px;
   border-radius: 4px;
 }
@@ -63,25 +72,26 @@ h1 {
 .gandalf-message {
   background-color: var(--gandalf-message-bg);
   text-align: left;
+  font-family: var(--font-gandalf);
 }
 
 .chatbox input.form-control,
-.chatbox button {
+.chatbox button,
+.chatbox .btn-primary,
+.chatbox .btn-secondary {
   padding: 10px;
   border: none;
-  border-radius: 0;
-}
-
-.chatbox button {
-  background-color: var(--button-bg);
   color: white;
+  background-color: var(--button-bg);
 }
 
 .input-group .btn {
   margin-left: 10px;
 }
 
-.chatbox button:hover {
+.chatbox button:hover,
+.chatbox .btn-primary:hover,
+.chatbox .btn-secondary:hover {
   background-color: var(--button-hover-bg);
 }
 
@@ -94,36 +104,17 @@ h1 {
 .user-sender,
 .gandalf-sender {
   font-weight: bold;
-}
-
-.chatbox .btn-primary,
-.chatbox .btn-secondary,
-.chatbox .btn-primary:hover,
-.chatbox .btn-secondary:hover {
-  background-color: var(--button-bg);
-  border-color: var(--button-bg);
-  color: white;
-}
-
-.chatbox .btn-primary:hover,
-.chatbox .btn-secondary:hover {
-  background-color: var(--button-hover-bg);
-  border-color: var(--button-hover-bg);
-}
-
-.card {
-  max-width: 90%;
+  font-size: x-large;
 }
 
 .disclaimer,
 .ai-disclaimer {
   font-size: 1em;
   padding: 1.0em;
-  max-width: 90%;
-  color: rgb(255, 255, 255);
+  color: white;
 }
 
 .ai-disclaimer {
   font-style: italic;
-  color: rgb(175, 175, 175);
+  color: #AFBFBF;
 }

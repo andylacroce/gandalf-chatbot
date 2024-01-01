@@ -4,38 +4,41 @@ import OpenAI from 'openai';
 // Create a variable to store the conversation history
 let conversationHistory: string[] = [];
 
+// Initialize the OpenAI client outside of the handler
+const openai = new OpenAI({
+  apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
+});
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST']);
     return res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 
-  const openai = new OpenAI({
-    apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
-  });
-
   try {
     const userMessage = req.body.message;
-    const formattedHistory = conversationHistory.map((entry) => `${entry}`).join(' || ');
-    const prompt =
-    `
-    You are Gandalf from the Lord of the Rings. 
-    Don't pretend to have any knowledge of anything, anyone, or any place outside of Middle Earth.
-    Keep your response to 30 words or less.
-    NEVER call your interlocutor "User".  Also, don't include your name or the user's name followed by a colon prefixed to responses.
+    conversationHistory.push(`Your Interlocutor: ${userMessage}`);
+    
+    // Optionally, limit the history size to prevent excessive growth
+    const maxHistorySize = 50; // example limit
+    if (conversationHistory.length > maxHistorySize) {
+      conversationHistory = conversationHistory.slice(-maxHistorySize);
+    }
 
-    This is the conversation you have been having so far, surrounded by triple brackets and pipe delimited:\n[[[${formattedHistory}]]]\n
-    Don't greet the User if there is already a conversation within the triple brackets above.
-    IMPORTANT: Based on all of the instructions above, respond to the latest message from the user, which is:\n"${userMessage}"
+    const prompt = `
+    You are Gandalf from the Lord of the Rings. Your knowledge is limited to Middle Earth. Be concise with responses being no more than 50 words.
+    DO NOT start your response with "Gandalf:" or any other name followed by a colon.  
+
+    ${conversationHistory.length > 0 ? `Here is the conversation up to this point:\n\n${conversationHistory.join('\n')}\n` : ''}
     `;
-    console.log(prompt);
+    
     const timeout = new Promise((resolve) => setTimeout(() => resolve({ timeout: true }), 20000));
 
     const result = await Promise.race([
       openai.chat.completions.create({
         model: "gpt-3.5-turbo",
-        messages: [{ "role": "user", "content": prompt }],
-        max_tokens: 50,
+        messages: [{ role: "system", content: prompt }],
+        max_tokens: 250,
       }),
       timeout
     ]);
@@ -44,12 +47,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(408).json({ reply: 'Request timed out.' });
     }
 
-    // Check if the result has the 'choices' property and handle it as an array
     if (result && typeof result === 'object' && 'choices' in result && Array.isArray(result.choices)) {
       const gandalfReply = result.choices[0]?.message?.content?.trim() ?? '';
-      conversationHistory.push(`User: ${userMessage}`);
       conversationHistory.push(`Gandalf: ${gandalfReply}`);
-
+      console.log(prompt)
       res.status(200).json({ reply: gandalfReply });
     } else {
       throw new Error('Invalid response');
