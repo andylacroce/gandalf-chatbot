@@ -99,7 +99,7 @@ const Page: React.FC = () => {
                   className="form-control"
                   placeholder="Type in your message here..."
                   ref={inputRef}
-                />
+                />&nbsp;
                 <div className="input-group-append">
                   <button
                     onClick={sendMessage}
