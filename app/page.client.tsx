@@ -77,7 +77,7 @@ const Page: React.FC = () => {
         <center>
           <Image
             src="/gandalf.jpg"
-            alt="Image of Gandalf"
+            alt="Gandalf"
             width={150}
             height={180}
           /><br /><br />

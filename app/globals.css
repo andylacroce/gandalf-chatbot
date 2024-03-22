@@ -1,104 +1,111 @@
-@import url('https://fonts.googleapis.com/css2?family=IM+Fell+DW+Pica&family=Cormorant+Garamond:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,700;1,400;1,700&family=IM+Fell+DW+Pica&display=swap');
 
 :root {
-  --font-primary: 'Cormorant Garamond', serif;
+  --font-primary: 'Lora', serif; /* Changed for better readability */
   --font-gandalf: 'IM Fell DW Pica', serif;
-  --color-background: #283036;
-  --color-text: #ffffff;
-  --card-body-bg: #3A3A38;
-  --chatbox-background: #2F373F;
-  --user-message-bg: #505C53;
-  --gandalf-message-bg: #7a9280;
-  --button-bg: #4F6258;
-  --button-hover-bg: #687D70;
-  --disabled-bg: #434D49;
-  --disabled-text: #A0A096;
+  --color-background: #303841; /* Lightened for contrast */
+  --color-text: #E1E1E6; /* Darkened for readability */
+  --card-body-bg: #3E4C59; /* Adjusted for contrast */
+  --chatbox-background: #354B60; /* Adjusted for softer contrast */
+  --user-message-bg: #627C85; /* Lightened for contrast */
+  --gandalf-message-bg: #8299A1; /* Lightened for readability */
+  --button-bg: #5A6D7C; /* Adjusted to fit the theme */
+  --button-hover-bg: #6B8094; /* Lightened for visibility */
+  --disabled-bg: #49565E; /* Adjusted for clarity */
+  --disabled-text: #A8A8A8; /* Darkened for readability */
 }
 
 * {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
   font-family: var(--font-primary);
+  font-size: 18px; /* Increased for readability */
   background-color: var(--color-background);
-  line-height: 1.2;
+  color: var(--color-text);
+  line-height: 1.6;
+  padding: 20px;
 }
 
 .container {
-  max-width: 600px;
+  max-width: 90%;
+  margin: auto;
+  padding: 0 20px;
+}
+
+@media (min-width: 768px) {
+  .container {
+    max-width: 700px;
+  }
 }
 
 .card {
-  max-width: 90%;
+  background-color: var(--card-body-bg);
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  overflow: hidden;
 }
 
 .chatbox {
+  display: flex;
+  flex-direction: column;
   background-color: var(--chatbox-background);
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .chatbox-messages {
-  display: flex;
-  color: var(--color-text);
-  flex-direction: column;
-  justify-content: flex-end;
-  height: 550px;
+  flex-grow: 1;
   overflow-y: auto;
+  padding: 10px;
+  height: 55vh;
 }
 
 .user-message,
 .gandalf-message {
+  margin: 5px 0;
   padding: 10px;
-  border-radius: 4px;
-  font-size: large;
+  border-radius: 12px;
+  font-size: 1rem; /* Adjusted for consistency */
 }
 
 .user-message {
   background-color: var(--user-message-bg);
-  text-align: right;
+  align-self: flex-end;
 }
 
 .gandalf-message {
   background-color: var(--gandalf-message-bg);
-  text-align: left;
+  align-self: flex-start;
   font-family: var(--font-gandalf);
 }
 
-input.form-control,
-button,
-.btn-primary,
-.btn-secondary {
+input.form-control {
+  width: calc(100% - 90px);
   padding: 10px;
-  border: none;
-  color: white;
-  background-color: var(--button-bg);
+  border: 2px solid var(--button-bg);
+  border-radius: 8px;
+  margin-right: 10px;
 }
 
-.input-group .btn {
-  margin-left: 10px;
+button,
+.btn-primary {
+  padding: 10px 15px;
+  background-color: var(--button-bg);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
 }
 
 button:hover,
-.btn-primary:hover,
-.btn-secondary:hover {
+.btn-primary:hover {
   background-color: var(--button-hover-bg);
 }
 
-button[disabled],
-input[disabled] {
+button[disabled] {
   background-color: var(--disabled-bg);
   color: var(--disabled-text);
-}
-
-.user-sender,
-.gandalf-sender {
-  font-weight: bold;
-  font-size: x-large;
-}
-
-.card-body,
-.card-footer {
-  background-color: var(--card-body-bg);
 }
