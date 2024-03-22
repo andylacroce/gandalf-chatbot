@@ -50,7 +50,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (result && typeof result === 'object' && 'choices' in result && Array.isArray(result.choices)) {
       const gandalfReply = result.choices[0]?.message?.content?.trim() ?? '';
       conversationHistory.push(`Gandalf: ${gandalfReply}`);
-      console.log(prompt)
+      // console.log(prompt)
       res.status(200).json({ reply: gandalfReply });
     } else {
       throw new Error('Invalid response');
