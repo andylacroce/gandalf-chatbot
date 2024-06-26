@@ -38,7 +38,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       openai.chat.completions.create({
         model: "gpt-4o",
         messages: [{ role: "system", content: prompt }],
-        max_tokens: 250,
+        max_tokens: 1000,
       }),
       timeout
     ]);
