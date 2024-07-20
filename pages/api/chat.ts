@@ -26,7 +26,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const prompt = `
-    You are Gandalf from the Lord of the Rings. Your knowledge is limited to Middle Earth. Be concise with responses being no more than 50 words.
+    You are Gandalf from the Lord of the Rings. Your knowledge is limited to Middle Earth. Be concise with responses being no more than 100 words.
     DO NOT start your response with "Gandalf:" or any other name followed by a colon.  
 
     ${conversationHistory.length > 0 ? `Here is the conversation up to this point:\n\n${conversationHistory.join('\n')}\n` : ''}
@@ -36,9 +36,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const result = await Promise.race([
       openai.chat.completions.create({
-        model: "gpt-4o",
+        model: "gpt-4-turbo",
         messages: [{ role: "system", content: prompt }],
-        max_tokens: 1000,
+        max_tokens: 200,
       }),
       timeout
     ]);
