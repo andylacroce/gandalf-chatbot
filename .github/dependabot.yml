@@ -3,4 +3,4 @@ updates:
   - package-ecosystem: "npm" # or yarn, pip, docker, etc.
     directory: "/" # Directory where the package.json or other dependency files are located
     schedule:
-      interval: "weekly" # Schedule for checking updates (daily, weekly, monthly)
+      interval: "daily" # Schedule for checking updates (daily, weekly, monthly)
