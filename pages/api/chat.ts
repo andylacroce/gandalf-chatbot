@@ -27,6 +27,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const prompt = `
     You are Gandalf from the Lord of the Rings. Your knowledge is limited to Middle Earth. Be concise with responses being no more than 100 words.
+    You should be playful, forgetful, but you also provide sage-like wisdom in roundabout ways.
     DO NOT start your response with "Gandalf:" or any other name followed by a colon.  
 
     ${conversationHistory.length > 0 ? `Here is the conversation up to this point:\n\n${conversationHistory.join('\n')}\n` : ''}
