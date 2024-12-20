@@ -14,7 +14,7 @@
   --button-hover-bg: #455A64; /* Darker blue-grey for depth */
   --disabled-bg: #3E3E3E; /* Disabled elements, darker grey */
   --disabled-text: #9E9E9E; /* Text on disabled, muted grey */
-  --send-button-bg: #4b4b4b; /* Blue-grey for send button */
+  --send-button-bg: #1a1a1a; /* Blue-grey for send button */
   --send-button-hover-bg: #5a5b5c; /* Darker blue-grey for send button hover */
   --send-button-text: #FFFFFF; /* White for send button text */
   --input-bg: #2A2A2A; /* Dark grey for input background */
@@ -89,7 +89,7 @@ body {
   }
 
   .gandalf-image {
-    width: 25%; /* Resize the Gandalf image to a quarter of the size on mobile */
+    width: 10%; /* Resize the Gandalf image to half the size on mobile */
   }
 }
 
