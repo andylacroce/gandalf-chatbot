@@ -25,97 +25,86 @@ const ChatMessage = ({ message }: { message: Message }) => {
   );
 };
 
-const Page: React.FC = () => {
-  const [input, setInput] = useState<string>('');
+const ChatPage = () => {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [isWaitingForResponse, setIsWaitingForResponse] = useState<boolean>(false);
-
-  const chatWindowRef = useRef<HTMLDivElement | null>(null);
-  const inputRef = useRef<HTMLInputElement | null>(null);
-
-  useEffect(() => {
-    chatWindowRef.current?.scrollTo(0, chatWindowRef.current.scrollHeight);
-    inputRef.current?.focus();
-  }, [messages]);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => setInput(e.target.value);
-
-  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      sendMessage();
-    }
-  };
+  const [input, setInput] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>('');
+  const chatBoxRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const sendMessage = async () => {
-    if (!input.trim() || isWaitingForResponse) return;
+    if (!input.trim()) return;
 
-    setIsWaitingForResponse(true);
-    const userMessage: Message = { text: input, sender: 'User' };
-    setMessages(prev => [...prev, userMessage]);
+    const newMessages = [...messages, { sender: 'User', text: input }];
+    setMessages(newMessages);
     setInput('');
+    setLoading(true);
+    setError('');
 
     try {
       const response = await axios.post('/api/chat', { message: input });
-      const gandalfResponse: Message = { text: response.data.reply, sender: 'Gandalf' };
-      setMessages(prev => [...prev, gandalfResponse]);
+      setMessages([...newMessages, { sender: 'Gandalf', text: response.data.reply }]);
     } catch (error) {
-      console.error('Error fetching Gandalf response:', error);
-      setMessages(prev => [
-        ...prev,
-        { text: 'Sorry, I was choking on my pipe. Try again, please.', sender: 'Gandalf' },
-      ]);
+      console.error('Error sending message:', error);
+      setError('Error sending message. Please try again.');
     } finally {
-      setIsWaitingForResponse(false);
-      inputRef.current?.focus();
+      setLoading(false);
     }
   };
 
+  useEffect(() => {
+    if (chatBoxRef.current) {
+      chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  useEffect(() => {
+    if (!loading && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [loading]);
+
   return (
-    <>
-      <div className="container mt-5">
-        <center>
-          <Image
-            src="/gandalf.jpg"
-            alt="Gandalf"
-            width={150}
-            height={180}
-          /><br /><br />
-          <div className="card">
-            <div className="card-body">
-              <div className="chatbox-messages" ref={chatWindowRef}>
-                {messages.map((message, index) => (
-                  <ChatMessage key={index} message={message} />
-                ))}
-              </div>
-            </div>
-            <div className="card-footer">
-              <div className="input-group">
-                <input
-                  type="text"
-                  value={input}
-                  onChange={handleInputChange}
-                  onKeyDown={handleInputKeyDown}
-                  className="form-control"
-                  placeholder="Type in your message here..."
-                  ref={inputRef}
-                />&nbsp;
-                <div className="input-group-append">
-                  <button
-                    onClick={sendMessage}
-                    className={`btn ${isWaitingForResponse ? 'btn-secondary' : 'btn-primary'}`}
-                    disabled={isWaitingForResponse}
-                  >
-                    {isWaitingForResponse ? 'HOLD' : 'Send'}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </center>
+    <div className="container mt-4">
+      <div className="text-center mb-4">
+        <Image src="/gandalf.jpg" alt="Gandalf" width={200} height={200} />
       </div>
-    </>
+      <div className="chat-box border rounded p-3 mb-3" style={{ height: '400px', overflowY: 'scroll' }} ref={chatBoxRef}>
+        {messages.map((msg, index) => (
+          <ChatMessage key={index} message={msg} />
+        ))}
+      </div>
+      <div className="spinner-container">
+        {loading && <Image src="/ring.gif" alt="Loading..." width={40} height={40} />}
+      </div>
+      {error && <div className="alert alert-danger">{error}</div>}
+      <div className="card-footer">
+        <div className="input-group">
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+            className="form-control"
+            placeholder="Type in your message here..."
+            ref={inputRef}
+            disabled={loading}
+            autoFocus
+          />
+          <div className="input-group-append">
+            <button
+              onClick={sendMessage}
+              className={`btn ${loading ? 'btn-secondary' : 'btn-primary'}`}
+              disabled={loading}
+            >
+              {loading ? 'HOLD' : 'Send'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 
-export default Page;
+export default ChatPage;

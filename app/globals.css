@@ -1,23 +1,30 @@
-@import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Roboto+Slab:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&family=Lato:wght@400;700&display=swap');
 
 :root {
-  --font-primary: 'Merriweather', serif; /* Aesthetic and legible */
-  --font-gandalf: 'Roboto Slab', serif; /* Solid, reliable feel */
-  --color-background: #F5F5F5; /* Light grey, like morning mist */
-  --color-text: #2E4057; /* Deep blue, reminiscent of Gandalf's robes */
-  --card-body-bg: #FFFFFF; /* White, for purity and light */
-  --chatbox-background: #DDE1E7; /* Light blue-grey, like clouds */
-  --user-message-bg: #B0BEC5; /* Cool grey, for contrast */
-  --gandalf-message-bg: #90A4AE; /* Softer grey, for distinction */
-  --button-bg: #78909C; /* Steely grey, for action */
-  --button-hover-bg: #546E7A; /* Darker grey, for depth */
-  --disabled-bg: #CFD8DC; /* Disabled elements, lighter grey */
-  --disabled-text: #3E4E5E; /* Text on disabled, muted blue */
+  --font-primary: 'Open Sans', sans-serif; /* Modern and readable */
+  --font-gandalf: 'Lato', sans-serif; /* Clean and reliable feel */
+  --color-background: #000000; /* Dark grey, for a softer background */
+  --color-text: #E0E0E0; /* Light grey, for better readability */
+  --color-sender: #B0B0B0; /* Subtly different grey for sender names */
+  --card-body-bg: #2A2A2A; /* Slightly lighter grey for card backgrounds */
+  --chatbox-background: #333333; /* Dark grey for chat box */
+  --user-message-bg: #4A4A4A; /* Medium grey for user messages */
+  --gandalf-message-bg: #5A5A5A; /* Lighter grey for Gandalf messages */
+  --button-bg: #23333b; /* Blue-grey for action */
+  --button-hover-bg: #455A64; /* Darker blue-grey for depth */
+  --disabled-bg: #3E3E3E; /* Disabled elements, darker grey */
+  --disabled-text: #9E9E9E; /* Text on disabled, muted grey */
+  --send-button-bg: #203844; /* Blue-grey for send button */
+  --send-button-hover-bg: #455A64; /* Darker blue-grey for send button hover */
+  --send-button-text: #FFFFFF; /* White for send button text */
+  --input-bg: #c5c0c0; /* Dark grey for input background */
+  --input-text: #000000; /* Light grey for input text */
+  --scrollbar-bg: #4A4A4A; /* Medium grey for scrollbar background */
+  --scrollbar-thumb: #6C6C6C; /* Lighter grey for scrollbar thumb */
 }
 
 * {
   box-sizing: border-box;
-
 }
 
 body {
@@ -32,68 +39,125 @@ body {
   padding: 0; /* Adjusted to rem */
 }
 
-@media (min-width: 48rem) { /* 768px / 16px */
-  .container {
-    max-width: 50rem; /* 700px / 16px */
+/* Ensure the chat box takes full width on mobile */
+.chat-box {
+  width: 100%;
+  max-width: 800px; /* Limit the width on larger screens */
+  background-color: var(--chatbox-background);
+  padding: 1rem; /* Add padding to the chat box */
+  margin: 0 auto; /* Center the chat box on larger screens */
+  overflow-y: scroll; /* Ensure the chat box is scrollable */
+}
+
+/* Custom scrollbar */
+.chat-box::-webkit-scrollbar {
+  width: 12px;
+}
+
+.chat-box::-webkit-scrollbar-track {
+  background: var(--scrollbar-bg);
+}
+
+.chat-box::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+  border-radius: 10px;
+  border: 3px solid var(--scrollbar-bg);
+}
+
+/* Adjust padding and margins for mobile */
+@media (max-width: 576px) {
+  .chat-box {
+    padding: 1rem;
+    width: 100%;
+  }
+
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .input-group .form-control {
+    margin-bottom: 0.5rem;
+    width: 100%;
+  }
+
+  .input-group-append {
+    width: 100%;
+  }
+
+  .input-group-append .btn {
+    width: 100%;
   }
 }
 
-.card {
-  background-color: var(--card-body-bg);
-  border-radius: 0.2rem; /* Adjusted to rem */
-  overflow: hidden;
-}
-
-.chatbox {
+/* Spinner container */
+.spinner-container {
+  height: 40px; /* Fixed height for the spinner container */
   display: flex;
-  flex-direction: column;
-  background-color: var(--chatbox-background);
+  justify-content: center;
+  align-items: center;
 }
 
-.chatbox-messages {
-  flex-grow: 1;
-  overflow-y: auto;
-  padding: 0.2rem; /* Adjusted to rem */
-  height: 50vh;
-}
-
-.user-message,
-.gandalf-message {
-  margin: 0.2rem 0; /* Adjusted to rem */
-  padding: 0.2rem; /* Adjusted to rem */
-  border-radius: 0.20rem; /* Adjusted to rem */
-  font-size: 1rem; /* Maintained for consistency */
-}
-
+/* Message styling */
 .user-message {
   background-color: var(--user-message-bg);
   align-self: flex-end;
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 10px;
 }
 
 .gandalf-message {
   background-color: var(--gandalf-message-bg);
   align-self: flex-start;
-  font-family: var(--font-gandalf);
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 10px;
 }
 
-input.form-control,
-button,
-.btn-primary {
-  margin: 0 .1rem;
-  border: none;
-  border-radius: 0.20rem;
-  color: white;
-  background-color: var(--button-bg);
-  font-size: 1rem; /* Consistent font size */
-  cursor: pointer;
+.user-sender {
+  font-weight: bold;
+  color: var(--color-sender);
+  margin-bottom: 5px;
 }
 
-button:hover,
-.btn-primary:hover {
-  background-color: var(--button-hover-bg);
+.gandalf-sender {
+  font-weight: bold;
+  color: var(--color-sender);
+  margin-bottom: 5px;
 }
 
 button[disabled] {
   background-color: var(--disabled-bg);
   color: var(--disabled-text);
+}
+
+/* Ensure input group matches the width of the chat box */
+.input-group {
+  display: flex;
+  width: 100%;
+  max-width: 800px; /* Limit the width on larger screens */
+  margin: 0 auto; /* Center the input group on larger screens */
+}
+
+.input-group .form-control {
+  flex: 1;
+  background-color: var(--input-bg);
+  color: var(--input-text);
+  border: 1px solid var(--color-text);
+}
+
+.input-group-append {
+  display: flex;
+}
+
+.input-group-append .btn {
+  flex: 0 0 auto;
+  background-color: var(--send-button-bg);
+  color: var(--send-button-text);
+}
+
+.input-group-append .btn:hover {
+  background-color: var(--send-button-hover-bg);
 }
