@@ -2,7 +2,7 @@
 
 :root {
   --font-primary: 'Open Sans', sans-serif; /* Modern and readable */
-  --font-gandalf: 'Lato', sans-serif; /* Clean and reliable feel */
+  --font-secondary: 'Lato', sans-serif; /* Clean and reliable feel */
   --color-background: #000000; /* Dark grey, for a softer background */
   --color-text: #E0E0E0; /* Light grey, for better readability */
   --color-sender: #B0B0B0; /* Subtly different grey for sender names */
@@ -14,17 +14,20 @@
   --button-hover-bg: #455A64; /* Darker blue-grey for depth */
   --disabled-bg: #3E3E3E; /* Disabled elements, darker grey */
   --disabled-text: #9E9E9E; /* Text on disabled, muted grey */
-  --send-button-bg: #203844; /* Blue-grey for send button */
-  --send-button-hover-bg: #455A64; /* Darker blue-grey for send button hover */
+  --send-button-bg: #272727; /* Blue-grey for send button */
+  --send-button-hover-bg: #5a5b5c; /* Darker blue-grey for send button hover */
   --send-button-text: #FFFFFF; /* White for send button text */
-  --input-bg: #c5c0c0; /* Dark grey for input background */
-  --input-text: #000000; /* Light grey for input text */
+  --input-bg: #2A2A2A; /* Dark grey for input background */
+  --input-text: #E0E0E0; /* Light grey for input text */
+  --input-placeholder: #9E9E9E; /* Muted grey for input placeholder text */
   --scrollbar-bg: #4A4A4A; /* Medium grey for scrollbar background */
   --scrollbar-thumb: #6C6C6C; /* Lighter grey for scrollbar thumb */
 }
 
 * {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
@@ -36,16 +39,16 @@ body {
 
 .container {
   max-width: 99%;
-  padding: 0; /* Adjusted to rem */
+  padding: 0;
+  margin: 0 auto;
 }
 
-/* Ensure the chat box takes full width on mobile */
 .chat-box {
   width: 100%;
   max-width: 800px; /* Limit the width on larger screens */
   background-color: var(--chatbox-background);
-  padding: 1rem; /* Add padding to the chat box */
-  margin: 0 auto; /* Center the chat box on larger screens */
+  padding: 1rem;
+  margin: 0 auto;
   overflow-y: scroll; /* Ensure the chat box is scrollable */
 }
 
@@ -64,7 +67,7 @@ body {
   border: 3px solid var(--scrollbar-bg);
 }
 
-/* Adjust padding and margins for mobile */
+/* Responsive design */
 @media (max-width: 576px) {
   .chat-box {
     padding: 1rem;
@@ -72,22 +75,21 @@ body {
   }
 
   .input-group {
-    display: flex;
     flex-direction: column;
     width: 100%;
   }
 
-  .input-group .form-control {
-    margin-bottom: 0.5rem;
-    width: 100%;
-  }
-
+  .input-group .form-control,
   .input-group-append {
     width: 100%;
   }
 
   .input-group-append .btn {
     width: 100%;
+  }
+
+  .gandalf-image {
+    width: 25%; /* Resize the Gandalf image to a quarter of the size on mobile */
   }
 }
 
@@ -100,28 +102,24 @@ body {
 }
 
 /* Message styling */
-.user-message {
-  background-color: var(--user-message-bg);
-  align-self: flex-end;
+.user-message,
+.gandalf-message {
   border-radius: 10px;
   padding: 10px;
   margin-bottom: 10px;
+}
+
+.user-message {
+  background-color: var(--user-message-bg);
+  align-self: flex-end;
 }
 
 .gandalf-message {
   background-color: var(--gandalf-message-bg);
   align-self: flex-start;
-  border-radius: 10px;
-  padding: 10px;
-  margin-bottom: 10px;
 }
 
-.user-sender {
-  font-weight: bold;
-  color: var(--color-sender);
-  margin-bottom: 5px;
-}
-
+.user-sender,
 .gandalf-sender {
   font-weight: bold;
   color: var(--color-sender);
@@ -133,12 +131,12 @@ button[disabled] {
   color: var(--disabled-text);
 }
 
-/* Ensure input group matches the width of the chat box */
+/* Input group styling */
 .input-group {
   display: flex;
   width: 100%;
   max-width: 800px; /* Limit the width on larger screens */
-  margin: 0 auto; /* Center the input group on larger screens */
+  margin: 0 auto;
 }
 
 .input-group .form-control {
@@ -146,6 +144,11 @@ button[disabled] {
   background-color: var(--input-bg);
   color: var(--input-text);
   border: 1px solid var(--color-text);
+  margin-right: 0.5rem; /* Add spacing between the input box and the button */
+}
+
+.input-group .form-control::placeholder {
+  color: var(--input-placeholder);
 }
 
 .input-group-append {
@@ -156,6 +159,23 @@ button[disabled] {
   flex: 0 0 auto;
   background-color: var(--send-button-bg);
   color: var(--send-button-text);
+  outline: none !important; /* Remove the blue outline */
+  box-shadow: none !important; /* Remove the box shadow */
+}
+
+.input-group-append .btn:focus,
+.input-group-append .btn:active,
+.input-group,
+.form-control,
+.chat-box,
+.btn-primary:focus,
+.btn-primary:active,
+.btn-primary,
+.btn-secondary:focus,
+.btn-secondary:active {
+  outline: none !important; /* Remove the blue outline on focus */
+  box-shadow: none !important; /* Remove the box shadow on focus */
+  border: none !important;
 }
 
 .input-group-append .btn:hover {
