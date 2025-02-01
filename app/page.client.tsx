@@ -78,7 +78,7 @@ const ChatPage = () => {
         ))}
       </div>
       <div className="spinner-container">
-        {loading && <Image src="/ring.gif" alt="Loading..." width={40} height={40} />}
+        {loading && <Image src="/ring.gif" alt="Loading..." width={40} height={40} unoptimized />}
       </div>
       {error && <div className="alert alert-danger">{error}</div>}
       <div className="card-footer">
