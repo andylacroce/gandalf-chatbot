@@ -5,8 +5,14 @@ import OpenAI from 'openai';
 let conversationHistory: string[] = [];
 
 // Initialize the OpenAI client outside of the handler
+const apiKey = process.env.OPENAI_API_KEY;
+
+if (!apiKey) {
+  throw new Error("Missing OpenAI API key");
+}
+
 const openai = new OpenAI({
-  apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
+  apiKey: apiKey,
 });
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {

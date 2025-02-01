@@ -32,6 +32,7 @@ const ChatPage = () => {
   const [error, setError] = useState<string>('');
   const chatBoxRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [conversationHistory, setConversationHistory] = useState<Message[]>([]);
 
   const sendMessage = async () => {
     if (!input.trim()) return;
@@ -45,6 +46,7 @@ const ChatPage = () => {
     try {
       const response = await axios.post('/api/chat', { message: input });
       setMessages([...newMessages, { sender: 'Gandalf', text: response.data.reply }]);
+      setConversationHistory([...conversationHistory, { sender: 'User', text: input }, { sender: 'Gandalf', text: response.data.reply }]);
     } catch (error) {
       console.error('Error sending message:', error);
       setError('Error sending message. Please try again.');
