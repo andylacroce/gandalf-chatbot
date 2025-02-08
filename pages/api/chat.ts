@@ -5,8 +5,19 @@ import fs from 'fs';
 import path from 'path';
 
 // Ensure environment variables exist
-if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) {
-  throw new Error("Missing GOOGLE_APPLICATION_CREDENTIALS environment variable");
+if (!process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
+  throw new Error("Missing GOOGLE_APPLICATION_CREDENTIALS_JSON environment variable");
+}
+
+let googleAuthCredentials;
+
+if (process.env.VERCEL_ENV) {
+  // Parse Google Cloud credentials from environment variable for Vercel
+  googleAuthCredentials = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON.replace(/\\n/g, '\n'));
+} else {
+  // Read Google Cloud credentials from file for local development
+  const credentialsPath = path.resolve(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
+  googleAuthCredentials = JSON.parse(fs.readFileSync(credentialsPath, 'utf8'));
 }
 
 let conversationHistory: string[] = [];
@@ -17,7 +28,9 @@ if (!apiKey) {
 }
 
 const openai = new OpenAI({ apiKey });
-const ttsClient = new textToSpeech.TextToSpeechClient();
+const ttsClient = new textToSpeech.TextToSpeechClient({
+  credentials: googleAuthCredentials,
+});
 
 function isOpenAIResponse(obj: any): obj is { choices: { message: { content: string } }[] } {
   return obj && typeof obj === 'object' && 'choices' in obj && Array.isArray(obj.choices);
@@ -55,9 +68,7 @@ Your responses should:
 
 Keep responses immersive as if Gandalf himself is speaking.
 
-
-
-    ${conversationHistory.length > 0 ? `Here is the conversation up to this point:\n\n${conversationHistory.join('\n')}\n` : ''}`;
+${conversationHistory.length > 0 ? `Here is the conversation up to this point:\n\n${conversationHistory.join('\n')}\n` : ''}`;
 
     const timeout = new Promise((resolve) => setTimeout(() => resolve({ timeout: true }), 20000));
 
