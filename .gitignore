@@ -8,6 +8,7 @@
 
 # testing
 /coverage
+/jest-cache
 
 # next.js
 /.next/
@@ -35,4 +36,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-/public/gandalf-response.mp3
+# IDE specific files
+.vscode/
+.idea/
