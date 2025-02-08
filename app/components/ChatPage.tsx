@@ -97,6 +97,11 @@ const ChatPage = () => {
           </div>
         </div>
       </div>
+      <div className="mastodon-icon mt-3 text-center">
+        <a href="https://mastodon.world/@AndyLacroce" target="_blank" rel="noopener noreferrer">
+          <Image src="/mastodon.png" alt="Mastodon" width={30} height={30} />
+        </a>
+      </div>
     </div>
   );
 };

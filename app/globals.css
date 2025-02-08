@@ -91,6 +91,11 @@ body {
   .gandalf-image {
     width: 10%; /* Resize the Gandalf image to half the size on mobile */
   }
+
+  .mastodon-icon img {
+    width: 40px;
+    height: 40px;
+  }
 }
 
 /* Spinner container */
@@ -180,4 +185,21 @@ button[disabled] {
 
 .input-group-append .btn:hover {
   background-color: var(--send-button-hover-bg);
+}
+
+.mastodon-icon {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.mastodon-icon img {
+  width: 30px;
+  height: 30px;
+}
+
+@media (max-width: 576px) {
+  .mastodon-icon img {
+    width: 30px;
+    height: 30px;
+  }
 }
