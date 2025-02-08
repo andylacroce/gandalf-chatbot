@@ -1,7 +1,7 @@
+import React, { useEffect } from 'react';
 import { AppProps } from 'next/app';
-import { useEffect } from 'react';
 import '@vercel/speed-insights';
-import { Analytics } from "@vercel/analytics/react"
+import { Analytics } from '@vercel/analytics/react';
 
 function MyApp({ Component, pageProps }: AppProps) {
   useEffect(() => {
