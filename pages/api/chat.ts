@@ -13,7 +13,7 @@ let googleAuthCredentials;
 
 if (process.env.VERCEL_ENV) {
   // Parse Google Cloud credentials from environment variable for Vercel
-  googleAuthCredentials = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON.replace(/\\n/g, '\n'));
+  googleAuthCredentials = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
 } else {
   // Read Google Cloud credentials from file for local development
   const credentialsPath = path.resolve(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
