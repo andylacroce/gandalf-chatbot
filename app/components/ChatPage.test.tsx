@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent, waitFor } from '@testing-library/react';
+import { render, fireEvent, waitFor, waitForElementToBeRemoved } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import axios from 'axios';
 import ChatPage from './ChatPage';
@@ -144,6 +144,7 @@ describe('ChatPage Component', () => {
       expect(getByTestId('loading-indicator')).toBeInTheDocument();
     });
 
+    await waitForElementToBeRemoved(() => getByTestId('loading-indicator'), { timeout: 5000 });
   });
 
   it('handles multiple messages in sequence', async () => {

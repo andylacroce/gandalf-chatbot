@@ -70,21 +70,9 @@ const ChatPage = () => {
         ))}
       </div>
       <div className="spinner-container">
-        {loading && (
-          <img
-            alt="Loading..."
-            data-testid="loading-indicator"
-            data-nimg="1"
-            decoding="async"
-            height="40"
-            loading="lazy"
-            src="/ring.gif"
-            style={{ color: 'transparent' }}
-            width="40"
-          />
-        )}
+        {loading && <Image src="/ring.gif" alt="Loading..." width={40} height={40} unoptimized data-testid="loading-indicator" />}
       </div>
-      {error && <div className="alert alert-danger">{error}</div>}
+      {error && <div className="alert alert-danger" data-testid="error-message">{error}</div>}
       <div className="card-footer">
         <div className="input-group">
           <input
