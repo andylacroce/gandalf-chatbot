@@ -1,29 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './globals.css';
+import '../globals.css';
 import Image from 'next/image';
+import ChatMessage from './ChatMessage';
 
 interface Message {
   text: string;
   sender: string;
+  audioFileUrl?: string;
 }
-
-const ChatMessage = ({ message }: { message: Message }) => {
-  const messageClass = message.sender === 'User' ? 'user-message' : 'gandalf-message';
-  const senderClass = message.sender === 'User' ? 'user-sender' : 'gandalf-sender';
-
-  return (
-    <div className={`my-2 ${messageClass}`}>
-      <div className="rounded p-2 text-sm">
-        <div className={`mb-1 ${senderClass}`}>
-          {message.sender === 'User' ? 'Me' : 'Gandalf'}
-        </div>
-        {message.text}
-      </div>
-    </div>
-  );
-};
 
 const ChatPage = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -45,8 +31,14 @@ const ChatPage = () => {
 
     try {
       const response = await axios.post('/api/chat', { message: input });
-      setMessages([...newMessages, { sender: 'Gandalf', text: response.data.reply }]);
-      setConversationHistory([...conversationHistory, { sender: 'User', text: input }, { sender: 'Gandalf', text: response.data.reply }]);
+      const gandalfReply: Message = { sender: 'Gandalf', text: response.data.reply, audioFileUrl: response.data.audioFileUrl };
+      setMessages([...newMessages, gandalfReply]);
+      setConversationHistory([...conversationHistory, { sender: 'User', text: input }, gandalfReply]);
+
+      if (gandalfReply.audioFileUrl) {
+        const audio = new Audio(gandalfReply.audioFileUrl);
+        audio.play();
+      }
     } catch (error) {
       console.error('Error sending message:', error);
       setError('Error sending message. Please try again.');
