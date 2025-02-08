@@ -101,7 +101,7 @@ const ChatPage = () => {
         <a href="https://mastodon.world/@AndyLacroce" target="_blank" rel="noopener noreferrer">
           <Image src="/mastodon.png" alt="Mastodon" width={50} height={50} />
         </a>
-        <a href="https://www.andylacroce.com/" target="_blank" rel="noopener noreferrer" className="ml-3">
+        <a href="https://www.andylacroce.com/" target="_blank" rel="noopener noreferrer">
           <Image src="/dexter.webp" alt="Dexter" width={50} height={50} />
         </a>
       </div>

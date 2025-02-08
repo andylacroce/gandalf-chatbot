@@ -192,9 +192,10 @@ button[disabled] {
   background-color: var(--send-button-hover-bg);
 }
 
-.mastodon-icon {
+.icon-container {
+  display: flex;
+  justify-content: center;
   margin-top: 10px;
-  text-align: center;
 }
 
 .icon-container a {
@@ -204,4 +205,11 @@ button[disabled] {
 .icon-container img {
   width: 50px;
   height: 50px;
+}
+
+@media (max-width: 576px) {
+  .icon-container img {
+    width: 40px;
+    height: 40px;
+  }
 }
