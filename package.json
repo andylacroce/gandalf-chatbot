@@ -1,5 +1,5 @@
 {
-  "name": "my-gandalf-chatbot",
+  "name": "gandalf-chatbot",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -15,7 +15,7 @@
     "axios": "^1.7.4",
     "bootstrap": "^5.3.3",
     "express-rate-limit": "^7.5.0",
-    "my-gandalf-chatbot": "file:",
+    "gandalf-chatbot": "file:",
     "next": "^15.0.3",
     "openai": "^4.19.0",
     "react": "^18.3.1",
