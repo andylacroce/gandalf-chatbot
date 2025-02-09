@@ -108,8 +108,6 @@ ${conversationHistory.length > 0 ? `Here is the conversation up to this point:\n
       audioConfig: { audioEncoding: protos.google.cloud.texttospeech.v1.AudioEncoding.MP3 },
     };
 
-    console.log('Text-to-Speech request:', JSON.stringify(request, null, 2));
-
     if (!request || typeof request !== 'object') {
       throw new Error('Invalid Text-to-Speech request: Payload is malformed');
     }
