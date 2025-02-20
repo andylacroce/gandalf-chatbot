@@ -10,16 +10,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   const audioFilePath = path.resolve('/tmp', file);
+  const localFilePath = path.resolve('public', file);
 
-  if (!audioFilePath.startsWith('/tmp')) {
+  if (!audioFilePath.startsWith('/tmp') && !localFilePath.startsWith(path.resolve('public'))) {
     return res.status(403).json({ error: 'Access forbidden' });
   }
 
-  if (!fs.existsSync(audioFilePath)) {
+  const filePath = fs.existsSync(audioFilePath) ? audioFilePath : localFilePath;
+
+  if (!fs.existsSync(filePath)) {
     return res.status(404).json({ error: 'File not found' });
   }
 
-  const audioContent = fs.readFileSync(audioFilePath);
+  const audioContent = fs.readFileSync(filePath);
 
   res.setHeader('Content-Type', 'audio/mpeg');
   res.send(audioContent);
