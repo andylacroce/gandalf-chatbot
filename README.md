@@ -2,6 +2,8 @@
 
 A Next.js chatbot using ChatGPT and Google Text-to-Speech (TTS).
 
+Live: https://gandalf-chatbot.vercel.app/
+
 ---
 
 ## Features
