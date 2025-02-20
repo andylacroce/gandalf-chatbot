@@ -62,10 +62,3 @@ npm run dev
    - `OPENAI_API_KEY`
    - `GOOGLE_APPLICATION_CREDENTIALS_JSON` (Paste full JSON)
 4. Deploy
-
----
-
-## Notes
-
-- Vercel uses `/tmp/` for audio storage; local saves to `public/audio/`.
-- API keys must not be committed to the repo.
