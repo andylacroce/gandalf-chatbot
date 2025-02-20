@@ -12,7 +12,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const audioFilePath = path.resolve('/tmp', file);
   const localFilePath = path.resolve('public', file);
 
-  if (!audioFilePath.startsWith('/tmp') && !localFilePath.startsWith(path.resolve('public'))) {
+  const normalizedAudioFilePath = path.resolve(audioFilePath);
+  const normalizedLocalFilePath = path.resolve(localFilePath);
+
+  if (!normalizedAudioFilePath.startsWith('/tmp') && !normalizedLocalFilePath.startsWith(path.resolve('public'))) {
     return res.status(403).json({ error: 'Access forbidden' });
   }
 
