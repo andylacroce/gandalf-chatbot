@@ -24,6 +24,7 @@ const ChatPage = (): JSX.Element => {
   const chatBoxRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [conversationHistory, setConversationHistory] = useState<Message[]>([]);
+  const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
 
   /**
    * Sends a message to the server and handles the response.
@@ -44,8 +45,8 @@ const ChatPage = (): JSX.Element => {
       setConversationHistory([...conversationHistory, { sender: 'User', text: input }, gandalfReply]);
 
       if (gandalfReply.audioFileUrl) {
-        const audio = new Audio(gandalfReply.audioFileUrl);
-        audio.play();
+        const audio = await playAudio(gandalfReply.audioFileUrl);
+        setCurrentAudio(audio);
       }
     } catch (error) {
       console.error('Error sending message:', error);
@@ -53,6 +54,31 @@ const ChatPage = (): JSX.Element => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const playAudio = async (audioFileUrl: string) => {
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
+      try {
+        await axios.delete(currentAudio.src);
+      } catch (error) {
+        console.error('Error deleting previous audio file:', error);
+      }
+    }
+
+    const audio = new Audio(audioFileUrl);
+    audio.play();
+
+    audio.onended = async () => {
+      try {
+        await axios.delete(audioFileUrl);
+      } catch (error) {
+        console.error('Error deleting audio file:', error);
+      }
+    };
+
+    return audio;
   };
 
   useEffect(() => {
