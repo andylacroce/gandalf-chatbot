@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
-import { AppProps } from 'next/app';
 import '@vercel/speed-insights';
 import { Analytics } from '@vercel/analytics/react';
 import ReactDOM from 'react-dom/client';
+import '../globals.css';
 
-function MyApp({ Component, pageProps }: AppProps) {
+const RootLayout = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     // Initialize Vercel Speed Insights
     if (typeof window !== 'undefined') {
@@ -23,12 +23,17 @@ function MyApp({ Component, pageProps }: AppProps) {
   }, []);
 
   return (
-    <>
-      <Component {...pageProps} />
-      <Analytics />
-      <div id="speed-insights-container"></div>
-    </>
+    <html lang="en">
+      <head>
+        <title>Gandalf Chatbot</title>
+      </head>
+      <body>
+        {children}
+        <Analytics />
+        <div id="speed-insights-container"></div>
+      </body>
+    </html>
   );
-}
+};
 
-export default MyApp;
+export default RootLayout;
