@@ -12,7 +12,11 @@ interface Message {
   audioFileUrl?: string;
 }
 
-const ChatPage = () => {
+/**
+ * ChatPage component that handles the chat interface and interactions.
+ * @returns {JSX.Element} The ChatPage component.
+ */
+const ChatPage = (): JSX.Element => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
@@ -21,6 +25,9 @@ const ChatPage = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [conversationHistory, setConversationHistory] = useState<Message[]>([]);
 
+  /**
+   * Sends a message to the server and handles the response.
+   */
   const sendMessage = async () => {
     if (!input.trim()) return;
 

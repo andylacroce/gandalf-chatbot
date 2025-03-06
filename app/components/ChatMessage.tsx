@@ -5,7 +5,13 @@ interface Message {
   sender: string;
 }
 
-const ChatMessage = ({ message }: { message: Message }) => {
+/**
+ * ChatMessage component that displays a single chat message.
+ * @param {Object} props - The component props.
+ * @param {Message} props.message - The message to display.
+ * @returns {JSX.Element} The ChatMessage component.
+ */
+const ChatMessage = ({ message }: { message: Message }): JSX.Element => {
   const messageClass = message.sender === 'User' ? 'user-message' : 'gandalf-message';
   const senderClass = message.sender === 'User' ? 'user-sender' : 'gandalf-sender';
 

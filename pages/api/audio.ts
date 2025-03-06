@@ -2,6 +2,11 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import fs from 'fs';
 import path from 'path';
 
+/**
+ * API handler for serving audio files
+ * @param req - The API request object
+ * @param res - The API response object
+ */
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { file } = req.query;
 
@@ -9,7 +14,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ error: 'File parameter is required' });
   }
 
-  // Sanitize the file input to prevent path traversal attacks
   const sanitizedFile = path.basename(file);
 
   const audioFilePath = path.resolve('/tmp', sanitizedFile);

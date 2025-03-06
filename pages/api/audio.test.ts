@@ -2,6 +2,11 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import fs from 'fs';
 import path from 'path';
 
+/**
+ * Handles the API request to fetch an audio file.
+ * @param req - The API request object.
+ * @param res - The API response object.
+ */
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     const { file } = req.query;

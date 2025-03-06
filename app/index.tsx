@@ -3,7 +3,11 @@ import dynamic from 'next/dynamic';
 
 const ChatPage = dynamic(() => import('../app/components/ChatPage'), { ssr: true });
 
-const Home = () => {
+/**
+ * Home component that renders the ChatPage.
+ * @returns {JSX.Element} The Home component.
+ */
+const Home = (): JSX.Element => {
   return <ChatPage />;
 };
 

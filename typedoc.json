@@ -1,0 +1,11 @@
+{
+    "entryPoints": [
+        "./app"
+    ],
+    "out": "docs",
+    "exclude": [
+        "**/*.test.ts",
+        "**/*.spec.ts"
+    ],
+    "tsconfig": "./tsconfig.json"
+}

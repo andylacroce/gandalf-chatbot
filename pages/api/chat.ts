@@ -4,7 +4,9 @@ import textToSpeech, { protos } from '@google-cloud/text-to-speech';
 import fs from 'fs';
 import path from 'path';
 
-// Ensure environment variables exist
+/**
+ * Ensure environment variables exist
+ */
 if (!process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
   throw new Error("Missing GOOGLE_APPLICATION_CREDENTIALS_JSON environment variable");
 }
@@ -12,10 +14,8 @@ if (!process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
 let googleAuthCredentials;
 
 if (process.env.VERCEL_ENV) {
-  // Parse Google Cloud credentials from environment variable for Vercel
   googleAuthCredentials = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
 } else {
-  // Read Google Cloud credentials from file for local development
   const credentialsPath = path.resolve(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
   googleAuthCredentials = JSON.parse(fs.readFileSync(credentialsPath, 'utf8'));
 }
@@ -32,10 +32,20 @@ const ttsClient = new textToSpeech.TextToSpeechClient({
   credentials: googleAuthCredentials,
 });
 
+/**
+ * Type guard to check if the response is from OpenAI
+ * @param obj - The object to check
+ * @returns True if the object is an OpenAI response
+ */
 function isOpenAIResponse(obj: any): obj is { choices: { message: { content: string } }[] } {
   return obj && typeof obj === 'object' && 'choices' in obj && Array.isArray(obj.choices);
 }
 
+/**
+ * API handler for chat endpoint
+ * @param req - The API request object
+ * @param res - The API response object
+ */
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST']);
@@ -124,7 +134,6 @@ ${conversationHistory.length > 0 ? `Here is the conversation up to this point:\n
       return res.status(500).json({ error: 'Google Cloud TTS failed', details: errorMessage });
     }
 
-    // Ensure /tmp directory exists
     const tmpDir = '/tmp';
     if (!fs.existsSync(tmpDir)) {
       fs.mkdirSync(tmpDir, { recursive: true });
