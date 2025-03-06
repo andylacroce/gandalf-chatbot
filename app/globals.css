@@ -1,27 +1,27 @@
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&family=Lato:wght@400;700&display=swap');
 
 :root {
-  --font-primary: 'Open Sans', sans-serif; /* Modern and readable */
-  --font-secondary: 'Lato', sans-serif; /* Clean and reliable feel */
-  --color-background: #000000; /* Dark grey, for a softer background */
-  --color-text: #E0E0E0; /* Light grey, for better readability */
-  --color-sender: #B0B0B0; /* Subtly different grey for sender names */
-  --card-body-bg: #2A2A2A; /* Slightly lighter grey for card backgrounds */
-  --chatbox-background: #333333; /* Dark grey for chat box */
-  --user-message-bg: #4A4A4A; /* Medium grey for user messages */
-  --gandalf-message-bg: #5A5A5A; /* Lighter grey for Gandalf messages */
-  --button-bg: #23333b; /* Blue-grey for action */
-  --button-hover-bg: #455A64; /* Darker blue-grey for depth */
-  --disabled-bg: #3E3E3E; /* Disabled elements, darker grey */
-  --disabled-text: #9E9E9E; /* Text on disabled, muted grey */
-  --send-button-bg: #1a1a1a; /* Blue-grey for send button */
-  --send-button-hover-bg: #5a5b5c; /* Darker blue-grey for send button hover */
-  --send-button-text: #FFFFFF; /* White for send button text */
-  --input-bg: #2A2A2A; /* Dark grey for input background */
-  --input-text: #E0E0E0; /* Light grey for input text */
-  --input-placeholder: #9E9E9E; /* Muted grey for input placeholder text */
-  --scrollbar-bg: #4A4A4A; /* Medium grey for scrollbar background */
-  --scrollbar-thumb: #6C6C6C; /* Lighter grey for scrollbar thumb */
+  --font-primary: 'Open Sans', sans-serif;
+  --font-secondary: 'Lato', sans-serif;
+  --color-background: #000000;
+  --color-text: #E0E0E0;
+  --color-sender: #B0B0B0;
+  --card-body-bg: #2A2A2A;
+  --chatbox-background: #333333;
+  --user-message-bg: #4A4A4A;
+  --gandalf-message-bg: #5A5A5A;
+  --button-bg: #23333b;
+  --button-hover-bg: #455A64;
+  --disabled-bg: #3E3E3E;
+  --disabled-text: #9E9E9E;
+  --send-button-bg: #1a1a1a;
+  --send-button-hover-bg: #5a5b5c;
+  --send-button-text: #FFFFFF;
+  --input-bg: #2A2A2A;
+  --input-text: #E0E0E0;
+  --input-placeholder: #9E9E9E;
+  --scrollbar-bg: #4A4A4A;
+  --scrollbar-thumb: #6C6C6C;
 }
 
 * {
@@ -32,27 +32,36 @@
 
 body {
   font-family: var(--font-primary);
-  font-size: 1.125rem; /* Adjusted to rem for scalability */
-  background-color: var(--color-background);
+  font-size: 1.125rem;
+  background-color: var(--color-background) !important;
   color: var(--color-text);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .container {
-  max-width: 99%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  height: 100vh;
+  /* Full viewport height */
+  width: 100%;
   padding: 0;
   margin: 0 auto;
 }
 
 .chat-box {
   width: 100%;
-  max-width: 800px; /* Limit the width on larger screens */
+  max-width: 800px;
   background-color: var(--chatbox-background);
   padding: 1rem;
   margin: 0 auto;
-  overflow-y: scroll; /* Ensure the chat box is scrollable */
+  overflow-y: scroll;
+  height: 400%;
 }
 
-/* Custom scrollbar */
 .chat-box::-webkit-scrollbar {
   width: 12px;
 }
@@ -67,7 +76,6 @@ body {
   border: 3px solid var(--scrollbar-bg);
 }
 
-/* Responsive design */
 @media (max-width: 576px) {
   .chat-box {
     padding: 1rem;
@@ -88,30 +96,17 @@ body {
     width: 100%;
   }
 
-  .gandalf-image {
-    width: 10%; /* Resize the Gandalf image to half the size on mobile */
-  }
-
-  .mastodon-icon img {
-    width: 40px;
-    height: 40px;
-  }
-
-  .icon-container img {
-    width: 40px;
-    height: 40px;
-  }
 }
 
-/* Spinner container */
 .spinner-container {
-  height: 40px; /* Fixed height for the spinner container */
+  height: 42px;
+  min-height: 42px;
+  /* Reserve height */
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-/* Message styling */
 .user-message,
 .gandalf-message {
   border-radius: 10px;
@@ -141,20 +136,27 @@ button[disabled] {
   color: var(--disabled-text);
 }
 
-/* Input group styling */
+.card-footer {
+  width: 100%;
+}
+
 .input-group {
   display: flex;
   width: 100%;
-  max-width: 800px; /* Limit the width on larger screens */
+  max-width: 800px;
   margin: 0 auto;
 }
 
 .input-group .form-control {
-  flex: 1;
+  width: 100%;
   background-color: var(--input-bg);
   color: var(--input-text);
-  border: 1px solid var(--color-text);
-  margin-right: 0.5rem; /* Add spacing between the input box and the button */
+  border: none;
+  padding: 1rem;
+  /* Increased padding */
+  font-size: 1.25rem;
+  /* Increased font size */
+  outline: none;
 }
 
 .input-group .form-control::placeholder {
@@ -169,23 +171,13 @@ button[disabled] {
   flex: 0 0 auto;
   background-color: var(--send-button-bg);
   color: var(--send-button-text);
-  outline: none !important; /* Remove the blue outline */
-  box-shadow: none !important; /* Remove the box shadow */
-}
-
-.input-group-append .btn:focus,
-.input-group-append .btn:active,
-.input-group,
-.form-control,
-.chat-box,
-.btn-primary:focus,
-.btn-primary:active,
-.btn-primary,
-.btn-secondary:focus,
-.btn-secondary:active {
-  outline: none !important; /* Remove the blue outline on focus */
-  box-shadow: none !important; /* Remove the box shadow on focus */
+  outline: none !important;
+  box-shadow: none !important;
   border: none !important;
+  padding: 1rem 2rem;
+  /* Increased padding */
+  font-size: 1.25rem;
+  /* Increased font size */
 }
 
 .input-group-append .btn:hover {
@@ -195,7 +187,9 @@ button[disabled] {
 .icon-container {
   display: flex;
   justify-content: center;
-  margin-top: 10px;
+  align-items: center;
+  height: 100vh;
+  /* Full viewport height to center vertically */
 }
 
 .icon-container a {
@@ -207,9 +201,15 @@ button[disabled] {
   height: 50px;
 }
 
-@media (max-width: 576px) {
-  .icon-container img {
-    width: 40px;
-    height: 40px;
-  }
+.gandalf-image {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+}
+
+.text-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1rem;
 }
