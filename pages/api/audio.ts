@@ -9,8 +9,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ error: 'File parameter is required' });
   }
 
-  const audioFilePath = path.resolve('/tmp', file);
-  const localFilePath = path.resolve('public', file);
+  const audioFilePath = fs.realpathSync(path.resolve('/tmp', file));
+  const localFilePath = fs.realpathSync(path.resolve('public', file));
 
   if (!audioFilePath.startsWith('/tmp') && !localFilePath.startsWith(path.resolve('public'))) {
     return res.status(403).json({ error: 'Access forbidden' });
