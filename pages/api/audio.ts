@@ -9,14 +9,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ error: 'File parameter is required' });
   }
 
-  const audioFilePath = path.resolve('/tmp', file);
-  const localFilePath = path.resolve('public', file);
+  // Sanitize the file input to prevent path traversal attacks
+  const sanitizedFile = path.basename(file);
 
-  if (!audioFilePath.startsWith('/tmp') && !localFilePath.startsWith(path.resolve('public'))) {
+  const audioFilePath = path.resolve('/tmp', sanitizedFile);
+  const localFilePath = path.resolve('public', sanitizedFile);
+
+  const normalizedAudioFilePath = fs.existsSync(audioFilePath) ? fs.realpathSync(audioFilePath) : '';
+  const normalizedLocalFilePath = fs.existsSync(localFilePath) ? fs.realpathSync(localFilePath) : '';
+
+  if (!normalizedAudioFilePath.startsWith(path.resolve('/tmp')) && !normalizedLocalFilePath.startsWith(path.resolve('public'))) {
     return res.status(403).json({ error: 'Access forbidden' });
   }
 
-  const filePath = fs.existsSync(audioFilePath) ? audioFilePath : localFilePath;
+  const filePath = fs.existsSync(normalizedAudioFilePath) ? normalizedAudioFilePath : normalizedLocalFilePath;
 
   if (!fs.existsSync(filePath)) {
     return res.status(404).json({ error: 'File not found' });
