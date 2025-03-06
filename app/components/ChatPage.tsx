@@ -62,6 +62,12 @@ const ChatPage = (): JSX.Element => {
   }, [messages]);
 
   useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
+
+  useEffect(() => {
     if (!loading && inputRef.current) {
       inputRef.current.focus();
     }
