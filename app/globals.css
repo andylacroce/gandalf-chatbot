@@ -46,7 +46,6 @@ body {
   justify-content: flex-start;
   align-items: center;
   height: 100vh;
-  /* Full viewport height */
   width: 100%;
   padding: 0;
   margin: 0 auto;
@@ -59,7 +58,7 @@ body {
   padding: 1rem;
   margin: 0 auto;
   overflow-y: scroll;
-  height: 400%;
+  height: 100%;
 }
 
 .chat-box::-webkit-scrollbar {
@@ -101,7 +100,6 @@ body {
 .spinner-container {
   height: 42px;
   min-height: 42px;
-  /* Reserve height */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -138,6 +136,7 @@ button[disabled] {
 
 .card-footer {
   width: 100%;
+  margin: 10
 }
 
 .input-group {
@@ -153,9 +152,7 @@ button[disabled] {
   color: var(--input-text);
   border: none;
   padding: 1rem;
-  /* Increased padding */
   font-size: 1.25rem;
-  /* Increased font size */
   outline: none;
 }
 
@@ -175,41 +172,16 @@ button[disabled] {
   box-shadow: none !important;
   border: none !important;
   padding: 1rem 2rem;
-  /* Increased padding */
   font-size: 1.25rem;
-  /* Increased font size */
 }
 
 .input-group-append .btn:hover {
   background-color: var(--send-button-hover-bg);
 }
 
-.icon-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  /* Full viewport height to center vertically */
-}
-
-.icon-container a {
-  margin: 0 5px;
-}
-
-.icon-container img {
-  width: 50px;
-  height: 50px;
-}
-
-.gandalf-image {
-  width: 200px;
-  height: 200px;
-  border-radius: 50%;
-}
-
 .text-center {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 1rem;
+  margin: 1rem;
 }
