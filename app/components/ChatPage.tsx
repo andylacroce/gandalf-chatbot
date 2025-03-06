@@ -1,6 +1,7 @@
+"use client";
+
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import 'bootstrap/dist/css/bootstrap.min.css';
 import '../globals.css';
 import Image from 'next/image';
 import ChatMessage from './ChatMessage';
@@ -64,7 +65,7 @@ const ChatPage = () => {
       <div className="text-center mb-4">
         <Image src="/gandalf.jpg" alt="Gandalf" priority={true} width={200} height={200} />
       </div>
-      <div className="chat-box border rounded p-3 mb-3" style={{ height: '400px', overflowY: 'scroll' }} ref={chatBoxRef}>
+      <div className="chat-box border rounded p-3 mb-3" ref={chatBoxRef}>
         {messages.map((msg, index) => (
           <ChatMessage key={index} message={msg} />
         ))}
