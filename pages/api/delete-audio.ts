@@ -16,6 +16,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const filePath = path.resolve('/tmp', file);
 
+  if (!filePath.startsWith('/tmp')) {
+    return res.status(403).json({ error: 'Invalid file path' });
+  }
+
   if (fs.existsSync(filePath)) {
     fs.unlinkSync(filePath);
     return res.status(200).json({ message: 'File deleted successfully' });
