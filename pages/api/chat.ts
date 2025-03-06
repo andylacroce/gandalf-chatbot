@@ -3,6 +3,7 @@ import OpenAI from 'openai';
 import textToSpeech, { protos } from '@google-cloud/text-to-speech';
 import fs from 'fs';
 import path from 'path';
+import { v4 as uuidv4 } from 'uuid';
 
 /**
  * Ensure environment variables exist
@@ -139,7 +140,7 @@ ${conversationHistory.length > 0 ? `Here is the conversation up to this point:\n
       fs.mkdirSync(tmpDir, { recursive: true });
     }
 
-    const audioFileName = 'gandalf_reply.mp3';
+    const audioFileName = `${uuidv4()}.mp3`;
     const audioFilePath = path.join(tmpDir, audioFileName);
 
     if (fs.existsSync(audioFilePath)) {
