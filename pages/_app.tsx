@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import { AppProps } from 'next/app';
 import '@vercel/speed-insights';
-import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Analytics } from '@vercel/analytics/react';
+import ReactDOM from 'react-dom/client';
 
 function MyApp({ Component, pageProps }: AppProps) {
   useEffect(() => {
@@ -11,6 +11,14 @@ function MyApp({ Component, pageProps }: AppProps) {
       import('@vercel/speed-insights').then((module) => {
         module.injectSpeedInsights();
       });
+
+      // Dynamically append SpeedInsights to the body
+      const speedInsightsElement = document.createElement('div');
+      document.body.appendChild(speedInsightsElement);
+      import('@vercel/speed-insights/next').then(({ SpeedInsights }) => {
+        const root = ReactDOM.createRoot(speedInsightsElement);
+        root.render(<SpeedInsights />);
+      });
     }
   }, []);
 
@@ -18,7 +26,6 @@ function MyApp({ Component, pageProps }: AppProps) {
     <>
       <Component {...pageProps} />
       <Analytics />
-      <SpeedInsights />
     </>
   );
 }
