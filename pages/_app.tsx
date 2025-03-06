@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { AppProps } from 'next/app';
 import '@vercel/speed-insights';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Analytics } from '@vercel/analytics/react';
 
 function MyApp({ Component, pageProps }: AppProps) {
@@ -17,6 +18,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     <>
       <Component {...pageProps} />
       <Analytics />
+      <SpeedInsights />
     </>
   );
 }
