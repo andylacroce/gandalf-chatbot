@@ -26,6 +26,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     <>
       <Component {...pageProps} />
       <Analytics />
+      <div id="speed-insights-container"></div>
     </>
   );
 }
