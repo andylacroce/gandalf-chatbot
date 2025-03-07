@@ -23,7 +23,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const normalizedLocalFilePath = fs.existsSync(localFilePath) ? fs.realpathSync(localFilePath) : '';
 
   if (!normalizedAudioFilePath.startsWith(path.resolve('/tmp')) && !normalizedLocalFilePath.startsWith(path.resolve('public'))) {
-    return res.status(403).json({ error: 'Access forbidden' });
+    return res.status(404).json({ error: 'File not found' });
   }
 
   const filePath = fs.existsSync(normalizedAudioFilePath) ? normalizedAudioFilePath : normalizedLocalFilePath;
