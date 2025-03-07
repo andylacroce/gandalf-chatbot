@@ -23,9 +23,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   let normalizedAudioFilePath = checkFileExists(audioFilePath);
   let normalizedLocalFilePath = checkFileExists(localFilePath);
 
-  for (let i = 0; i < 2; i++) {
+  for (let i = 0; i < 3; i++) {
     if (normalizedAudioFilePath || normalizedLocalFilePath) break;
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 1500));
     normalizedAudioFilePath = checkFileExists(audioFilePath);
     normalizedLocalFilePath = checkFileExists(localFilePath);
   }
