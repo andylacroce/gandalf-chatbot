@@ -73,7 +73,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const timestamp = new Date().toISOString();
-    conversationHistory.push(`User (${timestamp}, ${userIp}, ${userLocation}): ${userMessage}`);
+    conversationHistory.push(`User: ${userMessage}`);
     
     if (conversationHistory.length > 50) {
       conversationHistory = conversationHistory.slice(-50);
@@ -119,7 +119,7 @@ ${conversationHistory.length > 0 ? `Here is the conversation up to this point:\n
       throw new Error('Generated Gandalf response is empty.');
     }
 
-    conversationHistory.push(`Gandalf (${timestamp}): ${gandalfReply}`);
+    conversationHistory.push(`Gandalf: ${gandalfReply}`);
 
     const request: protos.google.cloud.texttospeech.v1.ISynthesizeSpeechRequest = {
       input: { 
@@ -165,7 +165,7 @@ ${conversationHistory.length > 0 ? `Here is the conversation up to this point:\n
 
     // Log the user message and Gandalf's reply with timestamp, IP, and location
     console.log(`User (${timestamp}, ${userIp}, ${userLocation}): ${userMessage}`);
-    console.log(`Gandalf (${timestamp}): ${gandalfReply}`);
+    console.log(`Gandalf (${timestamp}, ${userIp}, ${userLocation}): ${gandalfReply}`);
 
     res.status(200).json({ reply: gandalfReply, audioFileUrl: `/api/audio?file=${audioFileName}` });
   } catch (error) {
