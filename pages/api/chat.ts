@@ -163,9 +163,14 @@ ${conversationHistory.length > 0 ? `Here is the conversation up to this point:\n
 
     fs.writeFileSync(audioFilePath, response.audioContent, 'binary');
 
-    // Log the user message and Gandalf's reply with timestamp, IP, and location
-    console.log(`User (${timestamp}, ${userIp}, ${userLocation}): ${userMessage}`);
-    console.log(`Gandalf (${timestamp}, ${userIp}, ${userLocation}): ${gandalfReply}`);
+    // Log the user message and Gandalf's reply with timestamp, IP, and location in a structured JSON format
+    console.log(JSON.stringify({
+      timestamp,
+      userIp,
+      userLocation,
+      userMessage,
+      gandalfReply
+    }));
 
     res.status(200).json({ reply: gandalfReply, audioFileUrl: `/api/audio?file=${audioFileName}` });
   } catch (error) {
