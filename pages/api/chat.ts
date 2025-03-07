@@ -4,6 +4,7 @@ import textToSpeech, { protos } from '@google-cloud/text-to-speech';
 import fs from 'fs';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
+import ipinfo from 'ipinfo';
 
 /**
  * Ensure environment variables exist
@@ -59,7 +60,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: 'Message is required' });
     }
 
-    conversationHistory.push(`User: ${userMessage}`);
+    const userIp = Array.isArray(req.headers['x-forwarded-for']) ? req.headers['x-forwarded-for'][0] : req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    let userLocation = 'Unknown location';
+
+    if (userIp) {
+      try {
+        const locationData = await ipinfo(userIp as string);
+        userLocation = `${locationData.city}, ${locationData.region}, ${locationData.country}`;
+      } catch (error) {
+        console.error('IP info error:', error);
+      }
+    }
+
+    const timestamp = new Date().toISOString();
+    conversationHistory.push(`User (${timestamp}, ${userIp}, ${userLocation}): ${userMessage}`);
     
     if (conversationHistory.length > 50) {
       conversationHistory = conversationHistory.slice(-50);
@@ -105,7 +119,7 @@ ${conversationHistory.length > 0 ? `Here is the conversation up to this point:\n
       throw new Error('Generated Gandalf response is empty.');
     }
 
-    conversationHistory.push(`Gandalf: ${gandalfReply}`);
+    conversationHistory.push(`Gandalf (${timestamp}): ${gandalfReply}`);
 
     const request: protos.google.cloud.texttospeech.v1.ISynthesizeSpeechRequest = {
       input: { 
@@ -148,6 +162,10 @@ ${conversationHistory.length > 0 ? `Here is the conversation up to this point:\n
     }
 
     fs.writeFileSync(audioFilePath, response.audioContent, 'binary');
+
+    // Log the user message and Gandalf's reply with timestamp, IP, and location
+    console.log(`User (${timestamp}, ${userIp}, ${userLocation}): ${userMessage}`);
+    console.log(`Gandalf (${timestamp}): ${gandalfReply}`);
 
     res.status(200).json({ reply: gandalfReply, audioFileUrl: `/api/audio?file=${audioFileName}` });
   } catch (error) {
