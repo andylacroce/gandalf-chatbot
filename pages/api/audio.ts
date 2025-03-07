@@ -15,18 +15,26 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   const sanitizedFile = path.basename(file);
-
   const audioFilePath = path.resolve('/tmp', sanitizedFile);
   const localFilePath = path.resolve('public', sanitizedFile);
 
-  const normalizedAudioFilePath = fs.existsSync(audioFilePath) ? fs.realpathSync(audioFilePath) : '';
-  const normalizedLocalFilePath = fs.existsSync(localFilePath) ? fs.realpathSync(localFilePath) : '';
+  const checkFileExists = (filePath: string) => fs.existsSync(filePath) ? fs.realpathSync(filePath) : '';
+
+  let normalizedAudioFilePath = checkFileExists(audioFilePath);
+  let normalizedLocalFilePath = checkFileExists(localFilePath);
+
+  for (let i = 0; i < 2; i++) {
+    if (normalizedAudioFilePath || normalizedLocalFilePath) break;
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    normalizedAudioFilePath = checkFileExists(audioFilePath);
+    normalizedLocalFilePath = checkFileExists(localFilePath);
+  }
 
   if (!normalizedAudioFilePath.startsWith(path.resolve('/tmp')) && !normalizedLocalFilePath.startsWith(path.resolve('public'))) {
     return res.status(404).json({ error: 'File not found' });
   }
 
-  const filePath = fs.existsSync(normalizedAudioFilePath) ? normalizedAudioFilePath : normalizedLocalFilePath;
+  const filePath = normalizedAudioFilePath || normalizedLocalFilePath;
 
   if (!fs.existsSync(filePath)) {
     return res.status(404).json({ error: 'File not found' });
