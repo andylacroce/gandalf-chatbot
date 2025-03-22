@@ -10,7 +10,7 @@
     "docs": "typedoc"
   },
   "dependencies": {
-    "@google-cloud/text-to-speech": "^5.8.0",
+    "@google-cloud/text-to-speech": "^6.0.1",
     "@vercel/analytics": "^1.4.1",
     "@vercel/speed-insights": "^1.2.0",
     "axios": "^1.8.4",
