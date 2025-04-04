@@ -14,7 +14,7 @@
     "@vercel/analytics": "^1.4.1",
     "@vercel/speed-insights": "^1.2.0",
     "axios": "^1.8.4",
-    "bootstrap": "^5.3.3",
+    "bootstrap": "^5.3.5",
     "express-rate-limit": "^7.5.0",
     "gandalf-chatbot": "file:",
     "next": "^15.2.4",
