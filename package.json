@@ -44,7 +44,7 @@
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "postcss": "^8.4.31",
-    "ts-jest": "^29.2.5",
+    "ts-jest": "^29.3.1",
     "typedoc": "^0.28.1",
     "typescript": "^5"
   }
