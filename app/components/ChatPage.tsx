@@ -60,8 +60,10 @@ const ChatPage = () => {
     if (currentAudio) {
       currentAudio.pause();
       currentAudio.currentTime = 0;
+
       try {
-        await axios.delete(currentAudio.src);
+        const previousAudioFileName = extractFileName(currentAudio.src);
+        await axios.delete(`/api/audio/${previousAudioFileName}`);
       } catch (error) {
         console.error('Error deleting previous audio file:', error);
       }
@@ -72,13 +74,23 @@ const ChatPage = () => {
 
     audio.onended = async () => {
       try {
-        await axios.delete(audioFileUrl);
+        const currentAudioFileName = extractFileName(audioFileUrl);
+        await axios.delete(`/api/audio/${currentAudioFileName}`);
       } catch (error) {
         console.error('Error deleting audio file:', error);
       }
     };
 
     return audio;
+  };
+
+  /**
+   * Extracts the file name from a URL.
+   * @param url The full URL of the file.
+   * @returns The file name.
+   */
+  const extractFileName = (url: string): string => {
+    return url.split('/').pop() || '';
   };
 
   useEffect(() => {
