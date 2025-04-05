@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import type { JSX } from 'react';
 import axios from 'axios';
 import '../globals.css';
 import Image from 'next/image';
@@ -17,7 +16,7 @@ interface Message {
  * ChatPage component that handles the chat interface and interactions.
  * @returns {JSX.Element} The ChatPage component.
  */
-const ChatPage = (): JSX.Element => {
+const ChatPage = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);

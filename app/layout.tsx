@@ -9,7 +9,7 @@ import './globals.css';
  * @param {React.ReactNode} props.children - The child components.
  * @returns {JSX.Element} The RootLayout component.
  */
-const RootLayout = ({ children }: { children: React.ReactNode }): JSX.Element => {
+const RootLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <html lang="en">
       <head>

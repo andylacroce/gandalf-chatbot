@@ -1,6 +1,4 @@
 import React from 'react';
-import type { JSX } from 'react';
-
 interface Message {
   text: string;
   sender: string;
@@ -12,7 +10,7 @@ interface Message {
  * @param {Message} props.message - The message to display.
  * @returns {JSX.Element} The ChatMessage component.
  */
-const ChatMessage = ({ message }: { message: Message }): JSX.Element => {
+const ChatMessage = ({ message }: { message: Message }) => {
   const messageClass = message.sender === 'User' ? 'user-message' : 'gandalf-message';
   const senderClass = message.sender === 'User' ? 'user-sender' : 'gandalf-sender';
 
