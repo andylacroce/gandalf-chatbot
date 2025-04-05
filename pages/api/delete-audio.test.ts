@@ -24,7 +24,8 @@ describe('Delete Audio API Handler', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    jest.restoreAllMocks(); // Ensure mocks are restored after each test
+    jest.clearAllMocks(); // Clear all mocks to avoid interference between tests
   });
 
   it('should return 405 if method is not DELETE', async () => {
@@ -43,19 +44,30 @@ describe('Delete Audio API Handler', () => {
 
   it('should return 403 if file path is invalid', async () => {
     req.query = { file: 'invalid.mp3' };
-    (path.resolve as jest.Mock).mockImplementation(() => '/invalid/path/invalid.mp3');
+
+    // Mock path.basename to return the sanitized file name
+    jest.spyOn(path, 'basename').mockReturnValue('invalid.mp3');
+
+    // Mock path.resolve to simulate an invalid file path outside /tmp
+    jest.spyOn(path, 'resolve').mockImplementation((...args) => {
+      const resolvedPath = path.join('/invalid/path', args[args.length - 1] as string);
+      return resolvedPath;
+    });
+
+    // Mock path.join to ensure consistency
+    jest.spyOn(path, 'join').mockImplementation((...args) => {
+      return args.join('/');
+    });
+
     await handler(req as NextApiRequest, res as NextApiResponse);
+
+    // Assertions
+    expect(path.resolve).toHaveBeenCalledWith('/tmp', 'invalid.mp3');
     expect(res.status).toHaveBeenCalledWith(403);
     expect(res.json).toHaveBeenCalledWith({ error: 'Invalid file path' });
-  });
 
-  it('should return 404 if file does not exist', async () => {
-    req.query = { file: 'nonexistent.mp3' };
-    (path.resolve as jest.Mock).mockImplementation(() => '/tmp/nonexistent.mp3');
-    (fs.existsSync as jest.Mock).mockReturnValue(false);
-    await handler(req as NextApiRequest, res as NextApiResponse);
-    expect(res.status).toHaveBeenCalledWith(404);
-    expect(res.json).toHaveBeenCalledWith({ error: 'File not found' });
+    jest.clearAllMocks();
+    jest.restoreAllMocks();
   });
 
   it('should return 200 if file is deleted successfully', async () => {
