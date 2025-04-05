@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
+import type { JSX } from 'react';
 import axios from 'axios';
 import '../globals.css';
 import Image from 'next/image';
