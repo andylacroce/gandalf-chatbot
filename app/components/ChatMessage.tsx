@@ -11,6 +11,11 @@ interface Message {
  * @returns {JSX.Element} The ChatMessage component.
  */
 const ChatMessage = ({ message }: { message: Message }) => {
+  if (!message || typeof message.text !== 'string' || typeof message.sender !== 'string') {
+    console.error('Invalid message object:', message);
+    return null; // Render nothing if the message is invalid
+  }
+
   const messageClass = message.sender === 'User' ? 'user-message' : 'gandalf-message';
   const senderClass = message.sender === 'User' ? 'user-sender' : 'gandalf-sender';
 
