@@ -11,7 +11,7 @@ import './globals.css';
  */
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <html lang="en">
+    <html lang="en" className="">
       <head>
         <title>Gandalf Chatbot</title>
       </head>
