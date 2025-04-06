@@ -5,6 +5,7 @@ import fs from 'fs';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import ipinfo from 'ipinfo';
+import logger from '../../src/utils/logger';  // corrected path
 
 /**
  * Ensure environment variables exist
@@ -68,7 +69,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const locationData = await ipinfo(userIp as string);
         userLocation = `${locationData.city}, ${locationData.region}, ${locationData.country}`;
       } catch (error) {
-        console.error('IP info error:', error);
+        logger.error('IP info error:', error);
       }
     }
 
@@ -144,7 +145,7 @@ ${conversationHistory.length > 0 ? `Here is the conversation up to this point:\n
         throw new Error('TTS API response is missing audioContent');
       }
     } catch (error) {
-      console.error('Text-to-Speech API error:', error);
+      logger.error('Text-to-Speech API error:', error);
       const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
       return res.status(500).json({ error: 'Google Cloud TTS failed', details: errorMessage });
     }
@@ -164,11 +165,11 @@ ${conversationHistory.length > 0 ? `Here is the conversation up to this point:\n
     fs.writeFileSync(audioFilePath, response.audioContent, 'binary');
 
     // Log the user message and Gandalf's reply with timestamp, IP, and location in pipe-separated format
-    console.log(`${timestamp}|${userIp}|${userLocation}|${userMessage.replace(/"/g, '""')}|${gandalfReply.replace(/"/g, '""')}`);
+    logger.info(`${timestamp}|${userIp}|${userLocation}|${userMessage.replace(/"/g, '""')}|${gandalfReply.replace(/"/g, '""')}`);
 
     res.status(200).json({ reply: gandalfReply, audioFileUrl: `/api/audio?file=${audioFileName}` });
   } catch (error) {
-    console.error('API error:', error);
+    logger.error('API error:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     res.status(500).json({ reply: 'Error fetching response from Gandalf.', error: errorMessage });
   }

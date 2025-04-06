@@ -22,7 +22,8 @@
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "sharp": "^0.34.0",
-    "uuid": "^11.1.0"
+    "uuid": "^11.1.0",
+    "winston": "^3.8.2"
   },
   "devDependencies": {
     "@babel/core": "^7.26.10",
