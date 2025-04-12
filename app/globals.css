@@ -185,19 +185,3 @@ button[disabled] {
   align-items: center;
   margin: 1rem;
 }
-
-/* Added styles for the toggle switch */
-.toggle-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 1rem;
-}
-
-.toggle-label {
-  margin-left: 0.5rem;
-  line-height: 20px;
-  color: var(--color-text);
-}
-
-/* Removed react-switch related styles */

@@ -6,7 +6,7 @@ import '../globals.css';
 import Image from 'next/image';
 import ChatMessage from './ChatMessage';
 import ToggleSwitch from '@trendmicro/react-toggle-switch';
-import '@trendmicro/react-toggle-switch/dist/react-toggle-switch.css';
+import '@trendmicro/react-toggle-switch/dist/react-toggle-switch.css'; // Reintroduced the default styles for the toggle switch
 
 interface Message {
   text: string;
