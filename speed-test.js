@@ -4,7 +4,7 @@
  * It helps identify slow test files for targeted optimization.
  */
 
-const { execSync } = require('child_process');
+const { execSync, execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
@@ -35,7 +35,9 @@ const runTests = () => {
     const start = Date.now();
     
     try {
-      execSync(`npx jest ${file} --silent`, { stdio: 'pipe' });
+      // Fixed CWE-78 vulnerability by using execFileSync with array arguments
+      // instead of string command which could allow command injection
+      execFileSync('npx', ['jest', file, '--silent'], { stdio: 'pipe' });
       const duration = Date.now() - start;
       results.push({ file, duration, success: true });
       console.log(`✓ Completed in ${duration}ms\n`);
