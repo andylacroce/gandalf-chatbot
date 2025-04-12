@@ -9,3 +9,5 @@ declare module 'ipinfo' {
 
   export = ipinfo;
 }
+
+declare module 'lru-cache';
