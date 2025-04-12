@@ -97,6 +97,8 @@ npm run test:debug
 npm run test:speed
 ```
 
+For parallel test execution, use `npm run test:parallel` to utilize all available CPU cores and significantly reduce test execution time.
+
 ### Documentation
 
 Generate documentation locally:
@@ -135,7 +137,7 @@ tests/             # Test files
 - **Frontend**: React 19, Next.js 15.3
 - **API**: OpenAI API (v4.93.0), Google Cloud Text-to-Speech
 - **Development**: TypeScript, ESLint, Autoprefixer, PostCSS
-- **Testing**: Jest, React Testing Library, custom speed testing
+- **Testing**: Jest, React Testing Library
 - **Logging**: Winston
 - **Other**: UUID, Axios, LRU Cache
 
@@ -159,6 +161,14 @@ tests/             # Test files
 3. Commit your changes: `git commit -m 'Add some feature'`
 4. Push to the branch: `git push origin feature/your-feature`
 5. Open a pull request
+
+### Development Best Practices
+
+- Write tests for new features
+- Run tests in parallel with `npm run test:parallel` to save time
+- Update documentation for API changes
+- Follow the existing code style
+- Make sure all tests pass before submitting a pull request
 
 ---
 

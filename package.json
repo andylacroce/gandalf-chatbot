@@ -16,7 +16,6 @@
     "test:parallel": "jest --maxWorkers=100%",
     "test:update": "jest --updateSnapshot",
     "test:speed": "jest --config jest.speed.config.js",
-    "test:analyze": "node speed-test.js",
     "test:dev": "jest --config jest.speed.config.js --bail --onlyChanged --maxWorkers=100%"
   },
   "dependencies": {
