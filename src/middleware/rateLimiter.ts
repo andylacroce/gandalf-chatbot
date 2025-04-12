@@ -1,24 +1,54 @@
+/**
+ * Rate limiting middleware to prevent API abuse.
+ * Implements IP-based request limiting using LRU cache.
+ * @module rateLimiter
+ */
+
 import { NextApiRequest, NextApiResponse } from 'next';
 import { LRUCache } from 'lru-cache';
 
+/**
+ * Configuration options for the rate limiter
+ * @const
+ * @type {Object}
+ * @property {number} maxRequests - Maximum number of requests allowed per IP in the time window
+ * @property {number} windowMs - Time window in milliseconds
+ */
 const rateLimitOptions = {
   maxRequests: 100, // Limit each IP to 100 requests
   windowMs: 15 * 60 * 1000, // 15 minutes in milliseconds
 };
 
-// Define interface for rate limit data
+/**
+ * Interface defining the structure of rate limit data for each IP
+ * @interface RateLimitData
+ * @property {number} count - Number of requests made in the current window
+ * @property {number} resetTime - Timestamp when the rate limit window resets
+ */
 interface RateLimitData {
   count: number;
   resetTime: number;
 }
 
-// Create cache without generic type parameters in the constructor
+/**
+ * LRU Cache instance for storing rate limit data by IP address
+ * Uses time-based expiration to automatically clean up old entries
+ * @type {LRUCache<string, RateLimitData>}
+ */
 const rateLimiterCache = new LRUCache({
   max: 5000, // Maximum number of IPs to store in cache
   ttl: rateLimitOptions.windowMs, // Time-to-live for each entry
   allowStale: false, // Ensure stale items are not returned
 });
 
+/**
+ * Extracts the client IP address from the request
+ * Handles various proxy scenarios by checking x-forwarded-for header
+ * 
+ * @function
+ * @param {NextApiRequest} req - The Next.js API request object
+ * @returns {string|null} The client's IP address or null if not found
+ */
 const extractClientIp = (req: NextApiRequest): string | null => {
   const xForwardedFor = req.headers['x-forwarded-for'];
   if (typeof xForwardedFor === 'string') {
@@ -27,13 +57,26 @@ const extractClientIp = (req: NextApiRequest): string | null => {
   return req.socket?.remoteAddress || null;
 };
 
+/**
+ * Rate limiting middleware function
+ * Tracks request counts by IP address and enforces limits
+ * Responds with 429 status when limits are exceeded
+ * 
+ * @function
+ * @param {NextApiRequest} req - The Next.js API request object
+ * @param {NextApiResponse} res - The Next.js API response object
+ * @param {Function} next - The function to call when the request should proceed
+ * @returns {Promise<void>}
+ */
 const rateLimiter = async (
   req: NextApiRequest,
   res: NextApiResponse,
   next: () => void
 ) => {
+  // Get client IP address
   const ip = extractClientIp(req);
 
+  // Handle missing IP address
   if (!ip) {
     return res.status(400).json({ error: 'Unable to determine client IP address.' });
   }
@@ -41,13 +84,18 @@ const rateLimiter = async (
   const currentTime = Date.now();
   let rateData = rateLimiterCache.get(ip);
 
+  // First request from this IP
   if (!rateData) {
     // Initialize rate data for new IP
-    rateData = { count: 1, resetTime: currentTime + rateLimitOptions.windowMs };
+    rateData = { 
+      count: 1, 
+      resetTime: currentTime + rateLimitOptions.windowMs 
+    };
     rateLimiterCache.set(ip, rateData);
     return next();
   }
 
+  // Reset counter if the time window has expired
   if (currentTime > rateData.resetTime) {
     // Reset count after the time window expires
     rateData.count = 1;
@@ -56,6 +104,7 @@ const rateLimiter = async (
     return next();
   }
 
+  // Check if rate limit exceeded
   if (rateData.count >= rateLimitOptions.maxRequests) {
     rateLimiterCache.set(ip, rateData); // Ensure the cache is updated before responding
     return res.status(429).json({

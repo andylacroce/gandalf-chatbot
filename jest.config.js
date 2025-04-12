@@ -1,9 +1,25 @@
+/**
+ * @fileoverview Jest configuration for testing the Gandalf Chatbot application.
+ * This file configures Jest to properly handle Next.js, TypeScript, and CSS modules.
+ * 
+ * @see {@link https://jestjs.io/docs/configuration}
+ * @see {@link https://nextjs.org/docs/testing#jest-and-react-testing-library}
+ */
+
 const nextJest = require('next/jest');
 
+/**
+ * Create a Jest configuration with Next.js defaults
+ * This provides automatic transforms and module mocks for Next.js
+ */
 const createJestConfig = nextJest({
   dir: './',
 });
 
+/**
+ * Custom Jest configuration with specific settings for the Gandalf Chatbot
+ * @type {import('jest').Config}
+ */
 const customJestConfig = {
   preset: 'ts-jest',
   testEnvironment: 'jest-environment-jsdom',

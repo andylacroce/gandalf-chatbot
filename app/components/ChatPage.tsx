@@ -1,3 +1,8 @@
+/**
+ * Main chat interface component that manages the conversation with Gandalf.
+ * @module ChatPage
+ */
+
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
@@ -6,8 +11,15 @@ import '../globals.css';
 import Image from 'next/image';
 import ChatMessage from './ChatMessage';
 import ToggleSwitch from '@trendmicro/react-toggle-switch';
-import '@trendmicro/react-toggle-switch/dist/react-toggle-switch.css'; // Reintroduced the default styles for the toggle switch
+import '@trendmicro/react-toggle-switch/dist/react-toggle-switch.css';
 
+/**
+ * Interface representing a chat message in the conversation.
+ * @interface Message
+ * @property {string} text - The content of the message.
+ * @property {string} sender - The sender of the message ('User' or 'Gandalf').
+ * @property {string} [audioFileUrl] - Optional URL to the audio file of the message.
+ */
 interface Message {
   text: string;
   sender: string;
@@ -15,22 +27,46 @@ interface Message {
 }
 
 /**
- * ChatPage component that handles the chat interface and interactions.
+ * ChatPage component that handles the chat interface and interactions with the Gandalf AI.
+ * This component manages the state of the conversation, handles user input, and plays audio responses.
+ * 
  * @returns {JSX.Element} The ChatPage component.
  */
 const ChatPage = () => {
+  /** @state {Message[]} Current messages in the conversation */
   const [messages, setMessages] = useState<Message[]>([]);
+  
+  /** @state {string} Current user input */
   const [input, setInput] = useState<string>('');
+  
+  /** @state {boolean} Whether a request is in progress */
   const [loading, setLoading] = useState<boolean>(false);
+  
+  /** @state {string} Error message if any */
   const [error, setError] = useState<string>('');
-  const [audioEnabled, setAudioEnabled] = useState<boolean>(true); // New state for audio toggle
+  
+  /** @state {boolean} Whether audio responses are enabled */
+  const [audioEnabled, setAudioEnabled] = useState<boolean>(true);
+  
+  /** @ref Reference to the chat box container for auto-scrolling */
   const chatBoxRef = useRef<HTMLDivElement>(null);
+  
+  /** @ref Reference to the input field for auto-focusing */
   const inputRef = useRef<HTMLInputElement | null>(null);
+  
+  /** @state {Message[]} Complete conversation history */
   const [conversationHistory, setConversationHistory] = useState<Message[]>([]);
+  
+  /** @state {HTMLAudioElement | null} Currently playing audio element */
   const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
 
   /**
-   * Sends a message to the server and handles the response.
+   * Sends the user's message to the server and handles Gandalf's response.
+   * This function manages the entire message flow, including updating the UI,
+   * sending API requests, and handling audio playback.
+   * 
+   * @function
+   * @returns {Promise<void>}
    */
   const sendMessage = async () => {
     if (!input.trim()) return;
@@ -43,11 +79,20 @@ const ChatPage = () => {
 
     try {
       const response = await axios.post('/api/chat', { message: input });
-      const gandalfReply: Message = { sender: 'Gandalf', text: response.data.reply, audioFileUrl: response.data.audioFileUrl };
+      const gandalfReply: Message = { 
+        sender: 'Gandalf', 
+        text: response.data.reply, 
+        audioFileUrl: response.data.audioFileUrl 
+      };
+      
       setMessages([...newMessages, gandalfReply]);
-      setConversationHistory([...conversationHistory, { sender: 'User', text: input }, gandalfReply]);
+      setConversationHistory([
+        ...conversationHistory, 
+        { sender: 'User', text: input }, 
+        gandalfReply
+      ]);
 
-      if (audioEnabled && gandalfReply.audioFileUrl) { // Respect audio toggle
+      if (audioEnabled && gandalfReply.audioFileUrl) {
         const audio = await playAudio(gandalfReply.audioFileUrl);
         setCurrentAudio(audio);
       }
@@ -59,6 +104,15 @@ const ChatPage = () => {
     }
   };
 
+  /**
+   * Plays an audio file from the provided URL.
+   * This function handles stopping any currently playing audio,
+   * cleaning up previous audio files, and managing audio playback events.
+   * 
+   * @function
+   * @param {string} audioFileUrl - The URL of the audio file to play
+   * @returns {Promise<HTMLAudioElement>} The audio element that was created
+   */
   const playAudio = async (audioFileUrl: string) => {
     if (currentAudio) {
       currentAudio.pause();
@@ -90,6 +144,10 @@ const ChatPage = () => {
     return audio;
   };
 
+  /**
+   * Toggles the audio playback functionality on and off.
+   * When toggled off, it stops any currently playing audio and cleans up resources.
+   */
   const handleAudioToggle = () => {
     setAudioEnabled(!audioEnabled);
 
@@ -98,7 +156,7 @@ const ChatPage = () => {
       currentAudio.pause();
       currentAudio.currentTime = 0;
 
-      // Optionally delete the current audio file
+      // Delete the current audio file
       const currentAudioFileName = extractFileName(currentAudio.src);
       axios.delete(`/api/delete-audio?file=${currentAudioFileName}`).catch((error) => {
         console.error('Error deleting current audio file:', error);
@@ -111,26 +169,37 @@ const ChatPage = () => {
 
   /**
    * Extracts the file name from a URL.
-   * @param url The full URL of the file.
-   * @returns The file name.
+   * Parses the URL and extracts the 'file' query parameter.
+   * 
+   * @param {string} url - The full URL of the file
+   * @returns {string} The extracted file name or empty string if not found
    */
   const extractFileName = (url: string): string => {
-    const parsedUrl = new URL(url, window.location.origin); // Parse the URL
-    return parsedUrl.searchParams.get('file') || ''; // Extract the 'file' query parameter
+    const parsedUrl = new URL(url, window.location.origin);
+    return parsedUrl.searchParams.get('file') || '';
   };
 
+  /**
+   * Effect hook to scroll the chat box to the bottom when new messages arrive.
+   */
   useEffect(() => {
     if (chatBoxRef.current) {
       chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
     }
   }, [messages]);
 
+  /**
+   * Effect hook to focus the input field when the component mounts.
+   */
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
     }
   }, []);
 
+  /**
+   * Effect hook to re-focus the input field after loading completes.
+   */
   useEffect(() => {
     if (!loading && inputRef.current) {
       inputRef.current.focus();

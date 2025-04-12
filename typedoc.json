@@ -1,11 +1,23 @@
 {
     "entryPoints": [
-        "./app"
+        "./app",
+        "./pages",
+        "./src"
     ],
+    "entryPointStrategy": "expand",
     "out": "docs",
     "exclude": [
         "**/*.test.ts",
-        "**/*.spec.ts"
+        "**/*.test.tsx",
+        "**/*.spec.ts",
+        "**/*.spec.tsx",
+        "**/node_modules/**"
     ],
-    "tsconfig": "./tsconfig.json"
+    "tsconfig": "./tsconfig.json",
+    "theme": "default",
+    "includeVersion": true,
+    "name": "Gandalf Chatbot Documentation",
+    "readme": "./README.md",
+    "hideGenerator": true,
+    "highlightLanguages": ["typescript", "javascript", "bash", "json", "ini", "text"]
 }
