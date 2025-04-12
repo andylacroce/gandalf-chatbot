@@ -1,10 +1,7 @@
 const fs = require('fs');
 const path = require('path');
-const { execFile, spawn } = require('child_process');
-const { promisify } = require('util');
+const { spawn } = require('child_process');
 const packageJson = require('../package.json');
-
-const execFileAsync = promisify(execFile);
 
 // Get the current version from package.json
 const version = packageJson.version;
@@ -22,8 +19,14 @@ if (!isValidVersion(version)) {
 }
 
 // Create the versioned directory structure
-const docsBaseDir = path.join(__dirname, '../docs');
+const projectRoot = path.resolve(__dirname, '..');
+const docsBaseDir = path.join(projectRoot, 'docs');
 const versionedDocsDir = path.join(docsBaseDir, `v${version}`);
+
+// Make sure docs directory exists
+if (!fs.existsSync(docsBaseDir)) {
+  fs.mkdirSync(docsBaseDir, { recursive: true });
+}
 
 // Function to delete old versions if needed
 function cleanupOldVersions() {
@@ -50,14 +53,21 @@ function cleanupOldVersions() {
 }
 
 // Create a modified TypeDoc config with the versioned output directory
-const typeDocConfig = require('../typedoc.json');
+const typeDocConfigPath = path.join(projectRoot, 'typedoc.json');
+
+if (!fs.existsSync(typeDocConfigPath)) {
+  console.error(`TypeDoc config file not found at ${typeDocConfigPath}`);
+  process.exit(1);
+}
+
+const typeDocConfig = require(typeDocConfigPath);
 const versionedConfig = {
   ...typeDocConfig,
   out: `docs/v${version}`
 };
 
-// Write the config file
-const tempConfigPath = path.resolve(__dirname, '../typedoc.versioned.json');
+// Write the config file to the project root
+const tempConfigPath = path.join(projectRoot, 'typedoc.versioned.json');
 
 // Write the temporary config file
 fs.writeFileSync(tempConfigPath, JSON.stringify(versionedConfig, null, 2));
@@ -70,23 +80,20 @@ async function generateDocs() {
     // Run TypeDoc with the versioned configuration
     console.log('Running TypeDoc...');
     
-    // Use spawn instead of execFile for better cross-platform compatibility
+    // Use spawn for better cross-platform compatibility
     return new Promise((resolve, reject) => {
+      // Ensure we're using the right command based on the platform
       const isWindows = process.platform === 'win32';
       
-      // Use absolute path to the config file
-      const configPath = path.resolve(tempConfigPath);
+      // Run typedoc directly with the configured options
+      const cmd = isWindows ? 'npx.cmd' : 'npx';
+      const args = ['typedoc', '--options', 'typedoc.versioned.json'];
       
-      // On Windows, use npm run directly instead of npx
-      const cmd = isWindows ? 'npm' : 'npx';
-      const args = isWindows 
-        ? ['run', 'typedoc', '--', '--options', configPath]
-        : ['typedoc', '--options', configPath];
+      console.log(`Executing: ${cmd} ${args.join(' ')}`);
       
       const child = spawn(cmd, args, {
         stdio: 'inherit', // Show output in console
-        shell: isWindows, // Use shell on Windows for better compatibility
-        cwd: path.resolve(__dirname, '..') // Run from the project root
+        cwd: projectRoot // Run from project root to ensure relative paths work
       });
       
       child.on('close', (code) => {
@@ -98,6 +105,7 @@ async function generateDocs() {
       });
       
       child.on('error', (err) => {
+        console.error('TypeDoc process failed to start:', err);
         reject(err);
       });
     })
