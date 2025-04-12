@@ -25,6 +25,30 @@ if (!isValidVersion(version)) {
 const docsBaseDir = path.join(__dirname, '../docs');
 const versionedDocsDir = path.join(docsBaseDir, `v${version}`);
 
+// Function to delete old versions if needed
+function cleanupOldVersions() {
+  console.log('Checking for old documentation versions to clean up...');
+  
+  // Get all version directories
+  const versionDirs = fs.readdirSync(docsBaseDir)
+    .filter(dir => dir.startsWith('v') && fs.statSync(path.join(docsBaseDir, dir)).isDirectory())
+    .map(dir => ({ 
+      name: dir, 
+      version: dir.substring(1),
+      path: path.join(docsBaseDir, dir)
+    }))
+    .filter(dir => isValidVersion(dir.version));
+  
+  // Check if current version already exists (to be replaced)
+  const currentVersionDir = versionDirs.find(dir => dir.version === version);
+  if (currentVersionDir) {
+    console.log(`Removing existing documentation for version ${version}`);
+    fs.rmSync(currentVersionDir.path, { recursive: true, force: true });
+  }
+  
+  console.log('Old documentation cleanup completed.');
+}
+
 // Run TypeDoc with a temporary configuration
 const tempConfigPath = path.join(__dirname, '../typedoc.versioned.json');
 
@@ -40,6 +64,9 @@ fs.writeFileSync(tempConfigPath, JSON.stringify(versionedConfig, null, 2));
 
 async function generateDocs() {
   try {
+    // Clean up old versions first
+    cleanupOldVersions();
+    
     // Run TypeDoc with the versioned configuration - SECURE VERSION
     console.log('Running TypeDoc...');
     // Use execFile to avoid shell injection vulnerabilities (CWE-78)
@@ -48,14 +75,7 @@ async function generateDocs() {
       stdio: 'inherit' // Show output in console
     });
     
-    // Create or update the latest symlink
-    const latestDir = path.join(docsBaseDir, 'latest');
-    if (fs.existsSync(latestDir)) {
-      fs.unlinkSync(latestDir);
-    }
-    
-    // On Windows, creating symlinks requires administrator privileges
-    // or Developer Mode enabled, so we're just creating a redirect HTML
+    // Create or update the index.html redirect
     const redirectHtml = `
       <!DOCTYPE html>
       <html>
@@ -89,6 +109,7 @@ async function generateDocs() {
     
   } catch (error) {
     console.error('Error generating documentation:', error);
+    process.exit(1);
   } finally {
     // Clean up the temporary config file
     if (fs.existsSync(tempConfigPath)) {
