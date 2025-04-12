@@ -174,4 +174,4 @@ tests/             # Test files
 
 ## License
 
-MIT
+This project is free to use for any purpose. Feel free to use, modify, or distribute the code without restriction.
