@@ -39,4 +39,26 @@ declare module 'ipinfo' {
  * This is a simple Least Recently Used (LRU) Cache implementation.
  * @namespace lru-cache
  */
-declare module 'lru-cache';
+declare module 'lru-cache' {
+  interface LRUCacheOptions<K, V> {
+    max?: number;
+    ttl?: number;
+    allowStale?: boolean;
+    updateAgeOnGet?: boolean;
+    updateAgeOnHas?: boolean;
+    [key: string]: any;
+  }
+
+  class LRUCache<K, V> {
+    constructor(options?: LRUCacheOptions<K, V>);
+    set(key: K, value: V, options?: { ttl?: number }): boolean;
+    get(key: K): V | undefined;
+    has(key: K): boolean;
+    delete(key: K): boolean;
+    clear(): void;
+    size: number;
+  }
+
+  // Allow both default and named export patterns to support different import styles
+  export = LRUCache;
+}
