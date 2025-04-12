@@ -209,7 +209,15 @@ const ChatPage = () => {
   return (
     <div className="container mt-4">
       <div className="text-center mb-4">
-        <Image src="/gandalf.jpg" alt="Gandalf" priority={true} width={200} height={200} />
+        <Image 
+          src="/gandalf.jpg" 
+          alt="Gandalf" 
+          priority={true} 
+          width={150} 
+          height={150} 
+          className="rounded-circle"
+          style={{ objectFit: 'cover' }}
+        />
       </div>
       <div className="chat-box border rounded p-3 mb-3" ref={chatBoxRef}>
         {messages.map((msg, index) => (

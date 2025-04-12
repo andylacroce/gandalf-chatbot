@@ -5,7 +5,7 @@ A Next.js chatbot using ChatGPT and Google Text-to-Speech (TTS). The chatbot tak
 Live: https://gandalf-chatbot.vercel.app/
 
 <div align="center">
-  <img src="public/gandalf.jpg" alt="Gandalf" width="200" height="200" />
+  <img src="public/gandalf.jpg" alt="Gandalf" width="150" height="150" style="border-radius: 50%; object-fit: cover;" />
 </div>
 
 ---
