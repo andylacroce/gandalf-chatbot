@@ -65,7 +65,7 @@ module.exports = async () => {
     
     // Ensure the transform properly processes JS/TS files
     transform: {
-      '^.+\\.(js|jsx|ts|tsx)$': ['babel-jest'],
+      '^.+\\.(js|jsx|ts|tsx)$': ['ts-jest'],
     },
     
     // Make sure Jest can handle ES module syntax in the setup file

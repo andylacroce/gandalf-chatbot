@@ -16,7 +16,6 @@
 *.lcov
 # Jest speed optimization files
 /.jest-cache
-/.babel-cache
 
 # next.js
 /.next/
