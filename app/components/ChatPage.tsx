@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import '../globals.css';
 import Image from 'next/image';
 import ChatMessage from './ChatMessage';
-import Switch from 'react-switch'; // Importing a toggle switch library
+import ToggleSwitch from '@trendmicro/react-toggle-switch';
+import '@trendmicro/react-toggle-switch/dist/react-toggle-switch.css';
 
 interface Message {
   text: string;
@@ -156,7 +157,7 @@ const ChatPage = () => {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+            onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
             className="form-control"
             placeholder="Type in your message here..."
             ref={inputRef}
@@ -175,12 +176,9 @@ const ChatPage = () => {
         </div>
         <div className="mt-3 text-center">
           <div className="toggle-container">
-            <Switch
-              onChange={handleAudioToggle}
+            <ToggleSwitch
               checked={audioEnabled}
-              className="react-switch"
-              onColor="var(--send-button-bg)"
-              offColor="var(--disabled-bg)"
+              onChange={handleAudioToggle}
             />
             <span className="toggle-label">Audio</span>
           </div>

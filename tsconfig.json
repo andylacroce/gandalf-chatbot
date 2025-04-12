@@ -31,7 +31,8 @@
       {
         "name": "next"
       }
-    ]
+    ],
+    "jsxImportSource": "react"
   },
   "include": [
     "next-env.d.ts",
