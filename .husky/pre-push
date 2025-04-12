@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Run tests before pushing
+npm test
+
+# Generate versioned documentation
+echo "Generating versioned documentation..."
+npm run docs:versioned
+
+# Add the generated documentation to the commit
+git add docs/
+git commit --amend --no-edit || true

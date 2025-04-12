@@ -10,7 +10,11 @@ Live: https://gandalf-chatbot.vercel.app/
 
 - Voice responses via Google TTS
 - Chat powered by OpenAI's ChatGPT
-- Built with Next.js & TypeScript
+- Built with Next.js 15.3.0 & TypeScript
+- Rate limiting with LRU Cache
+- Testing with Jest and React Testing Library
+- Analytics via Vercel Analytics and Speed Insights
+- Fully documented with TypeDoc
 - Hosted on Vercel
 
 ---
@@ -51,6 +55,41 @@ config/gcp-key.json
 ```bash
 npm run dev
 ```
+
+The application uses Turbopack for faster development experience.
+
+### Testing
+
+Run the test suite:
+
+```bash
+npm test
+```
+
+Run tests in watch mode during development:
+
+```bash
+npm run test:watch
+```
+
+### Documentation
+
+Generate documentation:
+
+```bash
+npm run docs
+```
+
+---
+
+## Technologies
+
+- **Frontend**: React 19, Next.js 15.3
+- **API**: OpenAI API (v4.93.0), Google Cloud Text-to-Speech
+- **Development**: TypeScript, ESLint, Autoprefixer, PostCSS
+- **Testing**: Jest, React Testing Library
+- **Logging**: Winston
+- **Other**: UUID, Axios, LRU Cache
 
 ---
 
