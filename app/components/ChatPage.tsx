@@ -179,6 +179,8 @@ const ChatPage = () => {
               onChange={handleAudioToggle}
               checked={audioEnabled}
               className="react-switch"
+              onColor="var(--send-button-bg)"
+              offColor="var(--disabled-bg)"
             />
             <span className="toggle-label">Audio</span>
           </div>

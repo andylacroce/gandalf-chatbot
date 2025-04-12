@@ -200,8 +200,10 @@ button[disabled] {
   color: var(--color-text);
 }
 
+/* Enhanced styles for better visibility of the switch */
 .react-switch {
-  box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.6);
+  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.3);
+  border: 2px solid var(--scrollbar-thumb) !important;
   border-radius: 20px;
 }
 
@@ -209,8 +211,10 @@ button[disabled] {
   background-color: var(--send-button-hover-bg) !important;
 }
 
+/* Updated styles for the enabled switch */
 .react-switch-checked {
   background-color: var(--send-button-bg) !important;
+  border: 2px solid var(--send-button-hover-bg) !important; /* Added border for better visibility */
 }
 
 .react-switch-unchecked {
