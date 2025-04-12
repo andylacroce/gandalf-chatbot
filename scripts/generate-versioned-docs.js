@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { execFile } = require('child_process');
+const { execFile, spawn } = require('child_process');
 const { promisify } = require('util');
 const packageJson = require('../package.json');
 
@@ -67,45 +67,69 @@ async function generateDocs() {
     // Clean up old versions first
     cleanupOldVersions();
     
-    // Run TypeDoc with the versioned configuration - SECURE VERSION
+    // Run TypeDoc with the versioned configuration
     console.log('Running TypeDoc...');
-    // Use execFile to avoid shell injection vulnerabilities (CWE-78)
-    const npxPath = process.platform === 'win32' ? 'npx.cmd' : 'npx';
-    await execFileAsync(npxPath, ['typedoc', '--options', tempConfigPath], {
-      stdio: 'inherit' // Show output in console
+    
+    // Use spawn instead of execFile for better cross-platform compatibility
+    return new Promise((resolve, reject) => {
+      const isWindows = process.platform === 'win32';
+      
+      // On Windows, use npm run directly instead of npx
+      const cmd = isWindows ? 'npm' : 'npx';
+      const args = isWindows 
+        ? ['run', 'typedoc', '--', '--options', tempConfigPath]
+        : ['typedoc', '--options', tempConfigPath];
+      
+      const child = spawn(cmd, args, {
+        stdio: 'inherit', // Show output in console
+        shell: isWindows // Use shell on Windows for better compatibility
+      });
+      
+      child.on('close', (code) => {
+        if (code === 0) {
+          resolve();
+        } else {
+          reject(new Error(`TypeDoc process exited with code ${code}`));
+        }
+      });
+      
+      child.on('error', (err) => {
+        reject(err);
+      });
+    })
+    .then(() => {
+      // Create or update the index.html redirect
+      const redirectHtml = `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <meta http-equiv="refresh" content="0; url=./v${version}/index.html">
+          </head>
+          <body>
+            <p>Redirecting to the latest version...</p>
+            <script>
+              window.location.href = "./v${version}/index.html";
+            </script>
+          </body>
+        </html>
+      `;
+      
+      fs.writeFileSync(path.join(docsBaseDir, 'index.html'), redirectHtml);
+      
+      // Create a versions.json file that lists all available versions
+      const versions = fs.readdirSync(docsBaseDir)
+        .filter(dir => dir.startsWith('v') && fs.statSync(path.join(docsBaseDir, dir)).isDirectory())
+        .map(dir => dir.substring(1))
+        .filter(isValidVersion); // Filter out any invalid versions for added security
+  
+      fs.writeFileSync(
+        path.join(docsBaseDir, 'versions.json'),
+        JSON.stringify(versions, null, 2)
+      );
+      
+      console.log(`Documentation for version ${version} generated successfully.`);
+      console.log(`Access the latest documentation at: docs/index.html`);
     });
-    
-    // Create or update the index.html redirect
-    const redirectHtml = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta http-equiv="refresh" content="0; url=./v${version}/index.html">
-        </head>
-        <body>
-          <p>Redirecting to the latest version...</p>
-          <script>
-            window.location.href = "./v${version}/index.html";
-          </script>
-        </body>
-      </html>
-    `;
-    
-    fs.writeFileSync(path.join(docsBaseDir, 'index.html'), redirectHtml);
-    
-    // Create a versions.json file that lists all available versions
-    const versions = fs.readdirSync(docsBaseDir)
-      .filter(dir => dir.startsWith('v') && fs.statSync(path.join(docsBaseDir, dir)).isDirectory())
-      .map(dir => dir.substring(1))
-      .filter(isValidVersion); // Filter out any invalid versions for added security
-
-    fs.writeFileSync(
-      path.join(docsBaseDir, 'versions.json'),
-      JSON.stringify(versions, null, 2)
-    );
-    
-    console.log(`Documentation for version ${version} generated successfully.`);
-    console.log(`Access the latest documentation at: docs/index.html`);
     
   } catch (error) {
     console.error('Error generating documentation:', error);
