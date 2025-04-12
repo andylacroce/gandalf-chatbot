@@ -185,3 +185,14 @@ button[disabled] {
   align-items: center;
   margin: 1rem;
 }
+
+/* Attribute selector to target dynamic class names with a darker green shade */
+[class*="toggle-switch---switch"][class*="checked"] [class*="toggle-switch---toggle"] {
+    background-color: #2e7d32 !important; /* Darker green for checked state */
+    border-color: #1b5e20 !important;
+}
+
+[class*="toggle-switch---switch"] [class*="toggle-switch---toggle"] {
+    background-color: var(--send-button-text) !important;
+    border-color: var(--disabled-bg) !important;
+}
