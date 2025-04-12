@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { spawn } = require('child_process');
+const { execSync } = require('child_process');
 const packageJson = require('../package.json');
 
 // Get the current version from package.json
@@ -72,7 +72,7 @@ const tempConfigPath = path.join(projectRoot, 'typedoc.versioned.json');
 // Write the temporary config file
 fs.writeFileSync(tempConfigPath, JSON.stringify(versionedConfig, null, 2));
 
-async function generateDocs() {
+function generateDocs() {
   try {
     // Clean up old versions first
     cleanupOldVersions();
@@ -80,36 +80,15 @@ async function generateDocs() {
     // Run TypeDoc with the versioned configuration
     console.log('Running TypeDoc...');
     
-    // Use spawn for better cross-platform compatibility
-    return new Promise((resolve, reject) => {
-      // Ensure we're using the right command based on the platform
-      const isWindows = process.platform === 'win32';
-      
-      // Run typedoc directly with the configured options
-      const cmd = isWindows ? 'npx.cmd' : 'npx';
-      const args = ['typedoc', '--options', 'typedoc.versioned.json'];
-      
-      console.log(`Executing: ${cmd} ${args.join(' ')}`);
-      
-      const child = spawn(cmd, args, {
-        stdio: 'inherit', // Show output in console
-        cwd: projectRoot // Run from project root to ensure relative paths work
+    // Use execSync for simplicity and to avoid Windows-specific spawn issues
+    try {
+      const cmd = `npx typedoc --options "${tempConfigPath}"`;
+      console.log(`Executing: ${cmd}`);
+      execSync(cmd, { 
+        cwd: projectRoot, // Run from project root
+        stdio: 'inherit' // Show output in console 
       });
       
-      child.on('close', (code) => {
-        if (code === 0) {
-          resolve();
-        } else {
-          reject(new Error(`TypeDoc process exited with code ${code}`));
-        }
-      });
-      
-      child.on('error', (err) => {
-        console.error('TypeDoc process failed to start:', err);
-        reject(err);
-      });
-    })
-    .then(() => {
       // Create or update the index.html redirect
       const redirectHtml = `
         <!DOCTYPE html>
@@ -141,7 +120,12 @@ async function generateDocs() {
       
       console.log(`Documentation for version ${version} generated successfully.`);
       console.log(`Access the latest documentation at: docs/index.html`);
-    });
+      
+    } catch (error) {
+      console.error('Error executing TypeDoc:', error.message);
+      if (error.stderr) console.error(error.stderr.toString());
+      throw error;
+    }
     
   } catch (error) {
     console.error('Error generating documentation:', error);
@@ -149,10 +133,14 @@ async function generateDocs() {
   } finally {
     // Clean up the temporary config file
     if (fs.existsSync(tempConfigPath)) {
-      fs.unlinkSync(tempConfigPath);
+      try {
+        fs.unlinkSync(tempConfigPath);
+      } catch (e) {
+        console.warn('Failed to clean up temporary config file:', e.message);
+      }
     }
   }
 }
 
-// Execute the async function
+// Execute the function
 generateDocs();
