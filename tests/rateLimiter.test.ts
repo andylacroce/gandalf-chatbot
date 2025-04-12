@@ -1,9 +1,9 @@
-import rateLimiter from './rateLimiter';
+import rateLimiter from '../src/middleware/rateLimiter';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { Socket } from 'net';
 
 // Mock logger to avoid actual logging during tests
-jest.mock('../utils/logger', () => ({
+jest.mock('../src/utils/logger', () => ({
     info: jest.fn(),
     error: jest.fn(),
 }));

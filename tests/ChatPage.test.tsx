@@ -2,7 +2,7 @@ import React from 'react';
 import { render, fireEvent, waitFor, waitForElementToBeRemoved } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import axios from 'axios';
-import ChatPage from './ChatPage';
+import ChatPage from '../app/components/ChatPage';
 
 jest.mock('axios');
 

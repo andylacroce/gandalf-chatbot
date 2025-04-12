@@ -18,6 +18,17 @@ const customJestConfig = {
     '/node_modules/(?!(lodash-es)/)', // Ensures Jest doesn't ignore ES modules that need transpiling
   ],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'], // Ensure test setup is loaded
+  testMatch: [
+    '<rootDir>/tests/**/*.test.(ts|tsx|js|jsx)',
+    '<rootDir>/**/__tests__/**/*.(ts|tsx|js|jsx)'
+  ],
+  testPathIgnorePatterns: [
+    '<rootDir>/node_modules/',
+    '<rootDir>/.next/'
+  ],
+  verbose: true,
+  collectCoverage: false, // Set to true to generate coverage reports
+  coverageDirectory: '<rootDir>/coverage',
 };
 
 module.exports = createJestConfig(customJestConfig);

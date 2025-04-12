@@ -1,7 +1,7 @@
 import React from 'react';
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import ChatMessage from './ChatMessage';
+import ChatMessage from '../app/components/ChatMessage';
 
 /**
  * Test to check if the ChatMessage component renders correctly.

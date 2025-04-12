@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import fs from 'fs';
 import path from 'path';
+import audioHandler from '../pages/api/audio';
 
 /**
  * Handles the API request to fetch an audio file.
