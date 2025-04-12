@@ -14,7 +14,7 @@ declare module '@trendmicro/react-toggle-switch' {
    * @property {boolean} [disabled] - Optional flag to disable the toggle switch
    * @property {string} [className] - Optional CSS class name for custom styling
    */
-  interface ToggleSwitchProps {
+  export interface ToggleSwitchProps {
     checked: boolean;
     onChange: () => void;
     disabled?: boolean;

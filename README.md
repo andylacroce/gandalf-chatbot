@@ -45,7 +45,7 @@ GOOGLE_APPLICATION_CREDENTIALS_PATH=./config/gcp-key.json
 
 Ensure `.gitignore` includes:
 
-```plaintext
+```text
 .env.local
 config/gcp-key.json
 ```

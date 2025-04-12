@@ -11,7 +11,7 @@ import React from 'react';
  * @property {string} text - The content of the message.
  * @property {string} sender - The sender of the message ('User' or 'Gandalf').
  */
-interface Message {
+export interface Message {
   text: string;
   sender: string;
 }
