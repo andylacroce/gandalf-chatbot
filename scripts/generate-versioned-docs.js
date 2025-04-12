@@ -49,15 +49,15 @@ function cleanupOldVersions() {
   console.log('Old documentation cleanup completed.');
 }
 
-// Run TypeDoc with a temporary configuration
-const tempConfigPath = path.join(__dirname, '../typedoc.versioned.json');
-
 // Create a modified TypeDoc config with the versioned output directory
 const typeDocConfig = require('../typedoc.json');
 const versionedConfig = {
   ...typeDocConfig,
   out: `docs/v${version}`
 };
+
+// Write the config file
+const tempConfigPath = path.resolve(__dirname, '../typedoc.versioned.json');
 
 // Write the temporary config file
 fs.writeFileSync(tempConfigPath, JSON.stringify(versionedConfig, null, 2));
@@ -74,15 +74,19 @@ async function generateDocs() {
     return new Promise((resolve, reject) => {
       const isWindows = process.platform === 'win32';
       
+      // Use absolute path to the config file
+      const configPath = path.resolve(tempConfigPath);
+      
       // On Windows, use npm run directly instead of npx
       const cmd = isWindows ? 'npm' : 'npx';
       const args = isWindows 
-        ? ['run', 'typedoc', '--', '--options', tempConfigPath]
-        : ['typedoc', '--options', tempConfigPath];
+        ? ['run', 'typedoc', '--', '--options', configPath]
+        : ['typedoc', '--options', configPath];
       
       const child = spawn(cmd, args, {
         stdio: 'inherit', // Show output in console
-        shell: isWindows // Use shell on Windows for better compatibility
+        shell: isWindows, // Use shell on Windows for better compatibility
+        cwd: path.resolve(__dirname, '..') // Run from the project root
       });
       
       child.on('close', (code) => {
