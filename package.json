@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "docs": "typedoc",
+    "typedoc": "typedoc",
     "docs:versioned": "node scripts/generate-versioned-docs.js",
     "docs:weekly": "node scripts/weekly-docs-update.js",
     "test": "jest",
