@@ -13,6 +13,9 @@ import ChatPage from '../app/components/ChatPage';
 // Mock axios to control API responses
 jest.mock('axios');
 
+// Use fake timers to speed up time-dependent tests
+jest.useFakeTimers();
+
 /**
  * Test suite for the ChatPage component
  * Tests all major functionality of the chat interface including:
@@ -211,6 +214,9 @@ describe('ChatPage Component', () => {
     // Simulate user typing and sending a message
     fireEvent.change(input, { target: { value: 'Hello, Gandalf!' } });
     fireEvent.click(sendButton);
+
+    // Simulate time passage
+    jest.advanceTimersByTime(1000);
 
     // Verify loading indicator is displayed
     await waitFor(() => {

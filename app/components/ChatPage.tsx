@@ -5,7 +5,7 @@
 
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import '../globals.css';
 import Image from 'next/image';

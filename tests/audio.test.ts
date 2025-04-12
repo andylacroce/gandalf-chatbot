@@ -64,30 +64,30 @@ jest.mock('path');
  * Tests all possible paths and edge cases for audio file retrieval
  */
 describe('Audio API Handler', () => {
-  // Test request and response objects
-  let req: Partial<NextApiRequest>;
-  let res: Partial<NextApiResponse>;
-
   /**
-   * Setup before each test - create fresh mocks
+   * Helper function to create test objects
+   * Returns isolated request and response objects for each test
    */
-  beforeEach(() => {
-    req = {
+  const createTestObjects = () => {
+    const req = {
       query: {},
     } as Partial<NextApiRequest>;
-    res = {
+    
+    const res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn(),
       setHeader: jest.fn(),
       send: jest.fn(),
     };
-  });
+    
+    return { req, res };
+  };
 
   /**
-   * Cleanup after each test
+   * Cleanup after all tests
    */
-  afterEach(() => {
-    jest.clearAllMocks();
+  afterAll(() => {
+    jest.restoreAllMocks();
   });
 
   /**
@@ -95,7 +95,10 @@ describe('Audio API Handler', () => {
    * Should return 400 Bad Request when file parameter is missing
    */
   it('should return 400 if file parameter is missing', async () => {
+    const { req, res } = createTestObjects();
+    
     await handler(req as NextApiRequest, res as NextApiResponse);
+    
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith({ error: 'File parameter is required' });
   });
@@ -105,79 +108,104 @@ describe('Audio API Handler', () => {
    * Should return 404 Not Found when the requested file doesn't exist
    */
   it('should return 404 if file does not exist', async () => {
+    const { req, res } = createTestObjects();
     req.query = { file: 'nonexistent.mp3' };
-    (path.resolve as jest.Mock).mockImplementation((...args) => args.join('/'));
-    (fs.existsSync as jest.Mock).mockReturnValue(false);
+    
+    jest.mocked(path.resolve).mockImplementation((...args) => args.join('/'));
+    jest.mocked(fs.existsSync).mockReturnValue(false);
 
     await handler(req as NextApiRequest, res as NextApiResponse);
+    
     expect(res.status).toHaveBeenCalledWith(404);
     expect(res.json).toHaveBeenCalledWith({ error: 'File not found' });
   });
 
   /**
-   * Test successful file retrieval from temporary directory
-   * Should return the audio file with proper headers when it exists in /tmp
+   * Test successful file retrieval scenarios
    */
-  it('should return the audio file if it exists in /tmp', async () => {
-    req.query = { file: 'existing.mp3' };
-    const audioContent = Buffer.from('audio content');
-    (path.resolve as jest.Mock).mockImplementation((...args) => args.join('/'));
-    (fs.existsSync as jest.Mock).mockImplementation((filePath) => filePath === '/tmp/existing.mp3');
-    (fs.realpathSync as unknown as jest.Mock).mockImplementation((filePath) => filePath);
-    (fs.readFileSync as jest.Mock).mockReturnValue(audioContent);
+  describe('file retrieval tests', () => {
+    /**
+     * Test successful file retrieval from temporary directory
+     * Should return the audio file with proper headers when it exists in /tmp
+     */
+    it('should return the audio file if it exists in /tmp', async () => {
+      const { req, res } = createTestObjects();
+      req.query = { file: 'existing.mp3' };
+      
+      const audioContent = Buffer.from('audio content');
+      jest.mocked(path.resolve).mockReturnValue('/tmp/existing.mp3');
+      jest.mocked(fs.existsSync).mockReturnValue(true);
+      jest.mocked(fs.realpathSync).mockReturnValue('/tmp/existing.mp3');
+      jest.mocked(fs.readFileSync).mockReturnValue(audioContent);
 
-    await handler(req as NextApiRequest, res as NextApiResponse);
-    expect(res.setHeader).toHaveBeenCalledWith('Content-Type', 'audio/mpeg');
-    expect(res.send).toHaveBeenCalledWith(audioContent);
-  });
-
-  /**
-   * Test successful file retrieval from public directory
-   * Should return the audio file with proper headers when it exists in public directory
-   */
-  it('should return the audio file if it exists in public', async () => {
-    req.query = { file: 'existing.mp3' };
-    const audioContent = Buffer.from('audio content');
-    (path.resolve as jest.Mock).mockImplementation((...args) => args.join('/'));
-    (fs.existsSync as jest.Mock).mockImplementation((filePath) => filePath === 'public/existing.mp3');
-    (fs.realpathSync as unknown as jest.Mock).mockImplementation((filePath: string) => filePath);
-    (fs.readFileSync as jest.Mock).mockReturnValue(audioContent);
-
-    await handler(req as NextApiRequest, res as NextApiResponse);
-    expect(res.setHeader).toHaveBeenCalledWith('Content-Type', 'audio/mpeg');
-    expect(res.send).toHaveBeenCalledWith(audioContent);
-  });
-
-  /**
-   * Test path traversal security protection
-   * Should return 403 Forbidden if the file path is outside allowed directories
-   */
-  it('should return 403 if the file path is not within /tmp or public', async () => {
-    req.query = { file: 'invalid.mp3' };
-    (path.resolve as jest.Mock).mockImplementation((...args) => args.join('/'));
-    (fs.existsSync as jest.Mock).mockReturnValue(true);
-    (fs.realpathSync as unknown as jest.Mock).mockImplementation((filePath: string) => '/invalid/path/' + filePath);
-
-    await handler(req as NextApiRequest, res as NextApiResponse);
-    expect(res.status).toHaveBeenCalledWith(403);
-    expect(res.json).toHaveBeenCalledWith({ error: 'Access forbidden' });
-  });
-
-  /**
-   * Test error handling during file reading
-   * Should return 500 Internal Server Error if there's an error reading the file
-   */
-  it('should return 500 if there is an error reading the file', async () => {
-    req.query = { file: 'existing.mp3' };
-    (path.resolve as jest.Mock).mockImplementation((...args) => args.join('/'));
-    (fs.existsSync as jest.Mock).mockReturnValue(true);
-    (fs.realpathSync as unknown as jest.Mock).mockImplementation((filePath: string) => filePath);
-    (fs.readFileSync as jest.Mock).mockImplementation(() => {
-      throw new Error('Error reading file');
+      await handler(req as NextApiRequest, res as NextApiResponse);
+      
+      expect(res.setHeader).toHaveBeenCalledWith('Content-Type', 'audio/mpeg');
+      expect(res.send).toHaveBeenCalledWith(audioContent);
     });
 
-    await handler(req as NextApiRequest, res as NextApiResponse);
-    expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith({ error: 'Error reading file' });
+    /**
+     * Test successful file retrieval from public directory
+     * Should return the audio file with proper headers when it exists in public directory
+     */
+    it('should return the audio file if it exists in public', async () => {
+      const { req, res } = createTestObjects();
+      req.query = { file: 'existing.mp3' };
+      
+      const audioContent = Buffer.from('audio content');
+      jest.mocked(path.resolve).mockImplementation((...args) => args.join('/'));
+      jest.mocked(fs.existsSync).mockImplementation((filePath) => filePath === 'public/existing.mp3');
+      jest.mocked(fs.realpathSync).mockImplementation((filePath: string) => filePath);
+      jest.mocked(fs.readFileSync).mockReturnValue(audioContent);
+
+      await handler(req as NextApiRequest, res as NextApiResponse);
+      
+      expect(res.setHeader).toHaveBeenCalledWith('Content-Type', 'audio/mpeg');
+      expect(res.send).toHaveBeenCalledWith(audioContent);
+    });
+  });
+
+  /**
+   * Test error scenarios
+   */
+  describe('error handling tests', () => {
+    /**
+     * Test path traversal security protection
+     * Should return 403 Forbidden if the file path is outside allowed directories
+     */
+    it('should return 403 if the file path is not within /tmp or public', async () => {
+      const { req, res } = createTestObjects();
+      req.query = { file: 'invalid.mp3' };
+      
+      jest.mocked(path.resolve).mockImplementation((...args) => args.join('/'));
+      jest.mocked(fs.existsSync).mockReturnValue(true);
+      jest.mocked(fs.realpathSync).mockImplementation((filePath: string) => '/invalid/path/' + filePath);
+
+      await handler(req as NextApiRequest, res as NextApiResponse);
+      
+      expect(res.status).toHaveBeenCalledWith(403);
+      expect(res.json).toHaveBeenCalledWith({ error: 'Access forbidden' });
+    });
+
+    /**
+     * Test error handling during file reading
+     * Should return 500 Internal Server Error if there's an error reading the file
+     */
+    it('should return 500 if there is an error reading the file', async () => {
+      const { req, res } = createTestObjects();
+      req.query = { file: 'existing.mp3' };
+      
+      jest.mocked(path.resolve).mockImplementation((...args) => args.join('/'));
+      jest.mocked(fs.existsSync).mockReturnValue(true);
+      jest.mocked(fs.realpathSync).mockImplementation((filePath: string) => filePath);
+      jest.mocked(fs.readFileSync).mockImplementation(() => {
+        throw new Error('Error reading file');
+      });
+
+      await handler(req as NextApiRequest, res as NextApiResponse);
+      
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({ error: 'Error reading file' });
+    });
   });
 });

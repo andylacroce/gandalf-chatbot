@@ -9,7 +9,15 @@
     "lint": "next lint",
     "test": "jest",
     "test:watch": "jest --watch",
-    "docs": "typedoc"
+    "docs": "typedoc",
+    "test:fast": "jest --maxWorkers=50% --onlyChanged",
+    "test:ci": "jest --runInBand",
+    "test:debug": "node --inspect-brk node_modules/.bin/jest --runInBand",
+    "test:parallel": "jest --maxWorkers=100%",
+    "test:update": "jest --updateSnapshot",
+    "test:speed": "jest --config jest.speed.config.js",
+    "test:analyze": "node speed-test.js",
+    "test:dev": "jest --config jest.speed.config.js --bail --onlyChanged --maxWorkers=100%"
   },
   "dependencies": {
     "@google-cloud/text-to-speech": "^6.0.1",

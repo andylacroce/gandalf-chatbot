@@ -45,6 +45,10 @@ const customJestConfig = {
   verbose: true,
   collectCoverage: false, // Set to true to generate coverage reports
   coverageDirectory: '<rootDir>/coverage',
+  // Speed optimization settings
+  cache: true,
+  cacheDirectory: '<rootDir>/.jest-cache',
+  maxWorkers: '50%',
 };
 
 module.exports = createJestConfig(customJestConfig);

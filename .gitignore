@@ -14,6 +14,9 @@
 /coverage
 /jest-cache
 *.lcov
+# Jest speed optimization files
+/.jest-cache
+/.babel-cache
 
 # next.js
 /.next/
@@ -92,3 +95,15 @@ public/workbox-*.js
 # Optional: Sitemap
 public/sitemap*.xml
 public/robots.txt
+
+# Generated audio files
+/public/audio/*
+!/public/audio/.gitkeep
+
+# TypeDoc generated documentation
+/docs/
+
+# Temporary files that might be created during testing
+/temp
+*.temp
+*.tmp

@@ -35,7 +35,7 @@ interface RateLimitData {
  * Uses time-based expiration to automatically clean up old entries
  * @type {LRUCache<string, RateLimitData>}
  */
-const rateLimiterCache = new LRUCache({
+const rateLimiterCache = new LRUCache<string, RateLimitData>({
   max: 5000, // Maximum number of IPs to store in cache
   ttl: rateLimitOptions.windowMs, // Time-to-live for each entry
   allowStale: false, // Ensure stale items are not returned
