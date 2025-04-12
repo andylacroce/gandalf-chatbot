@@ -185,3 +185,34 @@ button[disabled] {
   align-items: center;
   margin: 1rem;
 }
+
+/* Added styles for the toggle switch */
+.toggle-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.toggle-label {
+  margin-left: 0.5rem;
+  line-height: 20px;
+  color: var(--color-text);
+}
+
+.react-switch {
+  box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.6);
+  border-radius: 20px;
+}
+
+.react-switch-handle {
+  background-color: var(--send-button-hover-bg) !important;
+}
+
+.react-switch-checked {
+  background-color: var(--send-button-bg) !important;
+}
+
+.react-switch-unchecked {
+  background-color: var(--disabled-bg) !important;
+}

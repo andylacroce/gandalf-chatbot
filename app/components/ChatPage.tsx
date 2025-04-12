@@ -5,6 +5,7 @@ import axios from 'axios';
 import '../globals.css';
 import Image from 'next/image';
 import ChatMessage from './ChatMessage';
+import Switch from 'react-switch'; // Importing a toggle switch library
 
 interface Message {
   text: string;
@@ -21,6 +22,7 @@ const ChatPage = () => {
   const [input, setInput] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
+  const [audioEnabled, setAudioEnabled] = useState<boolean>(true); // New state for audio toggle
   const chatBoxRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [conversationHistory, setConversationHistory] = useState<Message[]>([]);
@@ -44,7 +46,7 @@ const ChatPage = () => {
       setMessages([...newMessages, gandalfReply]);
       setConversationHistory([...conversationHistory, { sender: 'User', text: input }, gandalfReply]);
 
-      if (gandalfReply.audioFileUrl) {
+      if (audioEnabled && gandalfReply.audioFileUrl) { // Respect audio toggle
         const audio = await playAudio(gandalfReply.audioFileUrl);
         setCurrentAudio(audio);
       }
@@ -58,32 +60,52 @@ const ChatPage = () => {
 
   const playAudio = async (audioFileUrl: string) => {
     if (currentAudio) {
-        currentAudio.pause();
-        currentAudio.currentTime = 0;
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
 
-        try {
-            const previousAudioFileName = extractFileName(currentAudio.src);
-            if (previousAudioFileName !== extractFileName(audioFileUrl)) {
-                await axios.delete(`/api/delete-audio?file=${previousAudioFileName}`);
-            }
-        } catch (error) {
-            console.error('Error deleting previous audio file:', error);
+      try {
+        const previousAudioFileName = extractFileName(currentAudio.src);
+        if (previousAudioFileName !== extractFileName(audioFileUrl)) {
+          await axios.delete(`/api/delete-audio?file=${previousAudioFileName}`);
         }
+      } catch (error) {
+        console.error('Error deleting previous audio file:', error);
+      }
     }
 
     const audio = new Audio(audioFileUrl);
     audio.play();
 
     audio.onended = async () => {
-        try {
-            const currentAudioFileName = extractFileName(audioFileUrl);
-            await axios.delete(`/api/delete-audio?file=${currentAudioFileName}`);
-        } catch (error) {
-            console.error('Error deleting audio file:', error);
-        }
+      try {
+        const currentAudioFileName = extractFileName(audioFileUrl);
+        await axios.delete(`/api/delete-audio?file=${currentAudioFileName}`);
+      } catch (error) {
+        console.error('Error deleting audio file:', error);
+      }
     };
 
+    setCurrentAudio(audio);
     return audio;
+  };
+
+  const handleAudioToggle = () => {
+    setAudioEnabled(!audioEnabled);
+
+    if (currentAudio && audioEnabled) {
+      // Pause and reset the current audio
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
+
+      // Optionally delete the current audio file
+      const currentAudioFileName = extractFileName(currentAudio.src);
+      axios.delete(`/api/delete-audio?file=${currentAudioFileName}`).catch((error) => {
+        console.error('Error deleting current audio file:', error);
+      });
+
+      // Clear the current audio state
+      setCurrentAudio(null);
+    }
   };
 
   /**
@@ -149,6 +171,16 @@ const ChatPage = () => {
             >
               {loading ? 'HOLD' : 'Send'}
             </button>
+          </div>
+        </div>
+        <div className="mt-3 text-center">
+          <div className="toggle-container">
+            <Switch
+              onChange={handleAudioToggle}
+              checked={audioEnabled}
+              className="react-switch"
+            />
+            <span className="toggle-label">Audio</span>
           </div>
         </div>
       </div>
