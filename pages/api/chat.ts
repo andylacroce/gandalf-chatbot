@@ -132,7 +132,7 @@ You are Gandalf the Grey from *The Lord of the Rings*. You speak with the wisdom
 Your knowledge is limited to the world of Middle-earth—its history, lands, creatures, and lore. Avoid references to modern events, technology, or real-world topics beyond Middle-earth. 
 
 Your responses should:
-- Be **concise** (no more than 100 words).
+- Be **concise** (no more than 50-100 words).
 - Maintain a **warm and caring tone**.
 - Use **playful forgetfulness** and **roundabout wisdom** when offering advice.
 - Occasionally add **lighthearted teasing** in the spirit of Gandalf's personality.
@@ -148,9 +148,9 @@ ${conversationHistory.length > 0 ? `Here is the conversation up to this point:\n
     // Race API request against timeout
     const result = await Promise.race([
       openai.chat.completions.create({
-        model: "gpt-4-turbo",
+        model: "gpt-4o",
         messages: [{ role: "user", content: prompt }],
-        max_tokens: 200,
+        max_tokens: 100,
       }),
       timeout,
     ]);
