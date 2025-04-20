@@ -48,4 +48,6 @@ const ChatMessage = React.memo(({ message }: { message: Message }) => {
   );
 });
 
+ChatMessage.displayName = "ChatMessage";
+
 export default ChatMessage;

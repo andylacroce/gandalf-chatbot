@@ -68,6 +68,37 @@ const ChatPage = () => {
    * @function
    * @returns {Promise<void>}
    */
+  const playAudio = useCallback(async (audioFileUrl: string) => {
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
+
+      try {
+        const previousAudioFileName = extractFileName(currentAudio.src);
+        if (previousAudioFileName !== extractFileName(audioFileUrl)) {
+          await axios.delete(`/api/delete-audio?file=${previousAudioFileName}`);
+        }
+      } catch (error) {
+        console.error('Error deleting previous audio file:', error);
+      }
+    }
+
+    const audio = new Audio(audioFileUrl);
+    audio.play();
+
+    audio.onended = async () => {
+      try {
+        const currentAudioFileName = extractFileName(audioFileUrl);
+        await axios.delete(`/api/delete-audio?file=${currentAudioFileName}`);
+      } catch (error) {
+        console.error('Error deleting audio file:', error);
+      }
+    };
+
+    setCurrentAudio(audio);
+    return audio;
+  }, [currentAudio]);
+
   const sendMessage = useCallback(async () => {
     if (!input.trim()) return;
 
@@ -102,47 +133,8 @@ const ChatPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [input, messages, audioEnabled, conversationHistory, currentAudio]);
+  }, [input, messages, audioEnabled, conversationHistory, currentAudio, playAudio]);
 
-  /**
-   * Plays an audio file from the provided URL.
-   * This function handles stopping any currently playing audio,
-   * cleaning up previous audio files, and managing audio playback events.
-   * 
-   * @function
-   * @param {string} audioFileUrl - The URL of the audio file to play
-   * @returns {Promise<HTMLAudioElement>} The audio element that was created
-   */
-  const playAudio = useCallback(async (audioFileUrl: string) => {
-    if (currentAudio) {
-      currentAudio.pause();
-      currentAudio.currentTime = 0;
-
-      try {
-        const previousAudioFileName = extractFileName(currentAudio.src);
-        if (previousAudioFileName !== extractFileName(audioFileUrl)) {
-          await axios.delete(`/api/delete-audio?file=${previousAudioFileName}`);
-        }
-      } catch (error) {
-        console.error('Error deleting previous audio file:', error);
-      }
-    }
-
-    const audio = new Audio(audioFileUrl);
-    audio.play();
-
-    audio.onended = async () => {
-      try {
-        const currentAudioFileName = extractFileName(audioFileUrl);
-        await axios.delete(`/api/delete-audio?file=${currentAudioFileName}`);
-      } catch (error) {
-        console.error('Error deleting audio file:', error);
-      }
-    };
-
-    setCurrentAudio(audio);
-    return audio;
-  }, [currentAudio]);
 
   /**
    * Toggles the audio playback functionality on and off.
