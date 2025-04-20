@@ -1,19 +1,19 @@
 /**
  * @fileoverview Jest configuration for testing the Gandalf Chatbot application.
  * This file configures Jest to properly handle Next.js, TypeScript, and CSS modules.
- * 
+ *
  * @see {@link https://jestjs.io/docs/configuration}
  * @see {@link https://nextjs.org/docs/testing#jest-and-react-testing-library}
  */
 
-const nextJest = require('next/jest');
+const nextJest = require("next/jest");
 
 /**
  * Create a Jest configuration with Next.js defaults
  * This provides automatic transforms and module mocks for Next.js
  */
 const createJestConfig = nextJest({
-  dir: './',
+  dir: "./",
 });
 
 /**
@@ -21,34 +21,31 @@ const createJestConfig = nextJest({
  * @type {import('jest').Config}
  */
 const customJestConfig = {
-  preset: 'ts-jest',
-  testEnvironment: 'jest-environment-jsdom',
+  preset: "ts-jest",
+  testEnvironment: "jest-environment-jsdom",
   transform: {
-    '^.+\\.(js|jsx|ts|tsx)$': 'ts-jest',
+    "^.+\\.(js|jsx|ts|tsx)$": "ts-jest",
   },
   moduleNameMapper: {
-    '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
-    '^@/(.*)$': '<rootDir>/$1', // Fixes path alias resolution
+    "\\.(css|less|scss|sass)$": "identity-obj-proxy",
+    "^@/(.*)$": "<rootDir>/$1", // Fixes path alias resolution
   },
   transformIgnorePatterns: [
-    '/node_modules/(?!(lodash-es)/)', // Ensures Jest doesn't ignore ES modules that need transpiling
+    "/node_modules/(?!(lodash-es)/)", // Ensures Jest doesn't ignore ES modules that need transpiling
   ],
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'], // Ensure test setup is loaded
+  setupFilesAfterEnv: ["<rootDir>/jest.setup.js"], // Ensure test setup is loaded
   testMatch: [
-    '<rootDir>/tests/**/*.test.(ts|tsx|js|jsx)',
-    '<rootDir>/**/__tests__/**/*.(ts|tsx|js|jsx)'
+    "<rootDir>/tests/**/*.test.(ts|tsx|js|jsx)",
+    "<rootDir>/**/__tests__/**/*.(ts|tsx|js|jsx)",
   ],
-  testPathIgnorePatterns: [
-    '<rootDir>/node_modules/',
-    '<rootDir>/.next/'
-  ],
+  testPathIgnorePatterns: ["<rootDir>/node_modules/", "<rootDir>/.next/"],
   verbose: true,
   collectCoverage: false, // Set to true to generate coverage reports
-  coverageDirectory: '<rootDir>/coverage',
+  coverageDirectory: "<rootDir>/coverage",
   // Speed optimization settings
   cache: true,
-  cacheDirectory: '<rootDir>/.jest-cache',
-  maxWorkers: '50%',
+  cacheDirectory: "<rootDir>/.jest-cache",
+  maxWorkers: "50%",
 };
 
 module.exports = createJestConfig(customJestConfig);

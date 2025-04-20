@@ -4,7 +4,7 @@
  * @module rateLimiter
  */
 
-import { NextApiRequest, NextApiResponse } from 'next';
+import { NextApiRequest, NextApiResponse } from "next";
 
 // Simple in-memory cache implementation for use in tests and as fallback
 class InMemoryCache {
@@ -30,14 +30,16 @@ let CacheImplementation: any;
 
 // In a testing environment, Jest might not be able to properly load
 // and mock the lru-cache, so we use our simple implementation
-if (process.env.NODE_ENV === 'test') {
+if (process.env.NODE_ENV === "test") {
   CacheImplementation = InMemoryCache;
 } else {
   try {
     // Dynamic import to avoid Jest issues
-    CacheImplementation = require('lru-cache');
+    CacheImplementation = require("lru-cache");
   } catch (e) {
-    console.warn('Failed to load lru-cache, falling back to in-memory implementation');
+    console.warn(
+      "Failed to load lru-cache, falling back to in-memory implementation",
+    );
     CacheImplementation = InMemoryCache;
   }
 }
@@ -78,15 +80,15 @@ const rateLimiterCache = new CacheImplementation({
 /**
  * Extracts the client IP address from the request
  * Handles various proxy scenarios by checking x-forwarded-for header
- * 
+ *
  * @function
  * @param {NextApiRequest} req - The Next.js API request object
  * @returns {string|null} The client's IP address or null if not found
  */
 const extractClientIp = (req: NextApiRequest): string | null => {
-  const xForwardedFor = req.headers['x-forwarded-for'];
-  if (typeof xForwardedFor === 'string') {
-    return xForwardedFor.split(',')[0].trim(); // Extract the first IP
+  const xForwardedFor = req.headers["x-forwarded-for"];
+  if (typeof xForwardedFor === "string") {
+    return xForwardedFor.split(",")[0].trim(); // Extract the first IP
   }
   return req.socket?.remoteAddress || null;
 };
@@ -95,7 +97,7 @@ const extractClientIp = (req: NextApiRequest): string | null => {
  * Rate limiting middleware function
  * Tracks request counts by IP address and enforces limits
  * Responds with 429 status when limits are exceeded
- * 
+ *
  * @function
  * @param {NextApiRequest} req - The Next.js API request object
  * @param {NextApiResponse} res - The Next.js API response object
@@ -105,14 +107,16 @@ const extractClientIp = (req: NextApiRequest): string | null => {
 const rateLimiter = async (
   req: NextApiRequest,
   res: NextApiResponse,
-  next: () => void
+  next: () => void,
 ) => {
   // Get client IP address
   const ip = extractClientIp(req);
 
   // Handle missing IP address
   if (!ip) {
-    return res.status(400).json({ error: 'Unable to determine client IP address.' });
+    return res
+      .status(400)
+      .json({ error: "Unable to determine client IP address." });
   }
 
   const currentTime = Date.now();
@@ -121,9 +125,9 @@ const rateLimiter = async (
   // First request from this IP
   if (!rateData) {
     // Initialize rate data for new IP
-    rateData = { 
-      count: 1, 
-      resetTime: currentTime + rateLimitOptions.windowMs 
+    rateData = {
+      count: 1,
+      resetTime: currentTime + rateLimitOptions.windowMs,
     };
     rateLimiterCache.set(ip, rateData);
     return next();
@@ -142,7 +146,7 @@ const rateLimiter = async (
   if (rateData.count >= rateLimitOptions.maxRequests) {
     rateLimiterCache.set(ip, rateData); // Ensure the cache is updated before responding
     return res.status(429).json({
-      error: 'Too many requests, please try again later.',
+      error: "Too many requests, please try again later.",
       retryAfter: Math.ceil((rateData.resetTime - currentTime) / 1000), // Retry-After in seconds
     });
   }

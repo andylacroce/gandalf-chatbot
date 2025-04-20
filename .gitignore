@@ -105,4 +105,8 @@ public/robots.txt
 # Temporary files that might be created during testing
 /temp
 *.temp
-*.tmp
+*.tmpnode_modules/
+.DS_Store
+*.log
+coverage/
+.env

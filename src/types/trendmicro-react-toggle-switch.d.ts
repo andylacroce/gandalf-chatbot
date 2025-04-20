@@ -3,8 +3,8 @@
  * @module trendmicro-react-toggle-switch
  */
 
-declare module '@trendmicro/react-toggle-switch' {
-  import { FC } from 'react';
+declare module "@trendmicro/react-toggle-switch" {
+  import { FC } from "react";
 
   /**
    * Interface defining the props for the ToggleSwitch component.
@@ -24,7 +24,7 @@ declare module '@trendmicro/react-toggle-switch' {
   /**
    * ToggleSwitch component that provides a visual toggle switch UI element.
    * Used in the application for toggling audio playback on/off.
-   * 
+   *
    * @component
    * @type {FC<ToggleSwitchProps>}
    */

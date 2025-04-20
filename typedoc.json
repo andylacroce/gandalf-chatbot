@@ -10,6 +10,13 @@
   "readme": "README.md",
   "tsconfig": "tsconfig.typedoc.json",
   "entryPointStrategy": "expand",
-  "highlightLanguages": ["typescript", "javascript", "json", "bash", "ini", "text"],
+  "highlightLanguages": [
+    "typescript",
+    "javascript",
+    "json",
+    "bash",
+    "ini",
+    "text"
+  ],
   "excludeNotDocumented": false
 }

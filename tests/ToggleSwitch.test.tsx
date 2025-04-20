@@ -4,17 +4,17 @@
  * @module tests/ToggleSwitch
  */
 
-import React from 'react';
-import { render, fireEvent } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import ToggleSwitch from '@trendmicro/react-toggle-switch';
+import React from "react";
+import { render, fireEvent } from "@testing-library/react";
+import "@testing-library/jest-dom";
+import ToggleSwitch from "@trendmicro/react-toggle-switch";
 
 // Mock the ToggleSwitch component since it's an external dependency
-jest.mock('@trendmicro/react-toggle-switch', () => {
+jest.mock("@trendmicro/react-toggle-switch", () => {
   return jest.fn((props) => (
-    <div 
+    <div
       data-testid="toggle-switch"
-      className={`toggle-switch ${props.checked ? 'checked' : ''} ${props.disabled ? 'disabled' : ''} ${props.className || ''}`}
+      className={`toggle-switch ${props.checked ? "checked" : ""} ${props.disabled ? "disabled" : ""} ${props.className || ""}`}
       onClick={props.disabled ? undefined : props.onChange}
     >
       Toggle
@@ -22,7 +22,7 @@ jest.mock('@trendmicro/react-toggle-switch', () => {
   ));
 });
 
-describe('ToggleSwitch Component', () => {
+describe("ToggleSwitch Component", () => {
   /**
    * Reset all mocks before each test
    */
@@ -33,41 +33,41 @@ describe('ToggleSwitch Component', () => {
   /**
    * Test to verify that the ToggleSwitch component renders correctly in unchecked state
    */
-  it('renders in unchecked state correctly', () => {
+  it("renders in unchecked state correctly", () => {
     const onChange = jest.fn();
     const { getByTestId } = render(
-      <ToggleSwitch checked={false} onChange={onChange} />
+      <ToggleSwitch checked={false} onChange={onChange} />,
     );
-    
-    const toggle = getByTestId('toggle-switch');
+
+    const toggle = getByTestId("toggle-switch");
     expect(toggle).toBeInTheDocument();
-    expect(toggle).not.toHaveClass('checked');
+    expect(toggle).not.toHaveClass("checked");
   });
 
   /**
    * Test to verify that the ToggleSwitch component renders correctly in checked state
    */
-  it('renders in checked state correctly', () => {
+  it("renders in checked state correctly", () => {
     const onChange = jest.fn();
     const { getByTestId } = render(
-      <ToggleSwitch checked={true} onChange={onChange} />
+      <ToggleSwitch checked={true} onChange={onChange} />,
     );
-    
-    const toggle = getByTestId('toggle-switch');
+
+    const toggle = getByTestId("toggle-switch");
     expect(toggle).toBeInTheDocument();
-    expect(toggle).toHaveClass('checked');
+    expect(toggle).toHaveClass("checked");
   });
 
   /**
    * Test to verify that the ToggleSwitch component can be clicked to trigger onChange
    */
-  it('calls onChange handler when clicked', () => {
+  it("calls onChange handler when clicked", () => {
     const onChange = jest.fn();
     const { getByTestId } = render(
-      <ToggleSwitch checked={false} onChange={onChange} />
+      <ToggleSwitch checked={false} onChange={onChange} />,
     );
-    
-    const toggle = getByTestId('toggle-switch');
+
+    const toggle = getByTestId("toggle-switch");
     fireEvent.click(toggle);
     expect(onChange).toHaveBeenCalledTimes(1);
   });
@@ -75,15 +75,15 @@ describe('ToggleSwitch Component', () => {
   /**
    * Test to verify that the ToggleSwitch component handles disabled state correctly
    */
-  it('does not call onChange when disabled', () => {
+  it("does not call onChange when disabled", () => {
     const onChange = jest.fn();
     const { getByTestId } = render(
-      <ToggleSwitch checked={false} onChange={onChange} disabled={true} />
+      <ToggleSwitch checked={false} onChange={onChange} disabled={true} />,
     );
-    
-    const toggle = getByTestId('toggle-switch');
-    expect(toggle).toHaveClass('disabled');
-    
+
+    const toggle = getByTestId("toggle-switch");
+    expect(toggle).toHaveClass("disabled");
+
     fireEvent.click(toggle);
     expect(onChange).not.toHaveBeenCalled();
   });
@@ -91,13 +91,17 @@ describe('ToggleSwitch Component', () => {
   /**
    * Test to verify that the ToggleSwitch component applies custom class names
    */
-  it('applies custom className when provided', () => {
+  it("applies custom className when provided", () => {
     const onChange = jest.fn();
     const { getByTestId } = render(
-      <ToggleSwitch checked={false} onChange={onChange} className="custom-class" />
+      <ToggleSwitch
+        checked={false}
+        onChange={onChange}
+        className="custom-class"
+      />,
     );
-    
-    const toggle = getByTestId('toggle-switch');
-    expect(toggle).toHaveClass('custom-class');
+
+    const toggle = getByTestId("toggle-switch");
+    expect(toggle).toHaveClass("custom-class");
   });
 });

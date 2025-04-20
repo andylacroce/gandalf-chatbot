@@ -4,42 +4,45 @@
  * @module audio-api
  */
 
-import { NextApiRequest, NextApiResponse } from 'next';
-import fs from 'fs';
-import path from 'path';
+import { NextApiRequest, NextApiResponse } from "next";
+import fs from "fs";
+import path from "path";
 
 /**
  * API handler for serving audio files to the client.
  * This handler validates the requested file parameter, checks for its existence,
  * and streams the audio content back to the client with proper headers.
- * 
+ *
  * @function
  * @param {NextApiRequest} req - The Next.js API request object containing the file parameter
  * @param {NextApiResponse} res - The Next.js API response object for streaming the audio
  * @returns {Promise<void>}
  */
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
   // Extract and validate the file parameter
   const { file } = req.query;
 
-  if (!file || typeof file !== 'string') {
-    return res.status(400).json({ error: 'File parameter is required' });
+  if (!file || typeof file !== "string") {
+    return res.status(400).json({ error: "File parameter is required" });
   }
 
   // Sanitize filename to prevent directory traversal attacks
   const sanitizedFile = path.basename(file);
-  
+
   // Determine potential file paths (temporary directory or public directory)
-  const audioFilePath = path.resolve('/tmp', sanitizedFile);
-  const localFilePath = path.resolve('public', sanitizedFile);
+  const audioFilePath = path.resolve("/tmp", sanitizedFile);
+  const localFilePath = path.resolve("public", sanitizedFile);
 
   /**
    * Helper function to check if a file exists and return its normalized path
    * @param {string} filePath - Path to check
    * @returns {string} Normalized real path if exists, empty string otherwise
    */
-  const checkFileExists = (filePath: string) => 
-    fs.existsSync(filePath) ? fs.realpathSync(filePath) : '';
+  const checkFileExists = (filePath: string) =>
+    fs.existsSync(filePath) ? fs.realpathSync(filePath) : "";
 
   // Check both potential locations for the file
   let normalizedAudioFilePath = checkFileExists(audioFilePath);
@@ -48,19 +51,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   // Retry file check a few times if not found (handles race conditions with file creation)
   for (let i = 0; i < 5; i++) {
     if (normalizedAudioFilePath || normalizedLocalFilePath) break;
-    
+
     // Wait 1 second between retries
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
     // Check again
     normalizedAudioFilePath = checkFileExists(audioFilePath);
     normalizedLocalFilePath = checkFileExists(localFilePath);
   }
 
   // Verify file path is within allowed directories (security check)
-  if (!normalizedAudioFilePath.startsWith(path.resolve('/tmp')) && 
-      !normalizedLocalFilePath.startsWith(path.resolve('public'))) {
-    return res.status(404).json({ error: 'File not found' });
+  if (
+    !normalizedAudioFilePath.startsWith(path.resolve("/tmp")) &&
+    !normalizedLocalFilePath.startsWith(path.resolve("public"))
+  ) {
+    return res.status(404).json({ error: "File not found" });
   }
 
   // Use the first valid path found
@@ -68,13 +73,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   // Final existence check
   if (!fs.existsSync(filePath)) {
-    return res.status(404).json({ error: 'File not found' });
+    return res.status(404).json({ error: "File not found" });
   }
 
   // Read file content and stream to client
   const audioContent = fs.readFileSync(filePath);
 
   // Set appropriate content type for MP3 audio
-  res.setHeader('Content-Type', 'audio/mpeg');
+  res.setHeader("Content-Type", "audio/mpeg");
   res.send(audioContent);
 }

@@ -7,7 +7,7 @@
  * Declaration for the ipinfo module that provides IP geolocation data.
  * @namespace ipinfo
  */
-declare module 'ipinfo' {
+declare module "ipinfo" {
   /**
    * Interface representing location data returned by the ipinfo API.
    * @interface LocationData
@@ -39,7 +39,7 @@ declare module 'ipinfo' {
  * This is a simple Least Recently Used (LRU) Cache implementation.
  * @namespace lru-cache
  */
-declare module 'lru-cache' {
+declare module "lru-cache" {
   interface LRUCacheOptions<K, V> {
     max?: number;
     ttl?: number;

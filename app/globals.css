@@ -5,7 +5,7 @@
  */
 
 /* Import Google Fonts - Open Sans and Lato for primary and secondary typography */
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&family=Lato:wght@400;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&family=Lato:wght@400;700&display=swap");
 
 /**
  * CSS Variables
@@ -14,37 +14,37 @@
  */
 :root {
   /* Typography */
-  --font-primary: 'Open Sans', sans-serif;
-  --font-secondary: 'Lato', sans-serif;
-  
+  --font-primary: "Open Sans", sans-serif;
+  --font-secondary: "Lato", sans-serif;
+
   /* Color Scheme - Dark theme */
   --color-background: #000000;
-  --color-text: #E0E0E0;
-  --color-sender: #B0B0B0;
-  
+  --color-text: #e0e0e0;
+  --color-sender: #b0b0b0;
+
   /* Component Colors */
-  --card-body-bg: #2A2A2A;
+  --card-body-bg: #2a2a2a;
   --chatbox-background: #333333;
-  --user-message-bg: #4A4A4A;
-  --gandalf-message-bg: #5A5A5A;
-  
+  --user-message-bg: #4a4a4a;
+  --gandalf-message-bg: #5a5a5a;
+
   /* Button Styles */
   --button-bg: #23333b;
-  --button-hover-bg: #455A64;
-  --disabled-bg: #3E3E3E;
-  --disabled-text: #9E9E9E;
+  --button-hover-bg: #455a64;
+  --disabled-bg: #3e3e3e;
+  --disabled-text: #9e9e9e;
   --send-button-bg: #1a1a1a;
   --send-button-hover-bg: #5a5b5c;
-  --send-button-text: #FFFFFF;
-  
+  --send-button-text: #ffffff;
+
   /* Form Elements */
-  --input-bg: #2A2A2A;
-  --input-text: #E0E0E0;
-  --input-placeholder: #9E9E9E;
-  
+  --input-bg: #2a2a2a;
+  --input-text: #e0e0e0;
+  --input-placeholder: #9e9e9e;
+
   /* Scrollbar */
-  --scrollbar-bg: #4A4A4A;
-  --scrollbar-thumb: #6C6C6C;
+  --scrollbar-bg: #4a4a4a;
+  --scrollbar-thumb: #6c6c6c;
 }
 
 /**
@@ -266,13 +266,14 @@ button[disabled] {
  * to match the application's dark theme
  */
 /* Checked state (on) */
-[class*="toggle-switch---switch"][class*="checked"] [class*="toggle-switch---toggle"] {
-    background-color: #2e7d32 !important; /* Darker green for checked state */
-    border-color: #1b5e20 !important;
+[class*="toggle-switch---switch"][class*="checked"]
+  [class*="toggle-switch---toggle"] {
+  background-color: #2e7d32 !important; /* Darker green for checked state */
+  border-color: #1b5e20 !important;
 }
 
 /* Unchecked state (off) */
 [class*="toggle-switch---switch"] [class*="toggle-switch---toggle"] {
-    background-color: var(--send-button-text) !important;
-    border-color: var(--disabled-bg) !important;
+  background-color: var(--send-button-text) !important;
+  border-color: var(--disabled-bg) !important;
 }

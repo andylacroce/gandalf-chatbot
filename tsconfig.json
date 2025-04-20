@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
     "target": "es2020", // Update target to a modern version
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": false, // Enable type checking for declaration files
     "strict": true,
@@ -16,16 +12,11 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "types": [
-      "react",
-      "react-dom"
-    ],
+    "types": ["react", "react-dom"],
     "jsx": "preserve",
     "incremental": true,
     "paths": {
-      "@/*": [
-        "./*"
-      ]
+      "@/*": ["./*"]
     },
     "plugins": [
       {
@@ -41,10 +32,5 @@
     ".next/types/**/*.ts",
     "src/types/**/*.d.ts" // Include the custom type declarations
   ],
-  "exclude": [
-    "node_modules",
-    "coverage",
-    "docs",
-    "public/audio"
-  ]
+  "exclude": ["node_modules", "coverage", "docs", "public/audio"]
 }
