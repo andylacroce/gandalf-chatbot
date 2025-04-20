@@ -19,6 +19,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: "Debug: Echo token length (should not be 0)"
+        run: 'echo "Token length: $(echo -n $GH_TOKEN | wc -c)"'
+        env:
+          GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
       - name: Check gh CLI version
         run: gh --version
 
@@ -38,3 +43,5 @@ jobs:
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+# NOTE: The PERSONAL_ACCESS_TOKEN secret must be set in your repo with 'repo' (classic) or 'Contents: Read and write' and 'Pull requests: Read and write' (fine-grained) permissions.
