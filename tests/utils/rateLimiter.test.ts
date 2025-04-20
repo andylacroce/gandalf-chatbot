@@ -4,7 +4,7 @@
  * @module tests/rateLimiter
  */
 
-import rateLimiter from "../src/middleware/rateLimiter";
+import rateLimiter from "../../src/middleware/rateLimiter";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Socket } from "net";
 
@@ -12,7 +12,7 @@ import { Socket } from "net";
 import { Mock } from "jest-mock";
 
 // Mock logger to avoid actual logging during tests
-jest.mock("../src/utils/logger", () => ({
+jest.mock("../../src/utils/logger", () => ({
   info: jest.fn(),
   error: jest.fn(),
 }));
@@ -86,8 +86,12 @@ describe("rateLimiter middleware", () => {
     }
 
     next.mockClear();
-    jest.mocked(res.status).mockClear();
-    jest.mocked(res.json).mockClear();
+    if (res.status) {
+      jest.mocked(res.status).mockClear();
+    }
+    if (res.json) {
+      jest.mocked(res.json).mockClear();
+    }
 
     // The 101st request should be blocked
     await rateLimiter(req as NextApiRequest, res as NextApiResponse, next);
@@ -128,7 +132,7 @@ describe("rateLimiter middleware", () => {
   it("should reset rate limit after TTL expires", async () => {
     // Reset the module state to clear any previous rate limit data
     jest.resetModules();
-    const resetRateLimiter = require("../src/middleware/rateLimiter").default;
+    const resetRateLimiter = require("../../src/middleware/rateLimiter").default;
 
     jest.useFakeTimers();
     const { res, next } = createTestObjects();

@@ -5,7 +5,7 @@
  */
 
 import { NextApiRequest, NextApiResponse } from "next";
-import deleteAudioHandler from "../pages/api/delete-audio";
+import deleteAudioHandler from "../../pages/api/delete-audio";
 import fs from "fs/promises";
 import path from "path";
 
@@ -63,7 +63,7 @@ describe("delete-audio API Handler", () => {
       const { req, res } = createTestObjects();
       req.query = { file: "../test.mp3" };
 
-      await deleteAudioHandler(req as NextApiRequest, res as NextApiResponse);
+      await deleteAudioHandler(req as NextApiRequest, res as unknown as NextApiResponse);
 
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith({
@@ -80,7 +80,7 @@ describe("delete-audio API Handler", () => {
       req.query = { file: "/absolute/path.mp3" };
       mockIsAbsolute.mockReturnValue(true);
 
-      await deleteAudioHandler(req as NextApiRequest, res as NextApiResponse);
+      await deleteAudioHandler(req as NextApiRequest, res as unknown as NextApiResponse);
 
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith({
@@ -105,7 +105,7 @@ describe("delete-audio API Handler", () => {
       mockAccess.mockResolvedValue(undefined);
       mockUnlink.mockResolvedValue(undefined);
 
-      await deleteAudioHandler(req as NextApiRequest, res as NextApiResponse);
+      await deleteAudioHandler(req as NextApiRequest, res as unknown as NextApiResponse);
 
       expect(mockJoin).toHaveBeenCalledWith("/tmp", "test.mp3");
       expect(mockAccess).toHaveBeenCalledWith("/tmp/test.mp3");
@@ -127,7 +127,7 @@ describe("delete-audio API Handler", () => {
       (error as any).code = "ENOENT";
       mockAccess.mockRejectedValue(error);
 
-      await deleteAudioHandler(req as NextApiRequest, res as NextApiResponse);
+      await deleteAudioHandler(req as NextApiRequest, res as unknown as NextApiResponse);
 
       expect(mockJoin).toHaveBeenCalledWith("/tmp", "test.mp3");
       expect(mockAccess).toHaveBeenCalledWith("/tmp/test.mp3");
@@ -154,7 +154,7 @@ describe("delete-audio API Handler", () => {
       mockAccess.mockResolvedValue(undefined);
       mockUnlink.mockRejectedValue(new Error("Unexpected error"));
 
-      await deleteAudioHandler(req as NextApiRequest, res as NextApiResponse);
+      await deleteAudioHandler(req as NextApiRequest, res as unknown as NextApiResponse);
 
       expect(mockJoin).toHaveBeenCalledWith("/tmp", "test.mp3");
       expect(mockAccess).toHaveBeenCalledWith("/tmp/test.mp3");

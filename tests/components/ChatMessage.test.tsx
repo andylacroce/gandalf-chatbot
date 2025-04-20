@@ -7,7 +7,7 @@
 import React from "react";
 import { render } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import ChatMessage from "../app/components/ChatMessage";
+import ChatMessage from "../../app/components/ChatMessage";
 
 describe("ChatMessage Component", () => {
   /**

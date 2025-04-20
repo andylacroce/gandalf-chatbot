@@ -31,14 +31,14 @@ jest.mock("@google-cloud/text-to-speech", () => ({
 jest.mock("fs");
 jest.mock("path");
 jest.mock("ipinfo");
-jest.mock("../src/utils/logger");
+jest.mock("../../src/utils/logger");
 jest.mock("uuid", () => ({ v4: () => "test-uuid-123" }));
 
 // Import dependencies after mocking
 import fs from "fs";
 import path from "path";
 import ipinfo from "ipinfo";
-import logger from "../src/utils/logger";
+import logger from "../../src/utils/logger";
 import { protos } from "@google-cloud/text-to-speech";
 
 // Create a mock handler that mimics the behavior of the actual handler
@@ -176,7 +176,7 @@ describe("Chat API Handler", () => {
     const errorLoggerSpy = jest.spyOn(logger, "error").mockImplementation();
 
     // Simulate an error in the response's json method
-    jest.mocked(res.json).mockImplementationOnce(() => {
+    jest.mocked(res.json!).mockImplementationOnce(() => {
       throw new Error("Simulated error in json method");
     });
 
