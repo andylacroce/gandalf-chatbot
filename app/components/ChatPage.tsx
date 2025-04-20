@@ -97,7 +97,7 @@ const ChatPage = () => {
 
     setCurrentAudio(audio);
     return audio;
-  }, [currentAudio]);
+  }, []);
 
   const sendMessage = useCallback(async () => {
     if (!input.trim()) return;
@@ -133,7 +133,7 @@ const ChatPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [input, messages, audioEnabled, conversationHistory, currentAudio, playAudio]);
+  }, [input, messages, audioEnabled, conversationHistory, playAudio]);
 
 
   /**
