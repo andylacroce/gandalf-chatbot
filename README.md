@@ -1,6 +1,6 @@
-# Gandalf AI Chatbot
+# Gandalf Chatbot
 
-A Next.js chatbot using ChatGPT and Google Text-to-Speech (TTS). The chatbot takes on the persona of Gandalf from Lord of the Rings.
+A Next.js app featuring a real-time chat interface, AI-powered Gandalf persona, and voice responses via Google Text-to-Speech. Modular, tested, and ready for deployment.
 
 Live: https://gandalf-chatbot.vercel.app/
 
