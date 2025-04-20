@@ -18,3 +18,4 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           merge-method: merge
+          pull-request-number: ${{ github.event.pull_request.number }}
