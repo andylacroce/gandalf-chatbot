@@ -19,6 +19,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Check gh CLI version
+        run: gh --version
+
       - name: Check gh auth status
         run: gh auth status
         env:
