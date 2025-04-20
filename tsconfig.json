@@ -42,6 +42,9 @@
     "src/types/**/*.d.ts" // Include the custom type declarations
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "coverage",
+    "docs",
+    "public/audio"
   ]
 }

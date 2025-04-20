@@ -5,7 +5,7 @@
 
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import axios from 'axios';
 import '../globals.css';
 import Image from 'next/image';
@@ -68,7 +68,7 @@ const ChatPage = () => {
    * @function
    * @returns {Promise<void>}
    */
-  const sendMessage = async () => {
+  const sendMessage = useCallback(async () => {
     if (!input.trim()) return;
 
     const newMessages = [...messages, { sender: 'User', text: input }];
@@ -102,7 +102,7 @@ const ChatPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [input, messages, audioEnabled, conversationHistory, currentAudio]);
 
   /**
    * Plays an audio file from the provided URL.
@@ -113,7 +113,7 @@ const ChatPage = () => {
    * @param {string} audioFileUrl - The URL of the audio file to play
    * @returns {Promise<HTMLAudioElement>} The audio element that was created
    */
-  const playAudio = async (audioFileUrl: string) => {
+  const playAudio = useCallback(async (audioFileUrl: string) => {
     if (currentAudio) {
       currentAudio.pause();
       currentAudio.currentTime = 0;
@@ -142,13 +142,13 @@ const ChatPage = () => {
 
     setCurrentAudio(audio);
     return audio;
-  };
+  }, [currentAudio]);
 
   /**
    * Toggles the audio playback functionality on and off.
    * When toggled off, it stops any currently playing audio and cleans up resources.
    */
-  const handleAudioToggle = () => {
+  const handleAudioToggle = useCallback(() => {
     setAudioEnabled(!audioEnabled);
 
     if (currentAudio && audioEnabled) {
@@ -165,7 +165,7 @@ const ChatPage = () => {
       // Clear the current audio state
       setCurrentAudio(null);
     }
-  };
+  }, [audioEnabled, currentAudio]);
 
   /**
    * Extracts the file name from a URL.
@@ -206,6 +206,12 @@ const ChatPage = () => {
     }
   }, [loading]);
 
+  const renderedMessages = useMemo(() => (
+    messages.map((msg, index) => (
+      <ChatMessage key={index} message={msg} />
+    ))
+  ), [messages]);
+
   return (
     <div className="container mt-4">
       <div className="text-center mb-4">
@@ -220,9 +226,7 @@ const ChatPage = () => {
         />
       </div>
       <div className="chat-box border rounded p-3 mb-3" ref={chatBoxRef}>
-        {messages.map((msg, index) => (
-          <ChatMessage key={index} message={msg} />
-        ))}
+        {renderedMessages}
       </div>
       <div className="spinner-container">
         {loading && <Image src="/ring.gif" alt="Loading..." width={40} height={40} unoptimized data-testid="loading-indicator" />}

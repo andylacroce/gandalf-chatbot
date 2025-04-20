@@ -25,7 +25,7 @@ export interface Message {
  * @param {Message} props.message - The message object containing text and sender information
  * @returns {JSX.Element|null} The rendered chat message or null if message is invalid
  */
-const ChatMessage = ({ message }: { message: Message }) => {
+const ChatMessage = React.memo(({ message }: { message: Message }) => {
   // Validate message object to prevent rendering errors
   if (!message || typeof message.text !== 'string' || typeof message.sender !== 'string') {
     console.error('Invalid message object:', message);
@@ -46,6 +46,6 @@ const ChatMessage = ({ message }: { message: Message }) => {
       </div>
     </div>
   );
-};
+});
 
 export default ChatMessage;
