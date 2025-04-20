@@ -45,7 +45,7 @@
     "eslint": "^9.22.0",
     "eslint-config-next": "15.3.1",
     "ipinfo": "^1.5.2",
-    "jest": "^29.7.0",
+    "jest": "28.1.0",
     "jest-environment-jsdom": "^29.7.0",
     "postcss": "^8.4.31",
     "ts-jest": "^29.3.2",
