@@ -7,6 +7,21 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import fs from "fs";
 import path from "path";
+import { synthesizeSpeechToFile } from "../../src/utils/tts";
+
+// Helper: Try to extract the original text from a sidecar file (if available)
+function getOriginalTextForAudio(sanitizedFile: string): string | null {
+  const txtFile = sanitizedFile.replace(/\.mp3$/, ".txt");
+  const txtPathTmp = path.resolve("/tmp", txtFile);
+  const txtPathPublic = path.resolve("public", txtFile);
+  if (fs.existsSync(txtPathTmp)) {
+    return fs.readFileSync(txtPathTmp, "utf8");
+  }
+  if (fs.existsSync(txtPathPublic)) {
+    return fs.readFileSync(txtPathPublic, "utf8");
+  }
+  return null;
+}
 
 /**
  * API handler for serving audio files to the client.
@@ -58,6 +73,24 @@ export default async function handler(
     // Check again
     normalizedAudioFilePath = checkFileExists(audioFilePath);
     normalizedLocalFilePath = checkFileExists(localFilePath);
+  }
+
+  // If still not found, try to regenerate using TTS if possible
+  if (!normalizedAudioFilePath && !normalizedLocalFilePath) {
+    // Try to get the original text for this audio file
+    const originalText = getOriginalTextForAudio(sanitizedFile);
+    if (originalText) {
+      try {
+        await synthesizeSpeechToFile({
+          text: `<speak><prosody pitch=\"-13st\" rate=\"80%\"> ${originalText} </prosody></speak>`,
+          filePath: audioFilePath,
+          ssml: true,
+        });
+        normalizedAudioFilePath = checkFileExists(audioFilePath);
+      } catch (err) {
+        return res.status(500).json({ error: "Failed to regenerate audio via TTS" });
+      }
+    }
   }
 
   // Verify file path is within allowed directories (security check)

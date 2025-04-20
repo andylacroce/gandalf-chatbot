@@ -320,4 +320,80 @@ describe("ChatPage Component", () => {
       ).toBeInTheDocument();
     });
   });
+
+  /**
+   * Test audio playback exclusivity
+   * Verifies that only one audio plays at a time and previous audio is stopped before new audio starts
+   */
+  // Move audioInstances outside the describe block to keep the reference stable
+  let audioInstances: any[] = [];
+
+  describe("Audio playback exclusivity", () => {
+    let playMock: jest.SpyInstance;
+    let pauseMock: jest.SpyInstance;
+    let audioConstructorSpy: jest.SpyInstance;
+
+    beforeAll(() => {
+      // Mock Audio
+      playMock = jest.spyOn(window.HTMLMediaElement.prototype, "play").mockImplementation(function (this: HTMLMediaElement) {
+        return Promise.resolve();
+      });
+      pauseMock = jest.spyOn(window.HTMLMediaElement.prototype, "pause").mockImplementation(function (this: any) {
+        this._paused = true;
+      });
+      // Assign mock to global window.Audio before rendering component
+      // @ts-ignore
+      window.Audio = function (src?: string) {
+        const audioMock: any = {
+          src: src ?? "",
+          currentTime: 0,
+          _paused: false,
+          play: playMock,
+          pause: pauseMock,
+          addEventListener: jest.fn(),
+          removeEventListener: jest.fn(),
+        };
+        audioInstances.push(audioMock);
+        return audioMock as HTMLAudioElement;
+      };
+    });
+
+    afterAll(() => {
+      playMock.mockRestore();
+      pauseMock.mockRestore();
+    });
+
+    afterEach(() => {
+      audioInstances.length = 0; // Clear array contents, don't reassign
+      jest.clearAllMocks();
+    });
+
+    it("should stop previous audio before playing new audio", async () => {
+      const { getByPlaceholderText, getByRole } = render(<ChatPage />);
+      const input = getByPlaceholderText("Type in your message here...");
+      const sendButton = getByRole("button", { name: /Send/i });
+
+      // Simulate two rapid messages with audio replies
+      jest.mocked(axios.post)
+        .mockResolvedValueOnce({ data: { reply: "First reply", audioFileUrl: "/api/audio?file=first.mp3" } })
+        .mockResolvedValueOnce({ data: { reply: "Second reply", audioFileUrl: "/api/audio?file=second.mp3" } });
+
+      // First message
+      fireEvent.change(input, { target: { value: "Hello" } });
+      fireEvent.click(sendButton);
+      await waitFor(() => expect(axios.post).toHaveBeenCalledTimes(1));
+
+      // Second message (before first audio finishes)
+      fireEvent.change(input, { target: { value: "Hi again" } });
+      fireEvent.click(sendButton);
+      await waitFor(() => expect(axios.post).toHaveBeenCalledTimes(2));
+
+      // Only one audio instance should be used (ref-based logic)
+      expect(audioInstances.length).toBe(2); // Both play() called, but only one ref is kept
+      // The first audio should have been paused before the second played
+      expect(pauseMock).toHaveBeenCalledTimes(1);
+      // The second audio should not be paused immediately after play
+      expect(audioInstances[1]._paused).toBe(false);
+    });
+  });
 });

@@ -68,30 +68,33 @@ const ChatPage = () => {
     null,
   );
 
+  /** @ref Persistent Audio element to ensure only one plays at a time */
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+
   /**
-   * Sends the user's message to the server and handles Gandalf's response.
-   * This function manages the entire message flow, including updating the UI,
-   * sending API requests, and handling audio playback.
-   *
-   * @function
-   * @returns {Promise<void>}
+   * Plays an audio file from the provided URL, ensuring only one audio plays at a time.
+   * Stops and cleans up any previous playback before starting a new one.
    */
   const playAudio = useCallback(async (audioFileUrl: string) => {
-    if (currentAudio) {
-      currentAudio.pause();
-      currentAudio.currentTime = 0;
-
+    // Stop and clean up previous audio
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
       try {
-        const previousAudioFileName = extractFileName(currentAudio.src);
+        const previousAudioFileName = extractFileName(audioRef.current.src);
         if (previousAudioFileName !== extractFileName(audioFileUrl)) {
           await axios.delete(`/api/delete-audio?file=${previousAudioFileName}`);
         }
       } catch (error) {
         console.error("Error deleting previous audio file:", error);
       }
+      audioRef.current = null;
     }
 
+    // Create and play new audio
     const audio = new Audio(audioFileUrl);
+    audioRef.current = audio;
     audio.play();
 
     audio.onended = async () => {
@@ -100,6 +103,10 @@ const ChatPage = () => {
         await axios.delete(`/api/delete-audio?file=${currentAudioFileName}`);
       } catch (error) {
         console.error("Error deleting audio file:", error);
+      }
+      // Clean up ref after playback ends
+      if (audioRef.current === audio) {
+        audioRef.current = null;
       }
     };
 

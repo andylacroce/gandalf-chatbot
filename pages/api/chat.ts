@@ -6,7 +6,7 @@
 
 import { NextApiRequest, NextApiResponse } from "next";
 import OpenAI from "openai";
-import textToSpeech, { protos } from "@google-cloud/text-to-speech";
+import { synthesizeSpeechToFile } from "../../src/utils/tts";
 import fs from "fs";
 import path from "path";
 import { v4 as uuidv4 } from "uuid";
@@ -63,14 +63,6 @@ if (!apiKey) {
  * @type {OpenAI}
  */
 const openai = new OpenAI({ apiKey });
-
-/**
- * Google Text-to-Speech client for converting text to speech
- * @type {textToSpeech.TextToSpeechClient}
- */
-const ttsClient = new textToSpeech.TextToSpeechClient({
-  credentials: googleAuthCredentials,
-});
 
 /**
  * Type guard to check if the response is from OpenAI
@@ -193,33 +185,27 @@ ${conversationHistory.length > 0 ? `Here is the conversation up to this point:\n
     conversationHistory.push(`Gandalf: ${gandalfReply}`);
 
     // Prepare text-to-speech request with voice tuned for Gandalf
-    const request: protos.google.cloud.texttospeech.v1.ISynthesizeSpeechRequest =
-      {
-        input: {
-          ssml: `<speak><prosody pitch="-13st" rate="80%"> ${gandalfReply} </prosody></speak>`,
-        },
-        voice: {
-          languageCode: "en-GB",
-          name: "en-GB-Wavenet-D",
-          ssmlGender: protos.google.cloud.texttospeech.v1.SsmlVoiceGender.MALE,
-        },
-        audioConfig: {
-          audioEncoding: protos.google.cloud.texttospeech.v1.AudioEncoding.MP3,
-        },
-      };
-
-    // Validate TTS request
-    if (!request || typeof request !== "object") {
-      throw new Error("Invalid Text-to-Speech request: Payload is malformed");
+    const ssmlText = `<speak><prosody pitch="-13st" rate="80%"> ${gandalfReply} </prosody></speak>`;
+    const tmpDir = "/tmp";
+    if (!fs.existsSync(tmpDir)) {
+      fs.mkdirSync(tmpDir, { recursive: true });
     }
-
-    // Generate speech from text
-    let response;
+    const audioFileName = `${uuidv4()}.mp3`;
+    const audioFilePath = path.join(tmpDir, audioFileName);
+    // Remove existing file if it exists
+    if (fs.existsSync(audioFilePath)) {
+      fs.unlinkSync(audioFilePath);
+    }
     try {
-      [response] = await ttsClient.synthesizeSpeech(request);
-      if (!response || !response.audioContent) {
-        throw new Error("TTS API response is missing audioContent");
-      }
+      await synthesizeSpeechToFile({
+        text: ssmlText,
+        filePath: audioFilePath,
+        ssml: true,
+      });
+
+      // Write a sidecar .txt file with the Gandalf reply for audio regeneration
+      const txtFilePath = audioFilePath.replace(/\.mp3$/, ".txt");
+      fs.writeFileSync(txtFilePath, gandalfReply, "utf8");
     } catch (error) {
       logger.error("Text-to-Speech API error:", error);
       const errorMessage =
@@ -228,24 +214,6 @@ ${conversationHistory.length > 0 ? `Here is the conversation up to this point:\n
         .status(500)
         .json({ error: "Google Cloud TTS failed", details: errorMessage });
     }
-
-    // Ensure temporary directory exists
-    const tmpDir = "/tmp";
-    if (!fs.existsSync(tmpDir)) {
-      fs.mkdirSync(tmpDir, { recursive: true });
-    }
-
-    // Create unique filename for audio file
-    const audioFileName = `${uuidv4()}.mp3`;
-    const audioFilePath = path.join(tmpDir, audioFileName);
-
-    // Remove existing file if it exists
-    if (fs.existsSync(audioFilePath)) {
-      fs.unlinkSync(audioFilePath);
-    }
-
-    // Write audio content to file
-    fs.writeFileSync(audioFilePath, response.audioContent, "binary");
 
     // Log interaction details
     logger.info(
