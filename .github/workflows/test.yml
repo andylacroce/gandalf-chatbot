@@ -1,3 +1,14 @@
+# This workflow runs Jest tests on pull requests and pushes to main or master branches.
+#
+# How it works:
+# - Triggers on pull requests and pushes to main or master.
+# - Checks out the code and sets up Node.js 20.
+# - Installs dependencies with npm ci.
+# - Runs all tests using npm test.
+# - Fails the workflow if any test fails.
+#
+# Use this workflow to ensure code quality and prevent merging code that breaks tests.
+
 name: Run Jest Tests
 
 on:

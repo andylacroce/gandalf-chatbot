@@ -1,3 +1,13 @@
+# This workflow automatically enables auto-merge for pull requests created by Dependabot.
+# It uses the peter-evans/enable-pull-request-automerge GitHub Action.
+#
+# How it works:
+# - Triggers on pull requests that are opened, reopened, or synchronized.
+# - Only runs if the PR author is dependabot[bot].
+# - Grants write permissions to pull requests and repository contents.
+# - Uses the action to enable auto-merge with the default merge method.
+# - The PR will be merged automatically after all required status checks (as defined in branch protection rules) pass.
+
 name: Enable auto-merge for Dependabot PRs
 
 on:
