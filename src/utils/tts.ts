@@ -15,16 +15,22 @@ function getGoogleAuthCredentials() {
   }
 }
 
-const ttsClient = new textToSpeech.TextToSpeechClient({
-  credentials: getGoogleAuthCredentials(),
-});
+let ttsClient: import("@google-cloud/text-to-speech").TextToSpeechClient | null = null;
+function getTTSClient() {
+  if (!ttsClient) {
+    ttsClient = new textToSpeech.TextToSpeechClient({
+      credentials: getGoogleAuthCredentials(),
+    });
+  }
+  return ttsClient;
+}
 
 export async function synthesizeSpeechToFile({
   text,
   filePath,
   ssml = false,
   voice = {
-    languageCodes: ["en-GB"], // for type safety
+    languageCodes: ["en-GB"],
     name: "en-GB-Wavenet-D",
     ssmlGender: protos.google.cloud.texttospeech.v1.SsmlVoiceGender.MALE,
   },
@@ -50,7 +56,8 @@ export async function synthesizeSpeechToFile({
     voice: apiVoice,
     audioConfig,
   };
-  const [response] = await ttsClient.synthesizeSpeech(request);
+  const client = getTTSClient();
+  const [response] = await client.synthesizeSpeech(request);
   if (!response || !response.audioContent) {
     throw new Error("TTS API response is missing audioContent");
   }

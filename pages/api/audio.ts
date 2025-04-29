@@ -99,23 +99,30 @@ export default async function handler(
   }
 
   // Verify file path is within allowed directories (security check)
+  const allowedTmp = path.resolve("/tmp");
+  const allowedPublic = path.resolve("public");
   if (
-    !normalizedAudioFilePath.startsWith(path.resolve("/tmp")) &&
-    !normalizedLocalFilePath.startsWith(path.resolve("public"))
+    (normalizedAudioFilePath && !normalizedAudioFilePath.startsWith(allowedTmp)) &&
+    (normalizedLocalFilePath && !normalizedLocalFilePath.startsWith(allowedPublic))
   ) {
-    return res.status(404).json({ error: "File not found" });
+    return res.status(403).json({ error: "Access forbidden" });
   }
 
   // Use the first valid path found
   const filePath = normalizedAudioFilePath || normalizedLocalFilePath;
 
   // Final existence check
-  if (!fs.existsSync(filePath)) {
+  if (!filePath || !fs.existsSync(filePath)) {
     return res.status(404).json({ error: "File not found" });
   }
 
   // Read file content and stream to client
-  const audioContent = fs.readFileSync(filePath);
+  let audioContent;
+  try {
+    audioContent = fs.readFileSync(filePath);
+  } catch (err) {
+    return res.status(500).json({ error: "Error reading file" });
+  }
 
   // Set appropriate content type for MP3 audio
   res.setHeader("Content-Type", "audio/mpeg");
