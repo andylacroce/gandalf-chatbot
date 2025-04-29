@@ -42,11 +42,11 @@ npm install
 
 ### Configure Environment Variables
 
-Create `.env.local`:
+Create `.env.local` (or `.env` on Windows if `.env.local` does not work):
 
 ```ini
 OPENAI_API_KEY=your_openai_api_key_here
-GOOGLE_APPLICATION_CREDENTIALS_PATH=./config/gcp-key.json
+GOOGLE_APPLICATION_CREDENTIALS_JSON=config/gcp-key.json
 ```
 
 Ensure `.gitignore` includes:
