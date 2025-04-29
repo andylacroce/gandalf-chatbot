@@ -7,7 +7,10 @@ jest.mock("axios");
 
 describe("ChatPage", () => {
   describe("Sequence", () => {
-    beforeEach(() => { jest.resetAllMocks(); });
+    beforeEach(() => {
+      jest.resetAllMocks();
+      jest.mocked(axios.get).mockResolvedValue({ data: { status: "ok" } }); // Mock health check
+    });
     it("handles multiple messages in sequence", async () => {
       jest.mocked(axios.post).mockResolvedValue({
         data: { reply: "You shall not pass!", audioFileUrl: "/api/audio?file=gandalf_reply.mp3" },

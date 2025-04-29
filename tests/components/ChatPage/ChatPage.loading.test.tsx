@@ -8,7 +8,10 @@ jest.useFakeTimers();
 
 describe("ChatPage", () => {
   describe("Loading States", () => {
-    beforeEach(() => { jest.resetAllMocks(); });
+    beforeEach(() => {
+      jest.resetAllMocks();
+      jest.mocked(axios.get).mockResolvedValue({ data: { status: "ok" } }); // Mock health check
+    });
     it("disables the input and button while loading", async () => {
       const { getByPlaceholderText, getByRole } = render(<ChatPage />);
       const input = getByPlaceholderText("Type in your message here...");

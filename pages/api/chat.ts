@@ -1,3 +1,4 @@
+import 'openai/shims/node';
 /**
  * API endpoint for handling chat interactions with Gandalf AI.
  * This file manages communication with OpenAI's GPT API and Google's Text-to-Speech service.
@@ -31,17 +32,19 @@ if (!process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
  */
 let googleAuthCredentials;
 
+function getGoogleCredentials() {
+  let creds = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
+  if (!creds) throw new Error("Missing GOOGLE_APPLICATION_CREDENTIALS_JSON");
+  if (!creds.trim().startsWith("{")) {
+    creds = fs.readFileSync(creds, "utf8");
+  }
+  return JSON.parse(creds);
+}
+
 if (process.env.VERCEL_ENV) {
-  // Parse credentials directly from environment variable in production
-  googleAuthCredentials = JSON.parse(
-    process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON,
-  );
+  googleAuthCredentials = getGoogleCredentials();
 } else {
-  // Load credentials from file in development
-  const credentialsPath = path.resolve(
-    process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON,
-  );
-  googleAuthCredentials = JSON.parse(fs.readFileSync(credentialsPath, "utf8"));
+  googleAuthCredentials = getGoogleCredentials();
 }
 
 /**

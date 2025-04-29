@@ -14,7 +14,7 @@ Live: https://gandalf-chatbot.vercel.app/
 
 - Voice responses via Google TTS
 - Chat powered by OpenAI's ChatGPT
-- Built with Next.js 15.3.0 & React 19
+- Built with Next.js 15.3 & React 19
 - TypeScript for type safety
 - Rate limiting with LRU Cache
 - Testing with Jest and React Testing Library
@@ -42,16 +42,19 @@ npm install
 
 ### Configure Environment Variables
 
-Create `.env.local` (or `.env` on Windows if `.env.local` does not work):
+Create a `.env.local` file for local development:
 
 ```ini
 OPENAI_API_KEY=your_openai_api_key_here
 GOOGLE_APPLICATION_CREDENTIALS_JSON=config/gcp-key.json
 ```
 
+- For local development, you can use a file path (e.g., `config/gcp-key.json`) or paste the full JSON string.
+- For Vercel deployment, you **must** paste the full JSON string for `GOOGLE_APPLICATION_CREDENTIALS_JSON` in the Vercel dashboard (not a file path).
+
 Ensure `.gitignore` includes:
 
-```text
+```
 .env.local
 config/gcp-key.json
 ```
@@ -62,7 +65,7 @@ config/gcp-key.json
 npm run dev
 ```
 
-The application uses Turbopack for faster development experience.
+The application uses Turbopack for a fast development experience.
 
 ### Testing
 
@@ -107,7 +110,7 @@ Generate documentation locally:
 npm run docs
 ```
 
-Documentation is generated using TypeDoc and will be created in the `docs` directory. Note that the `docs` directory is excluded from version control to keep the repository lean. Each developer should generate the documentation locally as needed.
+Documentation is generated using TypeDoc and will be created in the `docs` directory. The `docs` directory is excluded from version control. Each developer should generate the documentation locally as needed.
 
 ---
 
@@ -121,6 +124,7 @@ app/               # Next.js app directory
 pages/api/         # API routes
 ├── audio.ts       # Text-to-speech API
 ├── chat.ts        # ChatGPT API
+├── health.ts      # Health check API
 └── delete-audio.ts # Audio file cleanup
 public/            # Static assets
 src/
@@ -135,7 +139,7 @@ tests/             # Test files
 ## Technologies
 
 - **Frontend**: React 19, Next.js 15.3
-- **API**: OpenAI API (v4.93.0), Google Cloud Text-to-Speech
+- **API**: OpenAI API (v4.96.x), Google Cloud Text-to-Speech
 - **Development**: TypeScript, ESLint, Autoprefixer, PostCSS
 - **Testing**: Jest, React Testing Library
 - **Logging**: Winston
@@ -147,9 +151,9 @@ tests/             # Test files
 
 1. Push to GitHub
 2. Connect the repo to Vercel
-3. Add environment variables:
-   - `OPENAI_API_KEY`
-   - `GOOGLE_APPLICATION_CREDENTIALS_JSON` (Paste full JSON)
+3. In the Vercel dashboard, add environment variables:
+   - `OPENAI_API_KEY` (your OpenAI API key)
+   - `GOOGLE_APPLICATION_CREDENTIALS_JSON` (paste the full JSON string, not a file path)
 4. Deploy
 
 ---

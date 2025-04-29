@@ -54,6 +54,9 @@ const ChatPage = () => {
   /** @state {boolean} Whether audio responses are enabled */
   const [audioEnabled, setAudioEnabled] = useState<boolean>(true);
 
+  /** @state {boolean} Whether the API is available */
+  const [apiAvailable, setApiAvailable] = useState<boolean>(true);
+
   /** @ref Reference to the chat box container for auto-scrolling */
   const chatBoxRef = useRef<HTMLDivElement>(null);
 
@@ -115,7 +118,7 @@ const ChatPage = () => {
   }, []);
 
   const sendMessage = useCallback(async () => {
-    if (!input.trim()) return;
+    if (!input.trim() || !apiAvailable) return;
 
     const newMessages = [...messages, { sender: "User", text: input }];
     setMessages(newMessages);
@@ -148,7 +151,7 @@ const ChatPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [input, messages, audioEnabled, conversationHistory, playAudio]);
+  }, [input, messages, audioEnabled, conversationHistory, playAudio, apiAvailable]);
 
   /**
    * Toggles the audio playback functionality on and off.
@@ -214,6 +217,18 @@ const ChatPage = () => {
     }
   }, [loading]);
 
+  /**
+   * Health check on mount
+   */
+  useEffect(() => {
+    axios.get("/api/health")
+      .then(() => setApiAvailable(true))
+      .catch(() => {
+        setApiAvailable(false);
+        setError(""); // Clear any previous error
+      });
+  }, []);
+
   const renderedMessages = useMemo(
     () =>
       messages.map((msg, index) => <ChatMessage key={index} message={msg} />),
@@ -222,6 +237,16 @@ const ChatPage = () => {
 
   return (
     <div className="container mt-4">
+      {!apiAvailable && (
+        <div className="alert alert-danger api-error-message" data-testid="api-error-message">
+          <span className="api-error-title" style={{ color: 'var(--color-text)' }}>
+            Gandalf is resting his eyes.
+          </span>
+          <span className="api-error-desc">
+            The chat is asleep for now. Please return soon!
+          </span>
+        </div>
+      )}
       <div className="text-center mb-4">
         <Image
           src="/gandalf.jpg"
@@ -261,18 +286,18 @@ const ChatPage = () => {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && sendMessage()}
             className="form-control"
-            placeholder="Type in your message here..."
+            placeholder={(!apiAvailable || loading) ? "" : "Type in your message here..."}
             ref={inputRef}
-            disabled={loading}
+            disabled={loading || !apiAvailable}
             autoFocus
           />
           <div className="input-group-append">
             <button
               onClick={sendMessage}
-              className={`btn ${loading ? "btn-secondary" : "btn-primary"}`}
-              disabled={loading}
+              className={`btn ${loading || !apiAvailable ? "btn-secondary" : "btn-primary"}`}
+              disabled={loading || !apiAvailable}
             >
-              {loading ? "HOLD" : "Send"}
+              {(loading || !apiAvailable) ? "HOLD" : "Send"}
             </button>
           </div>
         </div>

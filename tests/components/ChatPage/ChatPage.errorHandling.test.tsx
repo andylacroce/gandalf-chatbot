@@ -7,7 +7,10 @@ jest.mock("axios");
 
 describe("ChatPage", () => {
   describe("Error Handling", () => {
-    beforeEach(() => { jest.resetAllMocks(); });
+    beforeEach(() => {
+      jest.resetAllMocks();
+      jest.mocked(axios.get).mockResolvedValue({ data: { status: "ok" } }); // Mock health check
+    });
     it("displays an error message when the API call fails", async () => {
       jest.mocked(axios.post).mockRejectedValue(new Error("API call failed"));
       const { getByPlaceholderText, getByRole, getByText } = render(<ChatPage />);

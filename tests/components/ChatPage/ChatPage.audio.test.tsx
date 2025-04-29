@@ -8,7 +8,10 @@ jest.mock("axios");
 describe("ChatPage", () => {
   describe("Audio", () => {
     describe("ChatPage Audio", () => {
-      beforeEach(() => { jest.resetAllMocks(); });
+      beforeEach(() => {
+        jest.resetAllMocks();
+        jest.mocked(axios.get).mockResolvedValue({ data: { status: "ok" } }); // Mock health check
+      });
       it("plays audio when a reply with an audio URL is received", async () => {
         const audioPlayMock = jest.spyOn(window.HTMLMediaElement.prototype, "play").mockImplementation(() => Promise.resolve());
         jest.mocked(axios.post).mockResolvedValue({
