@@ -13,6 +13,7 @@ import { v4 as uuidv4 } from "uuid";
 import ipinfo from "ipinfo";
 import logger from "../../src/utils/logger"; // corrected path
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
+import { setReplyCache } from "../../src/utils/cache";
 
 /**
  * Validate required environment variables and initialize credentials
@@ -208,6 +209,8 @@ export default async function handler(
       // Write a sidecar .txt file with the Gandalf reply for audio regeneration
       const txtFilePath = audioFilePath.replace(/\.mp3$/, ".txt");
       fs.writeFileSync(txtFilePath, gandalfReply, "utf8");
+      // Store Gandalf reply in cache for fallback
+      setReplyCache(audioFileName, gandalfReply);
     } catch (error) {
       logger.error("Text-to-Speech API error:", error);
       const errorMessage =

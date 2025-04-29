@@ -8,6 +8,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import fs from "fs";
 import path from "path";
 import { synthesizeSpeechToFile } from "../../src/utils/tts";
+import { getReplyCache } from "../../src/utils/cache";
 
 // Helper: Try to extract the original text from a sidecar file (if available)
 function getOriginalTextForAudio(sanitizedFile: string): string | null {
@@ -78,7 +79,11 @@ export default async function handler(
   // If still not found, try to regenerate using TTS if possible
   if (!normalizedAudioFilePath && !normalizedLocalFilePath) {
     // Try to get the original text for this audio file
-    const originalText = getOriginalTextForAudio(sanitizedFile);
+    let originalText = getOriginalTextForAudio(sanitizedFile);
+    // Fallback: try cache if .txt is missing
+    if (!originalText) {
+      originalText = getReplyCache(sanitizedFile);
+    }
     if (originalText) {
       try {
         await synthesizeSpeechToFile({
