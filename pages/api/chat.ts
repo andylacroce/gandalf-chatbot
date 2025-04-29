@@ -12,6 +12,7 @@ import path from "path";
 import { v4 as uuidv4 } from "uuid";
 import ipinfo from "ipinfo";
 import logger from "../../src/utils/logger"; // corrected path
+import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 
 /**
  * Validate required environment variables and initialize credentials
@@ -83,14 +84,27 @@ function isOpenAIResponse(
 }
 
 /**
- * API handler for the chat endpoint
- * Processes user messages, generates Gandalf responses, and creates audio files
- *
- * @function
- * @param {NextApiRequest} req - The API request object containing the user message
- * @param {NextApiResponse} res - The API response object for returning Gandalf's reply
- * @returns {Promise<void>}
+ * Helper to convert conversationHistory (array of strings) to OpenAI message objects
  */
+function buildOpenAIMessages(history: string[], userMessage: string): ChatCompletionMessageParam[] {
+  const messages: ChatCompletionMessageParam[] = [
+    {
+      role: "system",
+      content:
+        `You are Gandalf the Grey, wizard of Middle-earth. Speak with wisdom, warmth, and a touch of playful forgetfulness. Never reference the modern world. Use poetic, old-world language, and occasionally tease or offer roundabout advice as Gandalf would. Stay in character at all times. Respond in 50-100 words.`,
+    },
+  ];
+  for (const entry of history) {
+    if (entry.startsWith("User: ")) {
+      messages.push({ role: "user", content: entry.replace(/^User: /, "") });
+    } else if (entry.startsWith("Gandalf: ")) {
+      messages.push({ role: "assistant", content: entry.replace(/^Gandalf: /, "") });
+    }
+  }
+  messages.push({ role: "user", content: userMessage });
+  return messages;
+}
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
@@ -133,22 +147,8 @@ export default async function handler(
       conversationHistory = conversationHistory.slice(-50);
     }
 
-    // Construct prompt for OpenAI with Gandalf persona
-    const prompt = `
-You are Gandalf the Grey from *The Lord of the Rings*. You speak with the wisdom of a centuries-old wizard, yet your mind sometimes wanders playfully. 
-
-Your knowledge is limited to the world of Middle-earth—its history, lands, creatures, and lore. Avoid references to modern events, technology, or real-world topics beyond Middle-earth. 
-
-Your responses should:
-- Be **concise** (no more than 50-100 words).
-- Maintain a **warm and caring tone**.
-- Use **playful forgetfulness** and **roundabout wisdom** when offering advice.
-- Occasionally add **lighthearted teasing** in the spirit of Gandalf's personality.
-- Use a **slightly formal, old-world** speech style fitting for a wise and legendary figure.
-
-Keep responses immersive as if Gandalf himself is speaking.
-
-${conversationHistory.length > 0 ? `Here is the conversation up to this point:\n\n${conversationHistory.join("\n")}\n` : ""}`;
+    // Build OpenAI messages array for GPT-4o best practices
+    const messages = buildOpenAIMessages(conversationHistory.slice(0, -1), userMessage);
 
     // Set timeout for API request to prevent hanging
     const timeout = new Promise((resolve) =>
@@ -159,8 +159,10 @@ ${conversationHistory.length > 0 ? `Here is the conversation up to this point:\n
     const result = await Promise.race([
       openai.chat.completions.create({
         model: "gpt-4o",
-        messages: [{ role: "user", content: prompt }],
-        max_tokens: 100,
+        messages,
+        max_tokens: 200,
+        temperature: 0.8,
+        response_format: { type: "text" },
       }),
       timeout,
     ]);
