@@ -65,22 +65,21 @@ export default async function handler(
   let normalizedLocalFilePath = checkFileExists(localFilePath);
 
   // Retry file check a few times if not found (handles race conditions with file creation)
+  let found = false;
   for (let i = 0; i < 5; i++) {
-    if (normalizedAudioFilePath || normalizedLocalFilePath) break;
-
-    // Wait 1 second between retries
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    // Check again
+    if (normalizedAudioFilePath || normalizedLocalFilePath) {
+      found = true;
+      break;
+    }
+    // Wait 300ms between retries (faster feedback)
+    await new Promise((resolve) => setTimeout(resolve, 300));
     normalizedAudioFilePath = checkFileExists(audioFilePath);
     normalizedLocalFilePath = checkFileExists(localFilePath);
   }
 
-  // If still not found, try to regenerate using TTS if possible
+  // If still not found, try to regenerate using TTS if possible (full replay from cache)
   if (!normalizedAudioFilePath && !normalizedLocalFilePath) {
-    // Try to get the original text for this audio file
     let originalText = getOriginalTextForAudio(sanitizedFile);
-    // Fallback: try cache if .txt is missing
     if (!originalText) {
       originalText = getReplyCache(sanitizedFile);
     }
@@ -92,6 +91,7 @@ export default async function handler(
           ssml: true,
         });
         normalizedAudioFilePath = checkFileExists(audioFilePath);
+        found = !!normalizedAudioFilePath;
       } catch (err) {
         return res.status(500).json({ error: "Failed to regenerate audio via TTS" });
       }
