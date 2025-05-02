@@ -122,7 +122,7 @@ body {
  */
 @media (max-width: 576px) {
   .chat-box {
-    padding: 1rem;
+    padding: 0.5rem;
     width: 100%;
   }
 
@@ -138,6 +138,58 @@ body {
 
   .input-group-append .btn {
     width: 100%;
+  }
+
+  /* Reduce font sizes and padding for mobile */
+  body {
+    font-size: 0.95rem;
+  }
+  .user-message,
+  .gandalf-message {
+    padding: 7px;
+    margin-bottom: 7px;
+    font-size: 0.98rem;
+  }
+  .user-sender,
+  .gandalf-sender {
+    font-size: 0.85rem;
+  }
+  .input-group .form-control {
+    padding: 0.35rem 0.6rem;
+    font-size: 0.95rem;
+    min-height: 2.1rem;
+    height: 2.1rem;
+  }
+  .input-group-append .btn {
+    padding: 0.35rem 0.8rem;
+    font-size: 0.95rem;
+    min-height: 2.1rem;
+    height: 2.1rem;
+  }
+  .api-error-message {
+    font-size: 1rem;
+    padding: 1rem 0.7rem;
+  }
+  .api-error-message .api-error-title {
+    font-size: 1.05rem;
+  }
+  .api-error-message .api-error-desc {
+    font-size: 0.95rem;
+  }
+  /* Shrink images on mobile */
+  .chat-box img,
+  .text-center img,
+  .icon-container img {
+    max-width: 60px !important;
+    max-height: 60px !important;
+    width: 40px !important;
+    height: 40px !important;
+  }
+  .text-center.mb-4 img {
+    max-width: 90px !important;
+    max-height: 90px !important;
+    width: 70px !important;
+    height: 70px !important;
   }
 }
 
