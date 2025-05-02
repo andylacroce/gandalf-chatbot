@@ -131,12 +131,15 @@ body {
     width: 100%;
   }
 
-  .input-group .form-control,
-  .input-group-append {
-    width: 100%;
+  .input-group .form-control {
+    padding: 0.35rem 0.6rem;
+    font-size: 0.95rem;
+    /* Remove min-height and height for better alignment */
+    min-height: unset;
+    height: auto;
   }
 
-  .input-group-append .btn {
+  .input-group-append {
     width: 100%;
   }
 
@@ -156,12 +159,6 @@ body {
   }
   .input-group .form-control {
     padding: 0.35rem 0.6rem;
-    font-size: 0.95rem;
-    min-height: 2.1rem;
-    height: 2.1rem;
-  }
-  .input-group-append .btn {
-    padding: 0.35rem 0.8rem;
     font-size: 0.95rem;
     min-height: 2.1rem;
     height: 2.1rem;
@@ -287,7 +284,7 @@ button[disabled] {
   display: flex;
 }
 
-/* Send Button */
+/* Send Button - Desktop and Base Styles */
 .input-group-append .btn {
   flex: 0 0 auto;
   background-color: var(--send-button-bg);
@@ -297,10 +294,24 @@ button[disabled] {
   border: none !important;
   padding: 1rem 2rem;
   font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .input-group-append .btn:hover {
   background-color: var(--send-button-hover-bg);
+}
+
+@media (max-width: 576px) {
+  .input-group-append .btn {
+    width: 100%;
+    font-size: 0.95rem;
+    line-height: 1;
+    padding: .5rem 2rem;
+    height: auto;
+    min-height: unset;
+  }
 }
 
 /**
