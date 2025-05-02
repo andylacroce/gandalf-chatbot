@@ -269,7 +269,10 @@ const ChatPage = () => {
           />
         </div>
       </div>
-      <div className="chat-box border rounded p-3 mb-3" ref={chatBoxRef}>
+      <div
+        className="chat-box border rounded p-3 mb-3"
+        ref={chatBoxRef}
+      >
         {renderedMessages}
       </div>
       <div className="spinner-container">
@@ -287,6 +290,18 @@ const ChatPage = () => {
       {error && (
         <div className="alert alert-danger" data-testid="error-message">
           {error}
+        </div>
+      )}
+      {!apiAvailable && (
+        <div className="modal-backdrop">
+          <div className="modal-error" role="alert" data-testid="api-error-message">
+            <span className="api-error-title" style={{ color: 'var(--color-text)' }}>
+              Gandalf is resting his eyes.
+            </span>
+            <span className="api-error-desc">
+              The chat is asleep for now. Please return soon!
+            </span>
+          </div>
         </div>
       )}
       <div className="card-footer">
