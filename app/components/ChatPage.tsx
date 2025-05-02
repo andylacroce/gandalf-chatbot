@@ -74,7 +74,6 @@ const ChatPage = () => {
   /** @ref Persistent Audio element to ensure only one plays at a time */
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-
   /**
    * Plays an audio file from the provided URL, ensuring only one audio plays at a time.
    * Stops and cleans up any previous playback before starting a new one.
@@ -237,26 +236,38 @@ const ChatPage = () => {
 
   return (
     <div className="container mt-4">
-      {!apiAvailable && (
-        <div className="alert alert-danger api-error-message" data-testid="api-error-message">
-          <span className="api-error-title" style={{ color: 'var(--color-text)' }}>
-            Gandalf is resting his eyes.
-          </span>
-          <span className="api-error-desc">
-            The chat is asleep for now. Please return soon!
-          </span>
+      <div className="chatbox-header-relative">
+        <div className="toggle-container top-left">
+          <ToggleSwitch checked={audioEnabled} onChange={handleAudioToggle} />
+          <span className="toggle-label">Audio</span>
         </div>
-      )}
-      <div className="text-center mb-4">
-        <Image
-          src="/gandalf.jpg"
-          alt="Gandalf"
-          priority={true}
-          width={150}
-          height={150}
-          className="rounded-circle"
-          style={{ objectFit: "cover" }}
-        />
+        <div className="icon-container top-right">
+          <a
+            href="https://mastodon.world/@AndyLacroce"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Image src="/mastodon.png" alt="Mastodon" width={50} height={50} />
+          </a>
+          <a
+            href="https://www.andylacroce.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Image src="/dexter.webp" alt="Dexter" width={50} height={50} />
+          </a>
+        </div>
+        <div className="gandalf-img-top text-center">
+          <Image
+            src="/gandalf.jpg"
+            alt="Gandalf"
+            priority={true}
+            width={150}
+            height={150}
+            className="rounded-circle"
+            style={{ objectFit: "cover" }}
+          />
+        </div>
       </div>
       <div className="chat-box border rounded p-3 mb-3" ref={chatBoxRef}>
         {renderedMessages}
@@ -301,28 +312,6 @@ const ChatPage = () => {
             </button>
           </div>
         </div>
-        <div className="mt-3 text-center">
-          <div className="toggle-container">
-            <ToggleSwitch checked={audioEnabled} onChange={handleAudioToggle} />
-            <span className="toggle-label">Audio</span>
-          </div>
-        </div>
-      </div>
-      <div className="icon-container mt-3 text-center">
-        <a
-          href="https://mastodon.world/@AndyLacroce"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image src="/mastodon.png" alt="Mastodon" width={50} height={50} />
-        </a>
-        <a
-          href="https://www.andylacroce.com/"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image src="/dexter.webp" alt="Dexter" width={50} height={50} />
-        </a>
       </div>
     </div>
   );
