@@ -72,15 +72,16 @@ describe("ChatPage", () => {
       fireEvent.click(sendButton!);
       
       await waitFor(() => {
-        // Check both messages are present
-        const messages = container.querySelectorAll(".user-message, .gandalf-message");
+        // Scope to only the chat-messages container to avoid unrelated nodes
+        const chatMessagesContainer = container.querySelector(".chat-messages");
+        const messages = chatMessagesContainer?.querySelectorAll(".user-message, .gandalf-message") || [];
         expect(messages.length).toBe(4); // 2 user messages + 2 responses
-        
-        // Verify message ordering
-        const allText = container.querySelector(".chat-messages")?.textContent;
-        const firstIndex = allText?.indexOf("First message") || 0;
-        const secondIndex = allText?.indexOf("Second message") || 0;
-        expect(firstIndex).toBeLessThan(secondIndex);
+
+        // Verify message ordering (bottom-up, so last message should be first in DOM)
+        expect(messages[0].textContent).toContain("Second response");
+        expect(messages[1].textContent).toContain("Second message");
+        expect(messages[2].textContent).toContain("First response");
+        expect(messages[3].textContent).toContain("First message");
       });
     });
   });

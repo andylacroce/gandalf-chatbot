@@ -182,6 +182,14 @@ const ChatPage = () => {
     scrollToBottom();
   }, [messages, scrollToBottom]);
 
+  // Scroll to bottom (scrollTop = 0) on desktop when messages update
+  useEffect(() => {
+    const isDesktop = window.innerWidth > 576;
+    if (isDesktop && chatBoxRef.current) {
+      chatBoxRef.current.scrollTop = 0;
+    }
+  }, [messages]);
+
   // Focus input field on mount
   useEffect(() => {
     if (inputRef.current) {
@@ -207,7 +215,7 @@ const ChatPage = () => {
   }, []);
 
   const renderedMessages = useMemo(
-    () => messages.map((msg, index) => <ChatMessage key={index} message={msg} />),
+    () => [...messages].reverse().map((msg, index) => <ChatMessage key={index} message={msg} />),
     [messages]
   );
 

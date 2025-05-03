@@ -175,7 +175,7 @@ body {
   padding: 1rem;
   background-color: var(--chatbox-background);
   display: flex;
-  flex-direction: column;
+  flex-direction: column-reverse;
   scrollbar-width: thin;
   scrollbar-color: rgba(80,80,80,0.6) transparent;
 }
