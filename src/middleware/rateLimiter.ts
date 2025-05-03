@@ -6,7 +6,10 @@
 
 import { NextApiRequest, NextApiResponse } from "next";
 
-// Simple in-memory cache implementation for use in tests and as fallback
+/**
+ * Simple in-memory cache implementation for use in tests and as fallback.
+ * @internal
+ */
 class InMemoryCache {
   private cache = new Map();
   private options: any;
@@ -15,10 +18,21 @@ class InMemoryCache {
     this.options = options;
   }
 
+  /**
+   * Get a value from the cache.
+   * @param {string} key
+   * @returns {any}
+   */
   get(key: string) {
     return this.cache.get(key);
   }
 
+  /**
+   * Set a value in the cache.
+   * @param {string} key
+   * @param {any} value
+   * @returns {boolean}
+   */
   set(key: string, value: any) {
     this.cache.set(key, value);
     return true;
@@ -45,11 +59,9 @@ if (process.env.NODE_ENV === "test") {
 }
 
 /**
- * Configuration options for the rate limiter
+ * Configuration options for the rate limiter.
  * @const
- * @type {Object}
- * @property {number} maxRequests - Maximum number of requests allowed per IP in the time window
- * @property {number} windowMs - Time window in milliseconds
+ * @type {{ maxRequests: number, windowMs: number }}
  */
 const rateLimitOptions = {
   maxRequests: 100, // Limit each IP to 100 requests
@@ -57,7 +69,7 @@ const rateLimitOptions = {
 };
 
 /**
- * Interface defining the structure of rate limit data for each IP
+ * Interface defining the structure of rate limit data for each IP.
  * @interface RateLimitData
  * @property {number} count - Number of requests made in the current window
  * @property {number} resetTime - Timestamp when the rate limit window resets
@@ -68,8 +80,9 @@ interface RateLimitData {
 }
 
 /**
- * LRU Cache instance for storing rate limit data by IP address
- * Uses time-based expiration to automatically clean up old entries
+ * LRU Cache instance for storing rate limit data by IP address.
+ * Uses time-based expiration to automatically clean up old entries.
+ * @internal
  */
 const rateLimiterCache = new CacheImplementation({
   max: 5000, // Maximum number of IPs to store in cache
@@ -78,8 +91,8 @@ const rateLimiterCache = new CacheImplementation({
 });
 
 /**
- * Extracts the client IP address from the request
- * Handles various proxy scenarios by checking x-forwarded-for header
+ * Extracts the client IP address from the request.
+ * Handles various proxy scenarios by checking x-forwarded-for header.
  *
  * @function
  * @param {NextApiRequest} req - The Next.js API request object
@@ -94,15 +107,17 @@ const extractClientIp = (req: NextApiRequest): string | null => {
 };
 
 /**
- * Rate limiting middleware function
- * Tracks request counts by IP address and enforces limits
- * Responds with 429 status when limits are exceeded
+ * Rate limiting middleware function.
+ * Tracks request counts by IP address and enforces limits.
+ * Responds with 429 status when limits are exceeded.
  *
  * @function
  * @param {NextApiRequest} req - The Next.js API request object
  * @param {NextApiResponse} res - The Next.js API response object
  * @param {Function} next - The function to call when the request should proceed
- * @returns {Promise<void>}
+ * @returns {Promise<void>} Resolves when request is allowed or blocked
+ * @example
+ * await rateLimiter(req, res, next);
  */
 const rateLimiter = async (
   req: NextApiRequest,
