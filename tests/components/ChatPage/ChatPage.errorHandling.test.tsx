@@ -10,27 +10,52 @@ describe("ChatPage", () => {
     beforeEach(() => {
       jest.resetAllMocks();
       jest.mocked(axios.get).mockResolvedValue({ data: { status: "ok" } }); // Mock health check
+      // Mock scrollIntoView to prevent errors in tests
+      window.HTMLElement.prototype.scrollIntoView = jest.fn();
     });
+    
     it("displays an error message when the API call fails", async () => {
       jest.mocked(axios.post).mockRejectedValue(new Error("API call failed"));
-      const { getByPlaceholderText, getByRole, getByText } = render(<ChatPage />);
+      const { getByPlaceholderText, getByText, container } = render(<ChatPage />);
+      
       const input = getByPlaceholderText("Type in your message here...");
-      const sendButton = getByRole("button", { name: /Send/i });
+      const sendButton = container.querySelector(".chat-send-button");
+      expect(sendButton).toBeInTheDocument();
+      
       fireEvent.change(input, { target: { value: "Hello, Gandalf!" } });
-      fireEvent.click(sendButton);
+      fireEvent.click(sendButton!);
+      
       await waitFor(() => {
         expect(getByText("Error sending message. Please try again.")).toBeInTheDocument();
       });
     });
+    
     it("handles network errors gracefully", async () => {
       jest.mocked(axios.post).mockRejectedValue(new Error("Network Error"));
-      const { getByPlaceholderText, getByRole, getByText } = render(<ChatPage />);
+      const { getByPlaceholderText, getByText, container } = render(<ChatPage />);
+      
       const input = getByPlaceholderText("Type in your message here...");
-      const sendButton = getByRole("button", { name: /Send/i });
+      const sendButton = container.querySelector(".chat-send-button");
+      expect(sendButton).toBeInTheDocument();
+      
       fireEvent.change(input, { target: { value: "Hello, Gandalf!" } });
-      fireEvent.click(sendButton);
+      fireEvent.click(sendButton!);
+      
       await waitFor(() => {
         expect(getByText("Error sending message. Please try again.")).toBeInTheDocument();
+      });
+    });
+    
+    it("shows API unavailability message when health check fails", async () => {
+      // Mock health check failure
+      jest.mocked(axios.get).mockRejectedValue(new Error("Service unavailable"));
+      
+      const { getByText, queryByTestId } = render(<ChatPage />);
+      
+      await waitFor(() => {
+        expect(queryByTestId("api-error-message")).toBeInTheDocument();
+        expect(getByText("Gandalf is resting his eyes.")).toBeInTheDocument();
+        expect(getByText("The chat is asleep for now. Please return soon!")).toBeInTheDocument();
       });
     });
   });

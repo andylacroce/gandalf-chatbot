@@ -39,40 +39,21 @@ interface Message {
  * @returns {JSX.Element} The ChatPage component.
  */
 const ChatPage = () => {
-  /** @state {Message[]} Current messages in the conversation */
+  // State definitions
   const [messages, setMessages] = useState<Message[]>([]);
-
-  /** @state {string} Current user input */
   const [input, setInput] = useState<string>("");
-
-  /** @state {boolean} Whether a request is in progress */
   const [loading, setLoading] = useState<boolean>(false);
-
-  /** @state {string} Error message if any */
   const [error, setError] = useState<string>("");
-
-  /** @state {boolean} Whether audio responses are enabled */
   const [audioEnabled, setAudioEnabled] = useState<boolean>(true);
-
-  /** @state {boolean} Whether the API is available */
   const [apiAvailable, setApiAvailable] = useState<boolean>(true);
-
-  /** @ref Reference to the chat box container for auto-scrolling */
-  const chatBoxRef = useRef<HTMLDivElement>(null);
-
-  /** @ref Reference to the input field for auto-focusing */
-  const inputRef = useRef<HTMLInputElement | null>(null);
-
-  /** @state {Message[]} Complete conversation history */
   const [conversationHistory, setConversationHistory] = useState<Message[]>([]);
+  const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
 
-  /** @state {HTMLAudioElement | null} Currently playing audio element */
-  const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(
-    null,
-  );
-
-  /** @ref Persistent Audio element to ensure only one plays at a time */
+  // Refs
+  const chatBoxRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   /**
    * Plays an audio file from the provided URL, ensuring only one audio plays at a time.
@@ -180,9 +161,6 @@ const ChatPage = () => {
   /**
    * Extracts the file name from a URL.
    * Parses the URL and extracts the 'file' query parameter.
-   *
-   * @param {string} url - The full URL of the file
-   * @returns {string} The extracted file name or empty string if not found
    */
   const extractFileName = (url: string): string => {
     const parsedUrl = new URL(url, window.location.origin);
@@ -190,35 +168,35 @@ const ChatPage = () => {
   };
 
   /**
-   * Effect hook to scroll the chat box to the bottom when new messages arrive.
+   * Scrolls the chat box to the bottom when new messages arrive.
+   * Uses smoothScroll for better UX.
    */
-  useEffect(() => {
-    if (chatBoxRef.current) {
-      chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+  const scrollToBottom = useCallback(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages]);
+  }, []);
 
-  /**
-   * Effect hook to focus the input field when the component mounts.
-   */
+  // Scroll to bottom when messages update
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, scrollToBottom]);
+
+  // Focus input field on mount
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
     }
   }, []);
 
-  /**
-   * Effect hook to re-focus the input field after loading completes.
-   */
+  // Re-focus input field after loading completes
   useEffect(() => {
     if (!loading && inputRef.current) {
       inputRef.current.focus();
     }
   }, [loading]);
 
-  /**
-   * Health check on mount
-   */
+  // Health check on mount
   useEffect(() => {
     axios.get("/api/health")
       .then(() => setApiAvailable(true))
@@ -229,14 +207,14 @@ const ChatPage = () => {
   }, []);
 
   const renderedMessages = useMemo(
-    () =>
-      messages.map((msg, index) => <ChatMessage key={index} message={msg} />),
-    [messages],
+    () => messages.map((msg, index) => <ChatMessage key={index} message={msg} />),
+    [messages]
   );
 
   return (
-    <>
-      <div className="chatbox-header-relative">
+    <div className="chat-layout">
+      {/* Header area with Gandalf image and controls */}
+      <div className="chat-header">
         <div className="toggle-container top-left">
           <ToggleSwitch checked={audioEnabled} onChange={handleAudioToggle} />
           <span className="toggle-label">Audio</span>
@@ -257,7 +235,7 @@ const ChatPage = () => {
             <Image src="/dexter.webp" alt="Dexter" width={50} height={50} />
           </a>
         </div>
-        <div className="gandalf-img-top text-center">
+        <div className="gandalf-image-container">
           <Image
             src="/gandalf.jpg"
             alt="Gandalf"
@@ -269,29 +247,61 @@ const ChatPage = () => {
           />
         </div>
       </div>
-      <div
-        className="chat-box border rounded p-3 mb-3"
-        ref={chatBoxRef}
-      >
-        {renderedMessages}
+
+      {/* Main scrollable chat area */}
+      <div className="chat-messages-container">
+        <div className="chat-messages" ref={chatBoxRef}>
+          {renderedMessages}
+          <div ref={messagesEndRef} />
+        </div>
       </div>
-      <div className="spinner-container">
+
+      {/* Status area for spinner and error messages */}
+      <div className="chat-status-area">
         {loading && (
-          <Image
-            src="/ring.gif"
-            alt="Loading..."
-            width={40}
-            height={40}
-            unoptimized
-            data-testid="loading-indicator"
-          />
+          <div className="spinner-container">
+            <Image
+              src="/ring.gif"
+              alt="Loading..."
+              width={40}
+              height={40}
+              unoptimized
+              data-testid="loading-indicator"
+            />
+          </div>
+        )}
+        {error && (
+          <div className="alert alert-danger" data-testid="error-message">
+            {error}
+          </div>
         )}
       </div>
-      {error && (
-        <div className="alert alert-danger" data-testid="error-message">
-          {error}
+
+      {/* Input area fixed at the bottom */}
+      <div className="chat-input-area">
+        <div className="chat-input-container">
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+            className="chat-input"
+            placeholder={(!apiAvailable || loading) ? "" : "Type in your message here..."}
+            ref={inputRef}
+            disabled={loading || !apiAvailable}
+            autoFocus
+          />
+          <button
+            onClick={sendMessage}
+            className={`chat-send-button ${loading || !apiAvailable ? "disabled" : ""}`}
+            disabled={loading || !apiAvailable}
+          >
+            {(loading || !apiAvailable) ? "HOLD" : "Send"}
+          </button>
         </div>
-      )}
+      </div>
+
+      {/* API unavailable modal */}
       {!apiAvailable && (
         <div className="modal-backdrop">
           <div className="modal-error" role="alert" data-testid="api-error-message">
@@ -304,31 +314,7 @@ const ChatPage = () => {
           </div>
         </div>
       )}
-      <div className="card-footer">
-        <div className="input-group">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-            className="form-control"
-            placeholder={(!apiAvailable || loading) ? "" : "Type in your message here..."}
-            ref={inputRef}
-            disabled={loading || !apiAvailable}
-            autoFocus
-          />
-          <div className="input-group-append">
-            <button
-              onClick={sendMessage}
-              className={`btn ${loading || !apiAvailable ? "btn-secondary" : "btn-primary"}`}
-              disabled={loading || !apiAvailable}
-            >
-              {(loading || !apiAvailable) ? "HOLD" : "Send"}
-            </button>
-          </div>
-        </div>
-      </div>
-    </>
+    </div>
   );
 };
 

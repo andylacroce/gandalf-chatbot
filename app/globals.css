@@ -104,9 +104,220 @@ body {
   width: 100%;
   padding: 0;
   margin: 0 auto;
-  padding-bottom: 70px; /* space for input area */
+  padding-bottom: 60px; /* Reduced space for input area */
   flex: 1 1 auto;
   min-height: 0;
+}
+
+@media (max-width: 576px) {
+  .container {
+    flex: 1 1 auto;
+    min-height: 0;
+    padding-bottom: 50px; /* Reduced padding for mobile input area */
+  }
+}
+
+/**
+ * Chat Layout - Main container for the entire chat interface
+ * Uses a flex column layout with fixed height sections and scrollable content
+ */
+.chat-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  position: relative;
+}
+
+/**
+ * Chat Header - Contains the Gandalf image and controls
+ */
+.chat-header {
+  position: relative;
+  width: 100%;
+  padding: 10px 0;
+  flex: 0 0 auto;
+}
+
+/**
+ * Gandalf Image Container
+ */
+.gandalf-image-container {
+  display: flex;
+  justify-content: center;
+  margin: 0.5rem 0 1rem;
+  z-index: 1;
+  position: relative;
+}
+
+/**
+ * Chat Messages Container - Wrapper for scrollable area
+ */
+.chat-messages-container {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  position: relative;
+  margin-bottom: 10px;
+  border-radius: 15px;
+  overflow: hidden;
+}
+
+/**
+ * Chat Messages - The actual scrollable area containing messages
+ */
+.chat-messages {
+  height: 100%;
+  width: 100%;
+  overflow-y: auto;
+  padding: 1rem;
+  background-color: var(--chatbox-background);
+  display: flex;
+  flex-direction: column;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(80,80,80,0.6) transparent;
+}
+
+/* Webkit scrollbar styles */
+.chat-messages::-webkit-scrollbar {
+  width: 8px;
+  background: transparent;
+}
+.chat-messages::-webkit-scrollbar-thumb {
+  background: rgba(80, 80, 80, 0.6);
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+.chat-messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/**
+ * Chat Status Area - Contains loading spinner and error messages
+ */
+.chat-status-area {
+  flex: 0 0 auto;
+  min-height: 40px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+/**
+ * Chat Input Area - Fixed at the bottom of the viewport
+ */
+.chat-input-area {
+  flex: 0 0 auto;
+  width: 100%;
+  padding: 10px 0;
+  background-color: var(--color-background);
+  margin-bottom: env(safe-area-inset-bottom, 0); /* For iOS notched devices */
+}
+
+/**
+ * Chat Input Container - Contains input field and send button
+ */
+.chat-input-container {
+  display: flex;
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/**
+ * Chat Input - Text input field
+ */
+.chat-input {
+  flex: 1;
+  background-color: var(--input-bg);
+  color: var(--input-text);
+  border: none;
+  padding: 1rem;
+  font-size: 1.25rem;
+  outline: none;
+}
+.chat-input::placeholder {
+  color: var(--input-placeholder);
+}
+
+/**
+ * Chat Send Button
+ */
+.chat-send-button {
+  flex: 0 0 auto;
+  background-color: var(--send-button-bg);
+  color: var(--send-button-text);
+  border: none;
+  padding: 1rem 2rem;
+  font-size: 1.25rem;
+  cursor: pointer;
+  outline: none;
+}
+.chat-send-button:hover {
+  background-color: var(--send-button-hover-bg);
+}
+.chat-send-button.disabled {
+  background-color: var(--disabled-bg);
+  color: var(--disabled-text);
+  cursor: not-allowed;
+}
+
+/* Mobile styles */
+@media (max-width: 576px) {
+  .chat-layout {
+    max-width: 100%;
+    padding: 0 10px;
+  }
+  
+  .chat-header {
+    padding: 5px 0;
+  }
+  
+  .gandalf-image-container {
+    margin: 0.25rem 0 0.75rem;
+  }
+  
+  .gandalf-image-container img {
+    width: 90px !important;
+    height: 90px !important;
+  }
+  
+  .chat-messages {
+    padding: 0.5rem;
+  }
+  
+  .chat-input {
+    padding: 0.5rem;
+    font-size: 1rem;
+  }
+  
+  .chat-send-button {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+  }
+  
+  .chat-status-area {
+    min-height: 30px;
+    margin-bottom: 5px;
+  }
+  
+  .user-message,
+  .gandalf-message {
+    padding: 7px;
+    margin-bottom: 7px;
+    font-size: 0.98rem;
+  }
+  
+  .user-sender,
+  .gandalf-sender {
+    font-size: 0.85rem;
+  }
 }
 
 /**
@@ -115,20 +326,24 @@ body {
  * Includes custom scrollbar styling
  */
 .chat-box {
+  position: relative; /* Ensure proper stacking context */
   width: 100%;
   max-width: 800px;
   background-color: var(--chatbox-background);
   padding: 1rem;
   margin: 0 auto;
-  margin-top: 32px; /* Minimal gap below Gandalf image */
+  margin-top: 0; /* Remove margin to avoid overlap with Gandalf image */
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(80,80,80,0.6) transparent;
   flex: 1 1 auto;
   min-height: 0;
+  height: calc(100vh - 380px); /* Adjusted for proper spacing */
+  max-height: 55vh;
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(80,80,80,0.6) transparent;
 }
 
 /* Custom scrollbar for Webkit browsers */
@@ -159,13 +374,14 @@ body {
   .chat-box {
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
     padding: 0.5rem;
-    margin-top: 32px; /* Minimal gap below Gandalf image on mobile */
+    margin-top: 0;
     width: 100%;
     overflow-y: auto;
     flex: 1 1 auto;
     min-height: 0;
+    height: calc(100vh - 280px);
+    max-height: 65vh;
   }
 
   .input-group {
@@ -231,7 +447,7 @@ body {
   }
   .gandalf-img-top {
     margin-top: 0.25rem;
-    margin-bottom: 2.5rem;
+    margin-bottom: 1rem; /* Adjusted for mobile */
   }
 }
 
@@ -482,7 +698,7 @@ button[disabled] {
   max-width: 800px;
   margin: 0 auto;
   min-height: 56px;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0; /* Reduced to avoid extra space */
 }
 
 @media (max-width: 900px) {
@@ -495,7 +711,7 @@ button[disabled] {
   .chatbox-header-relative {
     min-height: 44px;
     max-width: 100vw;
-    margin-bottom: 0.7rem;
+    margin-bottom: 0;
   }
   .toggle-container.top-left {
     top: 0.25rem;
@@ -529,15 +745,16 @@ button[disabled] {
 }
 
 .gandalf-img-top {
-  margin-top: .5rem;
-  margin-bottom: 2rem;
+  margin-top: 0.5rem;
+  margin-bottom: 1.5rem; /* Increased spacing to avoid overlap with chat box */
   z-index: 1;
+  position: relative; /* Ensure proper stacking context */
 }
 
 @media (max-width: 576px) {
   .gandalf-img-top {
     margin-top: 0.25rem;
-    margin-bottom: 2.5rem;
+    margin-bottom: 1rem; /* Adjusted for mobile */
   }
 }
 
