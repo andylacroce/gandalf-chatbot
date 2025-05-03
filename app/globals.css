@@ -120,6 +120,7 @@ body {
   background-color: var(--chatbox-background);
   padding: 1rem;
   margin: 0 auto;
+  margin-top: 32px; /* Minimal gap below Gandalf image */
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -160,6 +161,7 @@ body {
     flex-direction: column;
     justify-content: flex-end;
     padding: 0.5rem;
+    margin-top: 32px; /* Minimal gap below Gandalf image on mobile */
     width: 100%;
     overflow-y: auto;
     flex: 1 1 auto;
