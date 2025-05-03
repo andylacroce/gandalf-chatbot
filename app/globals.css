@@ -143,11 +143,10 @@ body {
   }
 
   .input-group .form-control {
-    padding: 0.35rem 0.6rem;
+    padding: 0.25rem 0.6rem;
     font-size: 0.95rem;
-    /* Remove min-height and height for better alignment */
-    min-height: unset;
-    height: auto;
+    min-height: 1.6rem;
+    height: 1.6rem;
   }
 
   .input-group-append {
@@ -167,12 +166,6 @@ body {
   .user-sender,
   .gandalf-sender {
     font-size: 0.85rem;
-  }
-  .input-group .form-control {
-    padding: 0.35rem 0.6rem;
-    font-size: 0.95rem;
-    min-height: 2.1rem;
-    height: 2.1rem;
   }
   .api-error-message {
     font-size: 1rem;
@@ -200,10 +193,14 @@ body {
     height: 70px !important;
   }
   .gandalf-img-top img {
-    width: 100px !important;
-    height: 100px !important;
-    max-width: 100px !important;
-    max-height: 100px !important;
+    width: 90px !important;
+    height: 90px !important;
+    max-width: 90px !important;
+    max-height: 90px !important;
+  }
+  .gandalf-img-top {
+    margin-top: 0.25rem;
+    margin-bottom: 2.5rem;
   }
 }
 
@@ -503,7 +500,7 @@ button[disabled] {
 @media (max-width: 576px) {
   .gandalf-img-top {
     margin-top: 0.25rem;
-    margin-bottom: 1rem;
+    margin-bottom: 2.5rem;
   }
 }
 
