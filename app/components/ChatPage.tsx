@@ -235,7 +235,7 @@ const ChatPage = () => {
   );
 
   return (
-    <div className="container mt-4">
+    <>
       <div className="chatbox-header-relative">
         <div className="toggle-container top-left">
           <ToggleSwitch checked={audioEnabled} onChange={handleAudioToggle} />
@@ -328,7 +328,7 @@ const ChatPage = () => {
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
