@@ -182,10 +182,9 @@ const ChatPage = () => {
     scrollToBottom();
   }, [messages, scrollToBottom]);
 
-  // Scroll to bottom (scrollTop = 0) on desktop when messages update
+  // Scroll to bottom (scrollTop = 0) on all devices when messages update
   useEffect(() => {
-    const isDesktop = window.innerWidth > 576;
-    if (isDesktop && chatBoxRef.current) {
+    if (chatBoxRef.current) {
       chatBoxRef.current.scrollTop = 0;
     }
   }, [messages]);
