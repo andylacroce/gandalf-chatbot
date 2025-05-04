@@ -83,9 +83,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         const newContent = existingContent + logEntry;
 
-        // Ensure UTF-8 encoding for the log content
-        const utf8Content = Buffer.from(newContent, 'utf8').toString('utf8');
-        await put(logFilename, utf8Content, {
+        // Write the log content directly (no explicit UTF-8 conversion)
+        await put(logFilename, newContent, {
           access: 'public', // Or 'private'
           allowOverwrite: true, // Allow overwriting the existing blob
         });
