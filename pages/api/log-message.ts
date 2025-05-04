@@ -70,18 +70,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         try {
           // Check if blob exists and get its content
           const blobInfo = await head(logFilename); // Check if file exists
-          const response = await fetch(blobInfo.url); // Fetch the existing content
-          if (response.ok) {
-            existingContent = await response.text();
+          if (blobInfo && blobInfo.url) {
+            const response = await fetch(blobInfo.url + `?cachebust=${Date.now()}`); // Bypass CDN cache
+            if (response.ok) {
+              existingContent = await response.text();
+            } else {
+              console.warn(`[Log API] Could not fetch existing blob content for ${logFilename}, status: ${response.status}`);
+            }
           } else {
-             console.warn(`[Log API] Could not fetch existing blob content for ${logFilename}, status: ${response.status}`);
+            console.log(`[Log API] Blob info not found for ${logFilename}.`);
           }
-        } catch (error: any) {
-           if (error.status !== 404) { // Ignore 404 errors (file doesn't exist yet)
-             console.error(`[Log API] Error checking/fetching blob ${logFilename}:`, error);
-           } else {
-             console.log(`[Log API] Blob ${logFilename} not found, creating new one.`);
-           }
+        } catch (error) {
+          if (typeof error === 'object' && error !== null && 'status' in error && (error as any).status !== 404) { // Ignore 404 errors (file doesn't exist yet)
+            console.error(`[Log API] Error checking/fetching blob ${logFilename}:`, error);
+          } else {
+            console.log(`[Log API] Blob ${logFilename} not found, creating new one.`);
+          }
         }
 
         const newContent = existingContent + logEntry;
