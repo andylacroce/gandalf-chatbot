@@ -3,28 +3,6 @@ import { put, head } from '@vercel/blob';
 import fs from 'fs';
 import path from 'path';
 
-// Helper to get location from IP (reuse or import if needed)
-async function getLocationFromIp(ip: string): Promise<{ city: string; region: string; country: string } | null> {
-  if (!ip || !isValidPublicIp(ip)) return null;
-  try {
-    // Use a free tier or provide your token if needed
-    const response = await fetch(`https://ipinfo.io/${ip}/json`);
-    if (!response.ok) {
-      console.error(`[ipinfo] Failed to fetch location for IP ${ip}: ${response.status}`);
-      return null;
-    }
-    const data = await response.json();
-    return {
-      city: data.city || 'UnknownCity',
-      region: data.region || 'UnknownRegion',
-      country: data.country || 'UnknownCountry',
-    };
-  } catch (error) {
-    console.error(`[ipinfo] Error fetching location for IP ${ip}:`, error);
-    return null;
-  }
-}
-
 // Helper to escape HTML special characters to prevent XSS in logs
 function escapeHtml(str: string): string {
   return str.replace(/[&<>"']/g, function (tag) {
@@ -101,19 +79,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const cleanSender = safeSender.replace(/[\r\n\t\0\x0B\f]/g, '');
     const cleanText = safeText.replace(/[\r\n\t\0\x0B\f]/g, '');
 
-    // --- Get IP and Location ---
+    // --- Get IP (no geolocation for security) ---
     const ip = (req.headers['x-forwarded-for'] as string || req.socket.remoteAddress || '').split(',')[0].trim() || 'UnknownIP';
-    let locationString = 'UnknownLocation';
-    let safeIp = 'UnknownIP';
-    const location = await getLocationFromIp(ip);
-    if (location) {
-      safeIp = ip;
-      locationString = `${location.city}-${location.region}-${location.country}`;
-    }
-    // --- End IP and Location ---
+    const safeIp = ip.replace(/[^a-zA-Z0-9\.:_-]/g, ''); // Basic sanitization
+    // --- End IP ---
 
     const timestamp = new Date().toISOString();
-    const logEntry = `[${timestamp}] [${safeIp}] [${locationString}] ${cleanSender}: ${cleanText}\n`;
+    const logEntry = `[${timestamp}] [${safeIp}] ${cleanSender}: ${cleanText}\n`;
 
     const date = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
 
