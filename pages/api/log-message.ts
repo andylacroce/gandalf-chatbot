@@ -5,7 +5,7 @@ import path from 'path';
 
 // Helper to get location from IP (reuse or import if needed)
 async function getLocationFromIp(ip: string): Promise<{ city: string; region: string; country: string } | null> {
-  if (!ip) return null;
+  if (!ip || !isValidPublicIp(ip)) return null;
   try {
     // Use a free tier or provide your token if needed
     const response = await fetch(`https://ipinfo.io/${ip}/json`);
@@ -105,12 +105,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const ip = (req.headers['x-forwarded-for'] as string || req.socket.remoteAddress || '').split(',')[0].trim() || 'UnknownIP';
     let locationString = 'UnknownLocation';
     let safeIp = 'UnknownIP';
-    if (isValidPublicIp(ip)) {
+    const location = await getLocationFromIp(ip);
+    if (location) {
       safeIp = ip;
-      const location = await getLocationFromIp(ip);
-      if (location) {
-        locationString = `${location.city}-${location.region}-${location.country}`;
-      }
+      locationString = `${location.city}-${location.region}-${location.country}`;
     }
     // --- End IP and Location ---
 
