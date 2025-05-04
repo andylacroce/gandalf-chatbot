@@ -133,8 +133,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const logDir = path.resolve(process.cwd(), 'tmp', 'logs');
         const filePath = path.join(logDir, logFilename);
 
+        // Validate that filePath is within logDir to prevent path traversal
+        const resolvedFilePath = path.resolve(filePath);
+        if (!resolvedFilePath.startsWith(logDir + path.sep)) {
+          throw new Error('Invalid log file path');
+        }
+
         fs.mkdirSync(logDir, { recursive: true });
-        fs.appendFileSync(filePath, logEntry, 'utf8');
+        fs.appendFileSync(resolvedFilePath, logEntry, 'utf8');
       } catch (error) {
         // Handle error silently
       }
