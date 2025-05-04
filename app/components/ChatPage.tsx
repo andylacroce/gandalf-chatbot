@@ -193,9 +193,8 @@ const ChatPage = () => {
     playAudio,
     apiAvailable,
     logMessage,
-    loading,
-    sessionId, // Restored 'sessionId' to the dependency array for correct logging
-  ]); // Updated dependencies
+    loading
+  ]); // input added back to dependencies
 
   // Handle keyboard input (Enter key)
   const handleKeyDown = (e: React.KeyboardEvent) => {
