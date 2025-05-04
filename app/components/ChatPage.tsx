@@ -57,14 +57,14 @@ const ChatPage = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Generate or persist session ID on component mount
+  // Generate or persist session ID on component mount (use sessionStorage for per-tab/session logs)
   useEffect(() => {
     let storedSessionId = '';
     if (typeof window !== 'undefined') {
-      storedSessionId = localStorage.getItem('gandalf-session-id') || '';
+      storedSessionId = sessionStorage.getItem('gandalf-session-id') || '';
       if (!storedSessionId) {
         storedSessionId = uuidv4();
-        localStorage.setItem('gandalf-session-id', storedSessionId);
+        sessionStorage.setItem('gandalf-session-id', storedSessionId);
       }
     }
     setSessionId(storedSessionId);
