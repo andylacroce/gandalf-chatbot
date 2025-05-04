@@ -52,12 +52,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     let logFilename: string;
     if (!process.env.BLOB_READ_WRITE_TOKEN) {
       // Local development: Use sessionId for filename
-      logFilename = `chatlog_session_${sessionId}_${date}.txt`;
+      logFilename = `chatlog_session_${sessionId}_${date}.log`;
       console.log(`[Log API - Local] Using session ID for filename: ${logFilename}`);
     } else {
       // Vercel/Production: Use sanitized real IP for filename
       const sanitizedIp = ip.replace(/:/g, '_');
-      logFilename = `chatlog_${sanitizedIp}_${date}.txt`;
+      logFilename = `chatlog_${sanitizedIp}_${date}.log`;
       console.log(`[Log API - Vercel] Using real IP for filename: ${logFilename}`);
     }
     // --- End Determine Log Filename ---
