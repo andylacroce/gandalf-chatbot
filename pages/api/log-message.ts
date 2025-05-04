@@ -25,6 +25,20 @@ async function getLocationFromIp(ip: string): Promise<{ city: string; region: st
   }
 }
 
+// Helper to escape HTML special characters to prevent XSS in logs
+function escapeHtml(str: string): string {
+  return str.replace(/[&<>"']/g, function (tag) {
+    const chars: { [key: string]: string } = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    };
+    return chars[tag] || tag;
+  });
+}
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
     res.setHeader("Allow", ["POST"]);
@@ -37,6 +51,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: "Sender, text, sessionId, and sessionDatetime required" });
     }
 
+    // Sanitize sender and text to prevent XSS in logs
+    const safeSender = escapeHtml(sender);
+    const safeText = escapeHtml(text);
+
     // --- Get IP and Location ---
     const ip = (req.headers['x-forwarded-for'] as string || req.socket.remoteAddress || '').split(',')[0].trim() || 'UnknownIP';
     const location = await getLocationFromIp(ip);
@@ -44,7 +62,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // --- End IP and Location ---
 
     const timestamp = new Date().toISOString();
-    const logEntry = `[${timestamp}] [${ip}] [${locationString}] ${sender}: ${text}\n`;
+    const logEntry = `[${timestamp}] [${ip}] [${locationString}] ${safeSender}: ${safeText}\n`;
 
     const date = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
 
