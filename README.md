@@ -1,7 +1,6 @@
 # Gandalf Chatbot
 
 [![Build Status](https://img.shields.io/github/actions/workflow/status/andylacroce/gandalf-chatbot/ci.yml?branch=main)](https://github.com/andylacroce/gandalf-chatbot/actions)
-[![Docs](https://img.shields.io/badge/docs-typedoc-blue)](./docs/index.html)
 [![License](https://img.shields.io/github/license/andylacroce/gandalf-chatbot)](./LICENSE)
 
 A Next.js app featuring a real-time chat interface, AI-powered Gandalf persona, and voice responses via Google Text-to-Speech. Modular, tested, and ready for deployment.
@@ -23,27 +22,8 @@ Live: https://gandalf-chatbot.vercel.app/
 - Rate limiting with LRU Cache
 - Testing with Jest and React Testing Library
 - Analytics via Vercel Analytics and Speed Insights
-- Fully documented with TypeDoc
 - Responsive design for mobile and desktop
 - Hosted on Vercel
-
----
-
-## Documentation
-
-- **API Reference & Source Docs:**
-  - Auto-generated with [TypeDoc](https://typedoc.org/).
-  - To generate locally, run:
-    ```bash
-    npm run docs
-    ```
-  - Output is in the `docs/` directory. **This folder is ignored by git and not published to the repository.**
-  - [View Docs (if published)](./docs/index.html)
-
-- **What’s Included:**
-  - All exported functions, classes, and interfaces in `src/`, `app/components/`, and API routes.
-  - Usage examples and parameter descriptions (where available).
-  - Internal/private APIs are marked and hidden from public docs.
 
 ---
 
