@@ -93,6 +93,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         await put(logFilename, newContent, {
           access: 'public', // Or 'private'
           contentType: 'text/plain',
+          allowOverwrite: true, // Allow overwriting the existing blob
         });
         console.log(`[Log API] Appended to Vercel Blob: ${logFilename}`);
 
