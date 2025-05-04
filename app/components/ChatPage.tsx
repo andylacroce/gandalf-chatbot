@@ -50,6 +50,7 @@ const ChatPage = () => {
   const [apiAvailable, setApiAvailable] = useState<boolean>(true);
   const [conversationHistory, setConversationHistory] = useState<Message[]>([]);
   const [sessionId, setSessionId] = useState<string>(""); // State for session ID
+  const [sessionDatetime, setSessionDatetime] = useState<string>(""); // State for session datetime
 
   // Refs
   const chatBoxRef = useRef<HTMLDivElement>(null);
@@ -57,17 +58,20 @@ const ChatPage = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Generate or persist session ID on component mount (use sessionStorage for per-tab/session logs)
+  // Generate a new session ID and session datetime on every mount
   useEffect(() => {
-    let storedSessionId = '';
+    let newSessionId = '';
+    let sessionDatetime = '';
     if (typeof window !== 'undefined') {
-      storedSessionId = sessionStorage.getItem('gandalf-session-id') || '';
-      if (!storedSessionId) {
-        storedSessionId = uuidv4();
-        sessionStorage.setItem('gandalf-session-id', storedSessionId);
-      }
+      newSessionId = uuidv4();
+      const now = new Date();
+      const pad = (n: number) => n.toString().padStart(2, '0');
+      sessionDatetime = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+      sessionStorage.setItem('gandalf-session-id', newSessionId);
+      sessionStorage.setItem('gandalf-session-datetime', sessionDatetime);
     }
-    setSessionId(storedSessionId);
+    setSessionId(newSessionId);
+    setSessionDatetime(sessionDatetime);
   }, []);
 
   /**
@@ -119,18 +123,19 @@ const ChatPage = () => {
 
   // Function to log message asynchronously
   const logMessage = useCallback(async (message: Message) => {
-    if (!sessionId) return; // Don't log if session ID isn't generated yet
+    if (!sessionId || !sessionDatetime) return;
     try {
       // Fire-and-forget POST request to the logging API
       await axios.post('/api/log-message', {
         sender: message.sender,
         text: message.text,
         sessionId: sessionId, // Send the session ID
+        sessionDatetime: sessionDatetime, // Send the session datetime
       });
     } catch (error) {
       console.warn("Failed to log message:", error); // Log warning, don't block user
     }
-  }, [sessionId]); // Add sessionId dependency
+  }, [sessionId, sessionDatetime]); // Add sessionId and sessionDatetime dependencies
 
   const sendMessage = useCallback(async () => {
     if (!input.trim() || !apiAvailable || loading) return;

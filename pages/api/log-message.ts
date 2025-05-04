@@ -32,9 +32,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const { sender, text, sessionId } = req.body;
-    if (!sender || typeof text === 'undefined' || !sessionId) {
-      return res.status(400).json({ error: "Sender, text, and sessionId required" });
+    const { sender, text, sessionId, sessionDatetime } = req.body;
+    if (!sender || typeof text === 'undefined' || !sessionId || !sessionDatetime) {
+      return res.status(400).json({ error: "Sender, text, sessionId, and sessionDatetime required" });
     }
 
     // --- Get IP and Location ---
@@ -49,7 +49,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const date = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
 
     // --- Determine Log Filename ---
-    let logFilename: string = `chatlog_session_${sessionId}_${date}.log`;
+    // Use the sessionDatetime and short session id for the filename
+    const shortSessionId = sessionId.slice(0, 8);
+    let logFilename: string = `${sessionDatetime}_session_${shortSessionId}.log`;
     console.log(`[Log API] Using session ID for filename: ${logFilename}`);
     // --- End Determine Log Filename ---
 
