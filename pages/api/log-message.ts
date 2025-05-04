@@ -55,6 +55,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const safeSender = escapeHtml(sender);
     const safeText = escapeHtml(text);
 
+    // Validate input types and lengths
+    if (typeof sender !== 'string' || sender.length > 100) {
+      return res.status(400).json({ error: "Invalid sender" });
+    }
+    if (typeof text !== 'string' || text.length > 2000) {
+      return res.status(400).json({ error: "Invalid text" });
+    }
+    if (typeof sessionId !== 'string' || sessionId.length > 100) {
+      return res.status(400).json({ error: "Invalid sessionId" });
+    }
+    if (typeof sessionDatetime !== 'string' || sessionDatetime.length > 30) {
+      return res.status(400).json({ error: "Invalid sessionDatetime" });
+    }
+
+    // Prevent log injection by removing newlines and control characters
+    const cleanSender = safeSender.replace(/[\r\n\t\0\x0B\f]/g, '');
+    const cleanText = safeText.replace(/[\r\n\t\0\x0B\f]/g, '');
+
     // --- Get IP and Location ---
     const ip = (req.headers['x-forwarded-for'] as string || req.socket.remoteAddress || '').split(',')[0].trim() || 'UnknownIP';
     const location = await getLocationFromIp(ip);
@@ -62,14 +80,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // --- End IP and Location ---
 
     const timestamp = new Date().toISOString();
-    const logEntry = `[${timestamp}] [${ip}] [${locationString}] ${safeSender}: ${safeText}\n`;
+    const logEntry = `[${timestamp}] [${ip}] [${locationString}] ${cleanSender}: ${cleanText}\n`;
 
     const date = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
 
     // --- Determine Log Filename ---
-    // Use the sessionDatetime and short session id for the filename
-    const shortSessionId = sessionId.slice(0, 8);
-    let logFilename: string = `${sessionDatetime}_session_${shortSessionId}.log`;
+    // Sanitize filename to prevent directory traversal
+    const safeSessionDatetime = sessionDatetime.replace(/[^a-zA-Z0-9_-]/g, '');
+    const safeShortSessionId = sessionId.slice(0, 8).replace(/[^a-zA-Z0-9]/g, '');
+    let logFilename: string = `${safeSessionDatetime}_session_${safeShortSessionId}.log`;
     console.log(`[Log API] Using session ID for filename: ${logFilename}`);
     // --- End Determine Log Filename ---
 
@@ -137,6 +156,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   } catch (error) {
     console.error("[Log API] Internal Server Error:", error);
+    // Only return generic error messages to client
     res.status(500).json({ error: "Internal Server Error" });
   }
 }
