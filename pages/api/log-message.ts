@@ -87,7 +87,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const utf8Content = Buffer.from(newContent, 'utf8').toString('utf8');
         await put(logFilename, utf8Content, {
           access: 'public', // Or 'private'
-          contentType: 'text/plain',
           allowOverwrite: true, // Allow overwriting the existing blob
         });
         console.log(`[Log API] Appended to Vercel Blob: ${logFilename}`);
