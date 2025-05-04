@@ -94,7 +94,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const safeSessionDatetime = sessionDatetime.replace(/[^a-zA-Z0-9_-]/g, '');
     const safeShortSessionId = sessionId.slice(0, 8).replace(/[^a-zA-Z0-9]/g, '');
     let logFilename: string = `${safeSessionDatetime}_session_${safeShortSessionId}.log`;
-    console.log(`[Log API] Using session ID for filename: ${logFilename}`);
     // --- End Determine Log Filename ---
 
     // --- Append to Log ---
@@ -109,17 +108,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             const response = await fetch(blobInfo.url + `?cachebust=${Date.now()}`); // Bypass CDN cache
             if (response.ok) {
               existingContent = await response.text();
-            } else {
-              console.warn(`[Log API] Could not fetch existing blob content for ${logFilename}, status: ${response.status}`);
             }
-          } else {
-            console.log(`[Log API] Blob info not found for ${logFilename}.`);
           }
         } catch (error) {
-          if (typeof error === 'object' && error !== null && 'status' in error && (error as any).status !== 404) { // Ignore 404 errors (file doesn't exist yet)
-            console.error(`[Log API] Error checking/fetching blob ${logFilename}:`, error);
-          } else {
-            console.log(`[Log API] Blob ${logFilename} not found, creating new one.`);
+          if (typeof error === 'object' && error !== null && 'status' in error && (error as any).status !== 404) {
+            // Ignore non-404 errors
           }
         }
 
@@ -130,29 +123,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           access: 'public', // Or 'private'
           allowOverwrite: true, // Allow overwriting the existing blob
         });
-        console.log(`[Log API] Appended to Vercel Blob: ${logFilename}`);
 
       } catch (error) {
-        console.error(`[Log API] Error appending to Vercel Blob ${logFilename}:`, error);
+        // Handle error silently
       }
     } else {
       // Append to local file
-      console.log("[Log API - Local] Attempting to log locally."); // Added log
       try {
         const logDir = path.resolve(process.cwd(), 'tmp', 'logs');
         const filePath = path.join(logDir, logFilename);
-        console.log(`[Log API - Local] Target directory: ${logDir}`); // Added log
-        console.log(`[Log API - Local] Target file path: ${filePath}`); // Added log
 
-        console.log("[Log API - Local] Ensuring directory exists..."); // Added log
         fs.mkdirSync(logDir, { recursive: true });
-        console.log("[Log API - Local] Directory ensured."); // Added log
-
-        console.log("[Log API - Local] Appending to file..."); // Added log
         fs.appendFileSync(filePath, logEntry, 'utf8');
-        console.log(`[Log API - Local] Appended to local log: ${filePath}`);
       } catch (error) {
-        console.error(`[Log API - Local] Error appending to local log ${logFilename}:`, error); // Enhanced error log
+        // Handle error silently
       }
     }
     // --- End Append to Log ---
