@@ -1,77 +1,35 @@
-/**
- * @fileoverview Global CSS styles for the Gandalf Chatbot application.
- * Defines color scheme, typography, layout, and component-specific styles.
- * @version 1.0.0
- */
-
-/* Import Google Fonts - Open Sans and Lato for primary and secondary typography */
+/* Import Google Fonts */
 @import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&family=Lato:wght@400;700&display=swap");
 
-/**
- * CSS Variables
- * Defines color scheme and typography for the entire application.
- * Centralizes styling values for easy theming and maintenance.
- */
 :root {
   /* Typography */
   --font-primary: "Open Sans", sans-serif;
   --font-secondary: "Lato", sans-serif;
-
-  /* Accessible Woodsy Color Scheme on Black */
-  --color-background: #000000; /* true black for background */
-  --color-text: #f7ecd6;       /* light birch parchment for high contrast */
-  --color-sender: #e0c28c;     /* warm tan (wood grain) */
-
-  /* Component Colors */
-  --card-body-bg: #2d1e12;     /* deep walnut brown */
-  --chatbox-background: #000000; /* rich dark wood */
-  --user-message-bg: #7c5e3c;  /* medium wood brown */
-  --gandalf-message-bg: #f7ecd6; /* much lighter parchment for high contrast */
-
-  /* Button Styles */
-  --button-bg: #7c5e3c;        /* medium wood brown */
-  --button-hover-bg: #a67c52;  /* lighter wood */
-  --disabled-bg: #3e2a18;      /* dark wood */
-  --disabled-text: #e0c9a6;    /* pale wood */
-  --send-button-bg: #4b3826;   /* dark oak */
-  --send-button-hover-bg: #a67c52; /* lighter wood */
-  --send-button-text: #fff8e1; /* ivory */
-
-  /* Form Elements */
-  --input-bg: #2d1e12;         /* deep walnut brown */
-  --input-text: #f7ecd6;       /* birch parchment */
-  --input-placeholder: #e0c28c;/* tan */
-
-  /* Scrollbar */
-  --scrollbar-bg: #7c5e3c;     /* medium wood brown */
-  --scrollbar-thumb: #bfa77a;  /* light pine */
-
-  /* Gandalf Sender */
-  --gandalf-sender: #7c5e3c; /* warm brown for Gandalf's name */
+  --color-background: #000000;
+  --color-text: #f7ecd6;
+  --color-sender: #e0c28c;
+  --card-body-bg: #2d1e12;
+  --chatbox-background: #000000;
+  --user-message-bg: #7c5e3c;
+  --gandalf-message-bg: #f7ecd6;
+  --button-bg: #7c5e3c;
+  --button-hover-bg: #a67c52;
+  --disabled-bg: #3e2a18;
+  --disabled-text: #e0c9a6;
+  --send-button-bg: #4b3826;
+  --send-button-hover-bg: #a67c52;
+  --send-button-text: #fff8e1;
+  --input-bg: #2d1e12;
+  --input-text: #f7ecd6;
+  --input-placeholder: #e0c28c;
+  --scrollbar-bg: #7c5e3c;
+  --scrollbar-thumb: #bfa77a;
+  --gandalf-sender: #7c5e3c;
 }
 
-/**
- * Global Reset
- * Ensures consistent box-sizing, margins, and padding across all elements
- */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-/**
- * Body Styles
- * Sets the base typography and background for the entire application
- */
-html, body {
-  height: 100%;
-  min-height: 0;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
+/* Reset and base styles */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; min-height: 0; width: 100%; display: flex; flex-direction: column; }
 body {
   font-family: var(--font-primary);
   font-size: 1.125rem;
@@ -84,541 +42,92 @@ body {
   min-height: 0;
   width: 100%;
 }
+#__next { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
 
-#__next {
-  flex: 1 1 auto;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
+/* Layout containers */
+.container { display: flex; flex-direction: column; align-items: center; width: 100%; padding: 0; margin: 0 auto; padding-bottom: 60px; flex: 1 1 auto; min-height: 0; }
+@media (max-width: 576px) { .container { flex: 1 1 auto; min-height: 0; padding-bottom: 50px; } }
+.chat-layout { display: flex; flex-direction: column; height: 100vh; width: 100%; max-width: 800px; margin: 0 auto; position: relative; overflow: hidden; }
+.chat-header { position: relative; width: 100%; padding: 10px 0; flex: 0 0 auto; }
+.gandalf-image-container { display: flex; justify-content: center; margin: 0.5rem 0 1rem; z-index: 1; position: relative; }
+
+/* Chat area */
+.chat-messages-container { flex: 1 1 auto; min-height: 0; width: 100%; position: relative; margin-bottom: 10px; border-radius: 15px; display: flex; flex-direction: column; overflow: hidden; }
+.chat-messages { flex: 1 1 auto; width: 100%; overflow-y: auto; padding: 1rem; background-color: var(--chatbox-background); display: flex; flex-direction: column-reverse; max-height: calc(100vh - 200px); scrollbar-width: thin; scrollbar-color: rgba(80,80,80,0.6) transparent; }
+.chat-messages::-webkit-scrollbar { width: 8px; background: transparent; }
+.chat-messages::-webkit-scrollbar-thumb { background: rgba(80, 80, 80, 0.6); border-radius: 8px; border: 2px solid transparent; background-clip: padding-box; }
+.chat-messages::-webkit-scrollbar-track { background: transparent; }
+
+/* Status and input */
+.chat-status-area { flex: 0 0 auto; min-height: 40px; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 10px; }
+.chat-input-area { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 800px; padding: 10px 0; background-color: var(--color-background); z-index: 100; margin-bottom: env(safe-area-inset-bottom, 0); }
+.chat-input-container { display: flex; width: 100%; border-radius: 8px; overflow: hidden; }
+.chat-input { flex: 1; background-color: var(--input-bg); color: var(--input-text); border: none; padding: 1rem; font-size: 1.25rem; outline: none; }
+.chat-input::placeholder { color: var(--input-placeholder); }
+.chat-send-button { flex: 0 0 auto; background-color: var(--send-button-bg); color: var(--send-button-text); border: none; padding: 1rem 2rem; font-size: 1.25rem; cursor: pointer; outline: none; }
+.chat-send-button:hover { background-color: var(--send-button-hover-bg); }
+.chat-send-button.disabled { background-color: var(--disabled-bg); color: var(--disabled-text); cursor: not-allowed; }
+
+/* Mobile adjustments */
+@media (max-width: 576px) {
+  .chat-layout { max-width: 100%; padding: 0 10px; }
+  .chat-header { padding: 5px 0; }
+  .gandalf-image-container { margin: 0.25rem 0 0.75rem; }
+  .gandalf-image-container img { width: 90px !important; height: 90px !important; }
+  .chat-messages { padding: 0.5rem; }
+  .chat-input { padding: 0.5rem; font-size: 1rem; }
+  .chat-send-button { padding: 0.5rem 1rem; font-size: 1rem; }
+  .chat-status-area { min-height: 30px; margin-bottom: 5px; }
+  .user-message, .gandalf-message { padding: 7px; margin-bottom: 7px; font-size: 0.98rem; }
+  .user-sender, .gandalf-sender { font-size: 0.85rem; }
 }
 
-/**
- * Main Container
- * Primary layout container for the chat interface
- */
-.container {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-  width: 100%;
-  padding: 0;
-  margin: 0 auto;
-  padding-bottom: 60px; /* Reduced space for input area */
-  flex: 1 1 auto;
-  min-height: 0;
-}
+/* Chat box and scrollbars */
+.chat-box { position: relative; width: 100%; max-width: 800px; background-color: var(--chatbox-background); padding: 1rem; margin: 0 auto; margin-top: 0; overflow-y: auto; display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; height: calc(100vh - 380px); max-height: 55vh; border-top-left-radius: 15px; border-top-right-radius: 15px; scrollbar-width: thin; scrollbar-color: rgba(80,80,80,0.6) transparent; }
+.chat-box::-webkit-scrollbar { width: 8px; background: transparent; }
+.chat-box::-webkit-scrollbar-thumb { background: rgba(80, 80, 80, 0.6); border-radius: 8px; border: 2px solid transparent; background-clip: padding-box; }
+.chat-box::-webkit-scrollbar-track { background: transparent; }
 
 @media (max-width: 576px) {
-  .container {
-    flex: 1 1 auto;
-    min-height: 0;
-    padding-bottom: 50px; /* Reduced padding for mobile input area */
-  }
+  .container { flex: 1 1 auto; min-height: 0; }
+  .chat-box { display: flex; flex-direction: column; padding: 0.5rem; margin-top: 0; width: 100%; overflow-y: auto; flex: 1 1 auto; min-height: 0; height: calc(100vh - 280px); max-height: 65vh; }
+  .input-group { flex-direction: column; width: 100%; }
+  .input-group .form-control { padding: 0.25rem 0.6rem; font-size: 0.95rem; min-height: 1.6rem; height: 1.6rem; }
+  .input-group-append { width: 100%; }
+  body { font-size: 0.95rem; }
+  .user-message, .gandalf-message { padding: 7px; margin-bottom: 7px; font-size: 0.98rem; }
+  .user-sender, .gandalf-sender { font-size: 0.85rem; }
+  .api-error-message { font-size: 1rem; padding: 1rem 0.7rem; }
+  .api-error-message .api-error-title { font-size: 1.05rem; }
+  .api-error-message .api-error-desc { font-size: 0.95rem; }
+  .chat-box img, .text-center img, .icon-container img { max-width: 60px !important; max-height: 60px !important; width: 40px !important; height: 40px !important; }
+  .text-center.mb-4 img { max-width: 90px !important; max-height: 90px !important; width: 70px !important; height: 70px !important; }
+  .gandalf-img-top img { width: 90px !important; height: 90px !important; max-width: 90px !important; max-height: 90px !important; }
+  .gandalf-img-top { margin-top: 0.25rem; margin-bottom: 1rem; }
 }
 
-/**
- * Chat Layout - Main container for the entire chat interface
- * Uses a flex column layout with fixed height sections and scrollable content
- */
-.chat-layout {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  width: 100%;
-  max-width: 800px;
-  margin: 0 auto;
-  position: relative;
-  overflow: hidden; /* Ensure no unintended overflow */
-}
+.spinner-container { height: 42px; min-height: 42px; display: flex; justify-content: center; align-items: center; }
+.user-message, .gandalf-message { border-radius: 10px; padding: 10px; margin-bottom: 10px; }
+.user-message { background-color: var(--user-message-bg); align-self: flex-end; text-align: right; }
+.gandalf-message { background-color: var(--gandalf-message-bg); align-self: flex-start; color: #2d1e12; }
+.user-sender, .gandalf-sender { font-weight: bold; color: var(--color-sender); margin-bottom: 5px; }
+.gandalf-sender { color: var(--gandalf-sender); }
+button[disabled] { background-color: var(--disabled-bg); color: var(--disabled-text); }
+.card-footer { position: fixed; left: 0; right: 0; bottom: 0; width: 100vw; background: var(--color-background); z-index: 100; box-shadow: 0 -2px 12px #000a; padding-bottom: env(safe-area-inset-bottom, 0); }
+.input-group { display: flex; width: 100%; max-width: 800px; margin: 0 auto; }
+.input-group .form-control { width: 100%; background-color: var(--input-bg); color: var(--input-text); border: none; padding: 1rem; font-size: 1.25rem; outline: none; }
+.input-group .form-control::placeholder { color: var(--input-placeholder); }
+.input-group-append { display: flex; }
+.input-group-append .btn { flex: 0 0 auto; background-color: var(--send-button-bg); color: var(--send-button-text); outline: none !important; box-shadow: none !important; border: none !important; padding: 1rem 2rem; font-size: 1.25rem; display: flex; align-items: center; justify-content: center; }
+.input-group-append .btn:hover { background-color: var(--send-button-hover-bg); }
+@media (max-width: 576px) { .input-group-append .btn { width: 100%; font-size: 0.95rem; line-height: 1; padding: .5rem 2rem; height: auto; min-height: unset; } }
+.text-center { display: flex; justify-content: center; align-items: center; margin: 1rem; }
 
-/**
- * Chat Header - Contains the Gandalf image and controls
- */
-.chat-header {
-  position: relative;
-  width: 100%;
-  padding: 10px 0;
-  flex: 0 0 auto;
-}
-
-/**
- * Gandalf Image Container
- */
-.gandalf-image-container {
-  display: flex;
-  justify-content: center;
-  margin: 0.5rem 0 1rem;
-  z-index: 1;
-  position: relative;
-}
-
-/**
- * Chat Messages Container - Wrapper for scrollable area
- */
-.chat-messages-container {
-  flex: 1 1 auto;
-  min-height: 0;
-  width: 100%;
-  position: relative;
-  margin-bottom: 10px;
-  border-radius: 15px;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden; /* Prevent unintended overflow */
-}
-
-/**
- * Chat Messages - The actual scrollable area containing messages
- */
-.chat-messages {
-  flex: 1 1 auto;
-  width: 100%;
-  overflow-y: auto; /* Enable vertical scrolling */
-  padding: 1rem;
-  background-color: var(--chatbox-background);
-  display: flex;
-  flex-direction: column-reverse;
-  max-height: calc(100vh - 200px); /* Ensure it doesn't exceed viewport */
-  scrollbar-width: thin; /* For Firefox */
-  scrollbar-color: rgba(80,80,80,0.6) transparent; /* For Firefox */
-}
-
-/* Webkit scrollbar styles */
-.chat-messages::-webkit-scrollbar {
-  width: 8px;
-  background: transparent;
-}
-.chat-messages::-webkit-scrollbar-thumb {
-  background: rgba(80, 80, 80, 0.6);
-  border-radius: 8px;
-  border: 2px solid transparent;
-  background-clip: padding-box;
-}
-.chat-messages::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-/**
- * Chat Status Area - Contains loading spinner and error messages
- */
-.chat-status-area {
-  flex: 0 0 auto;
-  min-height: 40px;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 10px;
-}
-
-/**
- * Chat Input Area - Fixed at the bottom of the viewport
- */
-.chat-input-area {
-  position: fixed; /* Ensure it stays at the bottom of the viewport */
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%); /* Center align the input area */
-  width: 100%;
-  max-width: 800px; /* Match the width of the chat box */
-  padding: 10px 0;
-  background-color: var(--color-background);
-  z-index: 100; /* Ensure it stays above other elements */
-  margin-bottom: env(safe-area-inset-bottom, 0); /* For iOS notched devices */
-}
-
-/**
- * Chat Input Container - Contains input field and send button
- */
-.chat-input-container {
-  display: flex;
-  width: 100%;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-/**
- * Chat Input - Text input field
- */
-.chat-input {
-  flex: 1;
-  background-color: var(--input-bg);
-  color: var(--input-text);
-  border: none;
-  padding: 1rem;
-  font-size: 1.25rem;
-  outline: none;
-}
-.chat-input::placeholder {
-  color: var(--input-placeholder);
-}
-
-/**
- * Chat Send Button
- */
-.chat-send-button {
-  flex: 0 0 auto;
-  background-color: var(--send-button-bg);
-  color: var(--send-button-text);
-  border: none;
-  padding: 1rem 2rem;
-  font-size: 1.25rem;
-  cursor: pointer;
-  outline: none;
-}
-.chat-send-button:hover {
-  background-color: var(--send-button-hover-bg);
-}
-.chat-send-button.disabled {
-  background-color: var(--disabled-bg);
-  color: var(--disabled-text);
-  cursor: not-allowed;
-}
-
-/* Mobile styles */
-@media (max-width: 576px) {
-  .chat-layout {
-    max-width: 100%;
-    padding: 0 10px;
-  }
-  
-  .chat-header {
-    padding: 5px 0;
-  }
-  
-  .gandalf-image-container {
-    margin: 0.25rem 0 0.75rem;
-  }
-  
-  .gandalf-image-container img {
-    width: 90px !important;
-    height: 90px !important;
-  }
-  
-  .chat-messages {
-    padding: 0.5rem;
-  }
-  
-  .chat-input {
-    padding: 0.5rem;
-    font-size: 1rem;
-  }
-  
-  .chat-send-button {
-    padding: 0.5rem 1rem;
-    font-size: 1rem;
-  }
-  
-  .chat-status-area {
-    min-height: 30px;
-    margin-bottom: 5px;
-  }
-  
-  .user-message,
-  .gandalf-message {
-    padding: 7px;
-    margin-bottom: 7px;
-    font-size: 0.98rem;
-  }
-  
-  .user-sender,
-  .gandalf-sender {
-    font-size: 0.85rem;
-  }
-}
-
-/**
- * Chat Box
- * Container for the conversation messages
- * Includes custom scrollbar styling
- */
-.chat-box {
-  position: relative; /* Ensure proper stacking context */
-  width: 100%;
-  max-width: 800px;
-  background-color: var(--chatbox-background);
-  padding: 1rem;
-  margin: 0 auto;
-  margin-top: 0; /* Remove margin to avoid overlap with Gandalf image */
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  flex: 1 1 auto;
-  min-height: 0;
-  height: calc(100vh - 380px); /* Adjusted for proper spacing */
-  max-height: 55vh;
-  border-top-left-radius: 15px;
-  border-top-right-radius: 15px;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(80,80,80,0.6) transparent;
-}
-
-/* Custom scrollbar for Webkit browsers */
-.chat-box::-webkit-scrollbar {
-  width: 8px;
-  background: transparent;
-}
-.chat-box::-webkit-scrollbar-thumb {
-  background: rgba(80, 80, 80, 0.6);
-  border-radius: 8px;
-  border: 2px solid transparent;
-  background-clip: padding-box;
-}
-.chat-box::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-/**
- * Responsive Styles
- * Adjusts layout for mobile devices
- */
-@media (max-width: 576px) {
-  .container {
-    flex: 1 1 auto;
-    min-height: 0;
-  }
-
-  .chat-box {
-    display: flex;
-    flex-direction: column;
-    padding: 0.5rem;
-    margin-top: 0;
-    width: 100%;
-    overflow-y: auto;
-    flex: 1 1 auto;
-    min-height: 0;
-    height: calc(100vh - 280px);
-    max-height: 65vh;
-  }
-
-  .input-group {
-    flex-direction: column;
-    width: 100%;
-  }
-
-  .input-group .form-control {
-    padding: 0.25rem 0.6rem;
-    font-size: 0.95rem;
-    min-height: 1.6rem;
-    height: 1.6rem;
-  }
-
-  .input-group-append {
-    width: 100%;
-  }
-
-  /* Reduce font sizes and padding for mobile */
-  body {
-    font-size: 0.95rem;
-  }
-  .user-message,
-  .gandalf-message {
-    padding: 7px;
-    margin-bottom: 7px;
-    font-size: 0.98rem;
-  }
-  .user-sender,
-  .gandalf-sender {
-    font-size: 0.85rem;
-  }
-  .api-error-message {
-    font-size: 1rem;
-    padding: 1rem 0.7rem;
-  }
-  .api-error-message .api-error-title {
-    font-size: 1.05rem;
-  }
-  .api-error-message .api-error-desc {
-    font-size: 0.95rem;
-  }
-  /* Shrink images on mobile */
-  .chat-box img,
-  .text-center img,
-  .icon-container img {
-    max-width: 60px !important;
-    max-height: 60px !important;
-    width: 40px !important;
-    height: 40px !important;
-  }
-  .text-center.mb-4 img {
-    max-width: 90px !important;
-    max-height: 90px !important;
-    width: 70px !important;
-    height: 70px !important;
-  }
-  .gandalf-img-top img {
-    width: 90px !important;
-    height: 90px !important;
-    max-width: 90px !important;
-    max-height: 90px !important;
-  }
-  .gandalf-img-top {
-    margin-top: 0.25rem;
-    margin-bottom: 1rem; /* Adjusted for mobile */
-  }
-}
-
-/**
- * Loading Indicator Container
- * Centers the loading spinner
- */
-.spinner-container {
-  height: 42px;
-  min-height: 42px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-/**
- * Message Styles
- * Defines the appearance of user and Gandalf messages
- */
-.user-message,
-.gandalf-message {
-  border-radius: 10px;
-  padding: 10px;
-  margin-bottom: 10px;
-}
-
-.user-message {
-  background-color: var(--user-message-bg);
-  align-self: flex-end;
-  text-align: right;
-}
-
-.gandalf-message {
-  background-color: var(--gandalf-message-bg);
-  align-self: flex-start;
-  color: #2d1e12; /* dark text for contrast on light background */
-}
-
-/**
- * Sender Labels
- * Styles for the name/identity of the message sender
- */
-.user-sender,
-.gandalf-sender {
-  font-weight: bold;
-  color: var(--color-sender);
-  margin-bottom: 5px;
-}
-
-.gandalf-sender {
-  color: var(--gandalf-sender);
-}
-
-/**
- * Disabled Button State
- * Applies during loading/processing states
- */
-button[disabled] {
-  background-color: var(--disabled-bg);
-  color: var(--disabled-text);
-}
-
-/**
- * Card Footer
- * Container for the message input area
- */
-.card-footer {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100vw;
-  background: var(--color-background);
-  z-index: 100;
-  box-shadow: 0 -2px 12px #000a;
-  padding-bottom: env(safe-area-inset-bottom, 0); /* for iOS safe area */
-}
-
-/**
- * Input Group
- * Contains the message input field and send button
- */
-.input-group {
-  display: flex;
-  width: 100%;
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-/* Input Field */
-.input-group .form-control {
-  width: 100%;
-  background-color: var(--input-bg);
-  color: var(--input-text);
-  border: none;
-  padding: 1rem;
-  font-size: 1.25rem;
-  outline: none;
-}
-
-.input-group .form-control::placeholder {
-  color: var(--input-placeholder);
-}
-
-/* Button Container */
-.input-group-append {
-  display: flex;
-}
-
-/* Send Button - Desktop and Base Styles */
-.input-group-append .btn {
-  flex: 0 0 auto;
-  background-color: var(--send-button-bg);
-  color: var(--send-button-text);
-  outline: none !important;
-  box-shadow: none !important;
-  border: none !important;
-  padding: 1rem 2rem;
-  font-size: 1.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.input-group-append .btn:hover {
-  background-color: var(--send-button-hover-bg);
-}
-
-@media (max-width: 576px) {
-  .input-group-append .btn {
-    width: 100%;
-    font-size: 0.95rem;
-    line-height: 1;
-    padding: .5rem 2rem;
-    height: auto;
-    min-height: unset;
-  }
-}
-
-/**
- * Utility Classes
- */
-.text-center {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 1rem;
-}
-
-/**
- * Toggle Switch Customization
- * Overrides styles from the @trendmicro/react-toggle-switch component
- * to match the application's dark theme
- */
-/* Checked state (on) */
-[class*="toggle-switch---switch"][class*="checked"]
-  [class*="toggle-switch---toggle"] {
-  background-color: #2e7d32 !important; /* Darker green for checked state */
+/* Toggle Switch Customization for @trendmicro/react-toggle-switch */
+[class*="toggle-switch---switch"][class*="checked"] [class*="toggle-switch---toggle"] {
+  background-color: #2e7d32 !important;
   border-color: #1b5e20 !important;
 }
-
-/* Unchecked state (off) */
 [class*="toggle-switch---switch"] [class*="toggle-switch---toggle"] {
   background-color: var(--send-button-text) !important;
   border-color: var(--disabled-bg) !important;
@@ -658,201 +167,24 @@ button[disabled] {
   font-style: italic;
 }
 
-/* Social icons top left */
-.icon-container.top-left {
-  position: absolute;
-  top: 1rem;
-  left: 1rem;
-  display: flex;
-  gap: 0.5rem;
-  z-index: 200;
-}
-
-/* Audio toggle row above input */
-.audio-toggle-row {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  margin-bottom: 0.5rem;
-}
-.toggle-container {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-.toggle-label {
-  color: var(--color-text);
-  font-size: 1rem;
-}
-
-@media (max-width: 576px) {
-  .icon-container.top-left {
-    top: 0.5rem;
-    left: 0.5rem;
-    gap: 0.25rem;
-  }
-  .audio-toggle-row {
-    justify-content: center;
-    margin-bottom: 0.3rem;
-  }
-  .toggle-label {
-    font-size: 0.95rem;
-  }
-}
-
-/* Header container for positioning */
-.chatbox-header-relative {
-  position: relative;
-  width: 100%;
-  max-width: 800px;
-  margin: 0 auto;
-  min-height: 56px;
-  margin-bottom: 0; /* Reduced to avoid extra space */
-}
-
-@media (max-width: 900px) {
-  .chatbox-header-relative {
-    max-width: 100vw;
-  }
-}
-
-@media (max-width: 576px) {
-  .chatbox-header-relative {
-    min-height: 44px;
-    max-width: 100vw;
-    margin-bottom: 0;
-  }
-  .toggle-container.top-left {
-    top: 0.25rem;
-    left: 0.25rem;
-    gap: 0.3rem;
-  }
-  .icon-container.top-right {
-    top: 0.25rem;
-    right: 0.25rem;
-    gap: 0.3rem;
-  }
-}
-
-.toggle-container.top-left {
-  position: absolute;
-  top: 0.5rem;
-  left: 0.5rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  z-index: 200;
-}
-
-.icon-container.top-right {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  display: flex;
-  gap: 0.5rem;
-  z-index: 200;
-}
-
-.gandalf-img-top {
-  margin-top: 0.5rem;
-  margin-bottom: 1.5rem; /* Increased spacing to avoid overlap with chat box */
-  z-index: 1;
-  position: relative; /* Ensure proper stacking context */
-}
-
-@media (max-width: 576px) {
-  .gandalf-img-top {
-    margin-top: 0.25rem;
-    margin-bottom: 1rem; /* Adjusted for mobile */
-  }
-}
-
-/* Modal overlay for API error */
-.modal-backdrop {
-  position: fixed;
-  z-index: 9999;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.65);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.modal-error {
-  background: linear-gradient(120deg, #232323 60%, #333 100%);
-  color: var(--color-text);
-  border: 2px solid #444;
-  border-radius: 18px;
-  box-shadow: 0 4px 32px #000a;
-  padding: 2rem 1.5rem;
-  max-width: 90vw;
-  width: 100%;
-  max-width: 420px;
-  text-align: center;
-  font-family: var(--font-secondary);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-}
-@media (max-width: 576px) {
-  .modal-error {
-    padding: 1.2rem 0.7rem;
-    font-size: 1.05rem;
-    max-width: 95vw;
-    border-radius: 12px;
-  }
-}
-
-/* Download Transcript Styles */
-.download-transcript-wrapper {
-  margin-top: 0.3rem;
-  display: flex;
-  justify-content: flex-start;
-  width: 100%;
-}
-.download-transcript-link {
-  background: var(--card-body-bg);
-  border: 1px solid #5a4632;
-  color: var(--color-text);
-  border-radius: 3px;
-  padding: 0.13rem 0.7rem 0.13rem 0.5rem;
-  font-size: 0.93rem;
-  cursor: pointer;
-  text-decoration: none;
-  transition: background 0.15s, color 0.15s, border 0.15s;
-  display: flex;
-  align-items: center;
-  gap: 0.25em;
-  min-height: 1.7em;
-  min-width: 0;
-  font-family: var(--font-secondary);
-}
-.download-transcript-link:hover, .download-transcript-link:focus {
-  background: #3e2a18;
-  color: #ffe6b0;
-  border-color: #a67c52;
-  outline: none;
-}
-.download-icon {
-  font-size: 1em;
-  margin-right: 0.1em;
-  color: #ffe6b0;
-}
-.download-label {
-  font-size: 0.93em;
-  letter-spacing: 0.01em;
-  font-weight: 600;
-}
-@media (max-width: 576px) {
-  .download-transcript-link {
-    font-size: 0.87rem;
-    padding: 0.09rem 0.5rem 0.09rem 0.35rem;
-    min-height: 1.3em;
-  }
-  .download-label {
-    font-size: 0.87em;
-  }
-}
+.icon-container.top-left { position: absolute; top: 1rem; left: 1rem; display: flex; gap: 0.5rem; z-index: 200; }
+.audio-toggle-row { display: flex; justify-content: flex-end; align-items: center; margin-bottom: 0.5rem; }
+.toggle-container { display: flex; align-items: center; gap: 0.5rem; }
+.toggle-label { color: var(--color-text); font-size: 1rem; }
+@media (max-width: 576px) { .icon-container.top-left { top: 0.5rem; left: 0.5rem; gap: 0.25rem; } .audio-toggle-row { justify-content: center; margin-bottom: 0.3rem; } .toggle-label { font-size: 0.95rem; } }
+.chatbox-header-relative { position: relative; width: 100%; max-width: 800px; margin: 0 auto; min-height: 56px; margin-bottom: 0; }
+@media (max-width: 900px) { .chatbox-header-relative { max-width: 100vw; } }
+@media (max-width: 576px) { .chatbox-header-relative { min-height: 44px; max-width: 100vw; margin-bottom: 0; } .toggle-container.top-left { top: 0.25rem; left: 0.25rem; gap: 0.3rem; } .icon-container.top-right { top: 0.25rem; right: 0.25rem; gap: 0.3rem; } }
+.toggle-container.top-left { position: absolute; top: 0.5rem; left: 0.5rem; display: flex; align-items: center; gap: 0.5rem; z-index: 200; }
+.icon-container.top-right { position: absolute; top: 0.5rem; right: 0.5rem; display: flex; gap: 0.5rem; z-index: 200; }
+.gandalf-img-top { margin-top: 0.5rem; margin-bottom: 1.5rem; z-index: 1; position: relative; }
+@media (max-width: 576px) { .gandalf-img-top { margin-top: 0.25rem; margin-bottom: 1rem; } }
+.modal-backdrop { position: fixed; z-index: 9999; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.65); display: flex; align-items: center; justify-content: center; }
+.modal-error { background: linear-gradient(120deg, #232323 60%, #333 100%); color: var(--color-text); border: 2px solid #444; border-radius: 18px; box-shadow: 0 4px 32px #000a; padding: 2rem 1.5rem; max-width: 90vw; width: 100%; max-width: 420px; text-align: center; font-family: var(--font-secondary); display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+@media (max-width: 576px) { .modal-error { padding: 1.2rem 0.7rem; font-size: 1.05rem; max-width: 95vw; border-radius: 12px; } }
+.download-transcript-wrapper { margin-top: 0.3rem; display: flex; justify-content: flex-start; width: 100%; }
+.download-transcript-link { background: var(--card-body-bg); border: 1px solid #5a4632; color: var(--color-text); border-radius: 3px; padding: 0.13rem 0.7rem 0.13rem 0.5rem; font-size: 0.93rem; cursor: pointer; text-decoration: none; transition: background 0.15s, color 0.15s, border 0.15s; display: flex; align-items: center; gap: 0.25em; min-height: 1.7em; min-width: 0; font-family: var(--font-secondary); }
+.download-transcript-link:hover, .download-transcript-link:focus { background: #3e2a18; color: #ffe6b0; border-color: #a67c52; outline: none; }
+.download-icon { font-size: 1em; margin-right: 0.1em; color: #ffe6b0; }
+.download-label { font-size: 0.93em; letter-spacing: 0.01em; font-weight: 600; }
+@media (max-width: 576px) { .download-transcript-link { font-size: 0.87rem; padding: 0.09rem 0.5rem 0.09rem 0.35rem; min-height: 1.3em; } .download-label { font-size: 0.87em; } }

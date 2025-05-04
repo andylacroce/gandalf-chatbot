@@ -5,7 +5,6 @@ import textToSpeech, { protos } from "@google-cloud/text-to-speech";
 import fs from "fs";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // Check OpenAI
   let openaiStatus = "ok";
   let openaiError = null;
   try {
@@ -25,14 +24,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   } catch (err: any) {
     openaiStatus = "error";
     openaiError = err.message || String(err);
-    // Log OpenAI error for diagnostics
     if (process.env.NODE_ENV !== 'production') {
-      // eslint-disable-next-line no-console
       console.error("[HealthCheck] OpenAI error:", err);
     }
   }
 
-  // Check Google TTS
   let ttsStatus = "ok";
   let ttsError = null;
   try {
@@ -61,19 +57,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   } catch (err: any) {
     ttsStatus = "error";
     ttsError = err.message || String(err);
-    // Log TTS error for diagnostics
     if (process.env.NODE_ENV !== 'production') {
-      // eslint-disable-next-line no-console
       console.error("[HealthCheck] Google TTS error:", err);
     }
   }
 
   if (openaiStatus === "ok" && ttsStatus === "ok") {
-    // eslint-disable-next-line no-console
     if (process.env.NODE_ENV !== 'production') console.log("[HealthCheck] All services healthy");
     return res.status(200).json({ status: "ok" });
   }
-  // eslint-disable-next-line no-console
   if (process.env.NODE_ENV !== 'production') console.error("[HealthCheck] Service error", { openaiStatus, openaiError, ttsStatus, ttsError });
   return res.status(500).json({
     status: "error",

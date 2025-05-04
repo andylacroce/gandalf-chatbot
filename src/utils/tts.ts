@@ -2,12 +2,6 @@ import textToSpeech, { protos } from "@google-cloud/text-to-speech";
 import fs from "fs";
 import path from "path";
 
-/**
- * Loads Google Cloud credentials from environment or file.
- * Throws if credentials are missing or invalid.
- * @returns {object} Google credentials object
- * @internal
- */
 function getGoogleAuthCredentials() {
   if (!process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
     throw new Error("Missing GOOGLE_APPLICATION_CREDENTIALS_JSON environment variable");
@@ -21,12 +15,6 @@ function getGoogleAuthCredentials() {
 }
 
 let ttsClient: import("@google-cloud/text-to-speech").TextToSpeechClient | null = null;
-
-/**
- * Returns a singleton Google Text-to-Speech client instance.
- * @returns {TextToSpeechClient}
- * @internal
- */
 function getTTSClient() {
   if (!ttsClient) {
     ttsClient = new textToSpeech.TextToSpeechClient({
@@ -36,18 +24,6 @@ function getTTSClient() {
   return ttsClient;
 }
 
-/**
- * Synthesize speech from text or SSML and write to a file.
- * @param {object} params - Synthesis parameters
- * @param {string} params.text - The text or SSML to synthesize
- * @param {string} params.filePath - The output file path (MP3)
- * @param {boolean} [params.ssml=false] - If true, treat text as SSML
- * @param {protos.google.cloud.texttospeech.v1.IVoice} [params.voice] - Voice configuration
- * @param {protos.google.cloud.texttospeech.v1.IAudioConfig} [params.audioConfig] - Audio config
- * @returns {Promise<void>} Resolves when file is written
- * @example
- * await synthesizeSpeechToFile({ text: 'Hello', filePath: '/tmp/hello.mp3' });
- */
 export async function synthesizeSpeechToFile({
   text,
   filePath,

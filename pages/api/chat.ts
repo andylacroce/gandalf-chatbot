@@ -1,10 +1,4 @@
 import 'openai/shims/node';
-/**
- * API endpoint for handling chat interactions with Gandalf AI.
- * This file manages communication with OpenAI's GPT API and Google's Text-to-Speech service.
- * @module chat-api
- */
-
 import { NextApiRequest, NextApiResponse } from "next";
 import OpenAI from "openai";
 import { synthesizeSpeechToFile } from "../../src/utils/tts";
@@ -12,26 +6,15 @@ import fs from "fs";
 import path from "path";
 import { v4 as uuidv4 } from "uuid";
 import ipinfo from "ipinfo";
-import logger from "../../src/utils/logger"; // corrected path
+import logger from "../../src/utils/logger";
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 import { setReplyCache } from "../../src/utils/cache";
 
-/**
- * Validate required environment variables and initialize credentials
- * @throws {Error} If GOOGLE_APPLICATION_CREDENTIALS_JSON is missing
- */
 if (!process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
-  throw new Error(
-    "Missing GOOGLE_APPLICATION_CREDENTIALS_JSON environment variable",
-  );
+  throw new Error("Missing GOOGLE_APPLICATION_CREDENTIALS_JSON environment variable");
 }
 
-/**
- * Google authentication credentials object loaded from environment
- * @type {object}
- */
 let googleAuthCredentials;
-
 function getGoogleCredentials() {
   let creds = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
   if (!creds) throw new Error("Missing GOOGLE_APPLICATION_CREDENTIALS_JSON");
@@ -40,56 +23,20 @@ function getGoogleCredentials() {
   }
   return JSON.parse(creds);
 }
+googleAuthCredentials = getGoogleCredentials();
 
-if (process.env.VERCEL_ENV) {
-  googleAuthCredentials = getGoogleCredentials();
-} else {
-  googleAuthCredentials = getGoogleCredentials();
-}
-
-/**
- * Stores conversation history with Gandalf
- * Limited to 50 messages for context window management
- * @type {string[]}
- */
 let conversationHistory: string[] = [];
 
-/**
- * OpenAI API key loaded from environment
- * @throws {Error} If OPENAI_API_KEY is missing
- */
 const apiKey = process.env.OPENAI_API_KEY;
 if (!apiKey) {
   throw new Error("Missing OpenAI API key");
 }
-
-/**
- * OpenAI client instance for generating responses
- * @type {OpenAI}
- */
 const openai = new OpenAI({ apiKey });
 
-/**
- * Type guard to check if the response is from OpenAI
- * Used to ensure type safety when working with OpenAI responses
- *
- * @param {any} obj - The object to check
- * @returns {boolean} True if the object is an OpenAI response with expected structure
- */
-function isOpenAIResponse(
-  obj: any,
-): obj is { choices: { message: { content: string } }[] } {
-  return (
-    obj &&
-    typeof obj === "object" &&
-    "choices" in obj &&
-    Array.isArray(obj.choices)
-  );
+function isOpenAIResponse(obj: any): obj is { choices: { message: { content: string } }[] } {
+  return obj && typeof obj === "object" && "choices" in obj && Array.isArray(obj.choices);
 }
 
-/**
- * Helper to convert conversationHistory (array of strings) to OpenAI message objects
- */
 function buildOpenAIMessages(history: string[], userMessage: string): ChatCompletionMessageParam[] {
   const messages: ChatCompletionMessageParam[] = [
     {
@@ -109,30 +56,23 @@ function buildOpenAIMessages(history: string[], userMessage: string): ChatComple
   return messages;
 }
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse,
-) {
-  // Validate HTTP method
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
     res.setHeader("Allow", ["POST"]);
     return res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 
   try {
-    // Extract and validate user message
     const userMessage = req.body.message;
     if (!userMessage) {
       return res.status(400).json({ error: "Message is required" });
     }
 
-    // Get user IP and location for logging
+    // Get user IP for logging/location
     const userIp = Array.isArray(req.headers["x-forwarded-for"])
       ? req.headers["x-forwarded-for"][0]
       : req.headers["x-forwarded-for"] || req.connection.remoteAddress;
     let userLocation = "Unknown location";
-
-    // Try to get location data from IP
     if (userIp) {
       try {
         const locationData = await ipinfo(userIp as string);
@@ -142,24 +82,15 @@ export default async function handler(
       }
     }
 
-    // Prepare conversation data
     const timestamp = new Date().toISOString();
     conversationHistory.push(`User: ${userMessage}`);
-
-    // Limit conversation history to prevent token overflow
     if (conversationHistory.length > 50) {
       conversationHistory = conversationHistory.slice(-50);
     }
-
-    // Build OpenAI messages array for GPT-4o best practices
     const messages = buildOpenAIMessages(conversationHistory.slice(0, -1), userMessage);
 
-    // Set timeout for API request to prevent hanging
-    const timeout = new Promise((resolve) =>
-      setTimeout(() => resolve({ timeout: true }), 20000),
-    );
-
-    // Race API request against timeout
+    // Timeout to avoid hanging
+    const timeout = new Promise((resolve) => setTimeout(() => resolve({ timeout: true }), 20000));
     const result = await Promise.race([
       openai.chat.completions.create({
         model: "gpt-4o",
@@ -170,27 +101,19 @@ export default async function handler(
       }),
       timeout,
     ]);
-
-    // Handle timeout case
     if (result && typeof result === "object" && "timeout" in result) {
       return res.status(408).json({ reply: "Request timed out." });
     }
-
-    // Validate OpenAI response
     if (!isOpenAIResponse(result)) {
       throw new Error("Invalid response from OpenAI");
     }
-
-    // Extract Gandalf's reply text
     const gandalfReply = result.choices[0]?.message?.content?.trim() ?? "";
     if (!gandalfReply || gandalfReply.trim() === "") {
       throw new Error("Generated Gandalf response is empty.");
     }
-
-    // Update conversation history
     conversationHistory.push(`Gandalf: ${gandalfReply}`);
 
-    // Prepare text-to-speech request with voice tuned for Gandalf
+    // Prepare TTS request (voice tuned for Gandalf)
     const ssmlText = `<speak><prosody pitch="-13st" rate="80%"> ${gandalfReply} </prosody></speak>`;
     const tmpDir = "/tmp";
     if (!fs.existsSync(tmpDir)) {
@@ -198,7 +121,6 @@ export default async function handler(
     }
     const audioFileName = `${uuidv4()}.mp3`;
     const audioFilePath = path.join(tmpDir, audioFileName);
-    // Remove existing file if it exists
     if (fs.existsSync(audioFilePath)) {
       fs.unlinkSync(audioFilePath);
     }
@@ -208,36 +130,27 @@ export default async function handler(
         filePath: audioFilePath,
         ssml: true,
       });
-
-      // Write a sidecar .txt file with the Gandalf reply for audio regeneration
+      // Write a .txt sidecar for audio regeneration
       const txtFilePath = audioFilePath.replace(/\.mp3$/, ".txt");
       fs.writeFileSync(txtFilePath, gandalfReply, "utf8");
-      // Store Gandalf reply in cache for fallback
       setReplyCache(audioFileName, gandalfReply);
     } catch (error) {
       logger.error("Text-to-Speech API error:", error);
-      const errorMessage =
-        error instanceof Error ? error.message : JSON.stringify(error);
-      return res
-        .status(500)
-        .json({ error: "Google Cloud TTS failed", details: errorMessage });
+      const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
+      return res.status(500).json({ error: "Google Cloud TTS failed", details: errorMessage });
     }
 
-    // Log interaction details
     logger.info(
       `${timestamp}|${userIp}|${userLocation}|${userMessage.replace(/"/g, '""')}|${gandalfReply.replace(/"/g, '""')}`,
     );
 
-    // Return successful response with reply and audio URL
     res.status(200).json({
       reply: gandalfReply,
       audioFileUrl: `/api/audio?file=${audioFileName}`,
     });
   } catch (error) {
-    // Log and return error
     logger.error("API error:", error);
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error";
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
     res.status(500).json({
       reply: "Error fetching response from Gandalf.",
       error: errorMessage,
