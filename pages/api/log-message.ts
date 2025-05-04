@@ -49,17 +49,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const date = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
 
     // --- Determine Log Filename ---
-    let logFilename: string;
-    if (!process.env.BLOB_READ_WRITE_TOKEN) {
-      // Local development: Use sessionId for filename
-      logFilename = `chatlog_session_${sessionId}_${date}.log`;
-      console.log(`[Log API - Local] Using session ID for filename: ${logFilename}`);
-    } else {
-      // Vercel/Production: Use sanitized real IP for filename
-      const sanitizedIp = ip.replace(/:/g, '_');
-      logFilename = `chatlog_${sanitizedIp}_${date}.log`;
-      console.log(`[Log API - Vercel] Using real IP for filename: ${logFilename}`);
-    }
+    let logFilename: string = `chatlog_session_${sessionId}_${date}.log`;
+    console.log(`[Log API] Using session ID for filename: ${logFilename}`);
     // --- End Determine Log Filename ---
 
     // --- Append to Log ---
