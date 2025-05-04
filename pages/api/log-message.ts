@@ -39,6 +39,34 @@ function escapeHtml(str: string): string {
   });
 }
 
+// Helper to check if an IP is a valid public IPv4 or IPv6 address
+function isValidPublicIp(ip: string): boolean {
+  // Remove port if present
+  ip = ip.split(':')[0];
+  // IPv4 regex
+  const ipv4 = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+  // IPv6 regex (simple, not exhaustive)
+  const ipv6 = /^([\da-fA-F]{1,4}:){7}[\da-fA-F]{1,4}$/;
+  // Private IPv4 ranges
+  const privateRanges = [
+    /^10\./,
+    /^127\./,
+    /^169\.254\./,
+    /^172\.(1[6-9]|2[0-9]|3[0-1])\./,
+    /^192\.168\./
+  ];
+  if (ipv4.test(ip)) {
+    if (privateRanges.some(r => r.test(ip))) return false;
+    return true;
+  }
+  if (ipv6.test(ip)) {
+    // Exclude loopback and link-local
+    if (ip === '::1' || ip.startsWith('fe80:')) return false;
+    return true;
+  }
+  return false;
+}
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
     res.setHeader("Allow", ["POST"]);
@@ -75,12 +103,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // --- Get IP and Location ---
     const ip = (req.headers['x-forwarded-for'] as string || req.socket.remoteAddress || '').split(',')[0].trim() || 'UnknownIP';
-    const location = await getLocationFromIp(ip);
-    const locationString = location ? `${location.city}-${location.region}-${location.country}` : 'UnknownLocation';
+    let locationString = 'UnknownLocation';
+    let safeIp = 'UnknownIP';
+    if (isValidPublicIp(ip)) {
+      safeIp = ip;
+      const location = await getLocationFromIp(ip);
+      if (location) {
+        locationString = `${location.city}-${location.region}-${location.country}`;
+      }
+    }
     // --- End IP and Location ---
 
     const timestamp = new Date().toISOString();
-    const logEntry = `[${timestamp}] [${ip}] [${locationString}] ${cleanSender}: ${cleanText}\n`;
+    const logEntry = `[${timestamp}] [${safeIp}] [${locationString}] ${cleanSender}: ${cleanText}\n`;
 
     const date = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
 
