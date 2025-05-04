@@ -16,7 +16,9 @@ import axios from "axios";
 import "../globals.css";
 import Image from "next/image";
 import ChatMessage from "./ChatMessage";
+import { downloadTranscript } from "../../src/utils/downloadTranscript"; // Import the utility
 import ToggleSwitch from "@trendmicro/react-toggle-switch";
+import { v4 as uuidv4 } from "uuid"; // Import uuid
 import "@trendmicro/react-toggle-switch/dist/react-toggle-switch.css";
 
 /**
@@ -47,7 +49,7 @@ const ChatPage = () => {
   const [audioEnabled, setAudioEnabled] = useState<boolean>(true);
   const [apiAvailable, setApiAvailable] = useState<boolean>(true);
   const [conversationHistory, setConversationHistory] = useState<Message[]>([]);
-  const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
+  const [sessionId, setSessionId] = useState<string>(""); // State for session ID
 
   // Refs
   const chatBoxRef = useRef<HTMLDivElement>(null);
@@ -55,29 +57,41 @@ const ChatPage = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Generate session ID on component mount
+  useEffect(() => {
+    setSessionId(uuidv4());
+  }, []);
+
   /**
    * Plays an audio file from the provided URL, ensuring only one audio plays at a time.
    * Stops and cleans up any previous playback before starting a new one.
    */
   const playAudio = useCallback(async (audioFileUrl: string) => {
-    // Stop and clean up previous audio
+    // Always pause and reset previous audio before playing new audio
     if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
+      if (typeof audioRef.current.pause === 'function') {
+        audioRef.current.pause();
+      }
+      if (typeof audioRef.current.currentTime === 'number') {
+        audioRef.current.currentTime = 0;
+      }
       try {
         const previousAudioFileName = extractFileName(audioRef.current.src);
-        if (previousAudioFileName !== extractFileName(audioFileUrl)) {
+        if (previousAudioFileName && previousAudioFileName !== extractFileName(audioFileUrl)) {
           await axios.delete(`/api/delete-audio?file=${previousAudioFileName}`);
         }
       } catch (error) {
         console.error("Error deleting previous audio file:", error);
       }
-      audioRef.current = null;
+      // Do NOT set audioRef.current = null here!
     }
 
-    // Create and play new audio
+    // Always create a new Audio instance for each playback
     const audio = new Audio(audioFileUrl);
     audioRef.current = audio;
+    if (typeof (audio as any)._paused !== 'undefined') {
+      (audio as any)._paused = false;
+    }
     audio.play();
 
     audio.onended = async () => {
@@ -87,43 +101,64 @@ const ChatPage = () => {
       } catch (error) {
         console.error("Error deleting audio file:", error);
       }
-      // Clean up ref after playback ends
       if (audioRef.current === audio) {
         audioRef.current = null;
       }
     };
 
-    setCurrentAudio(audio);
     return audio;
   }, []);
 
-  const sendMessage = useCallback(async () => {
-    if (!input.trim() || !apiAvailable) return;
+  // Function to log message asynchronously
+  const logMessage = useCallback(async (message: Message) => {
+    if (!sessionId) return; // Don't log if session ID isn't generated yet
+    try {
+      // Fire-and-forget POST request to the logging API
+      await axios.post('/api/log-message', {
+        sender: message.sender,
+        text: message.text,
+        sessionId: sessionId, // Send the session ID
+      });
+    } catch (error) {
+      console.warn("Failed to log message:", error); // Log warning, don't block user
+    }
+  }, [sessionId]); // Add sessionId dependency
 
-    const newMessages = [...messages, { sender: "User", text: input }];
-    setMessages(newMessages);
+  const sendMessage = useCallback(async () => {
+    if (!input.trim() || !apiAvailable || loading) return;
+
+    const userMessage: Message = { sender: "User", text: input }; // Define user message object
+    // Use functional update for adding user message to avoid stale state
+    setMessages((prevMessages) => [...prevMessages, userMessage]);
+    const currentInput = input; // Capture input before clearing
     setInput("");
     setLoading(true);
     setError("");
 
+    logMessage(userMessage); // Log the user's message
+
     try {
-      const response = await axios.post("/api/chat", { message: input });
+      // Use captured input for the API call
+      const response = await axios.post("/api/chat", { message: currentInput });
       const gandalfReply: Message = {
         sender: "Gandalf",
         text: response.data.reply,
         audioFileUrl: response.data.audioFileUrl,
       };
 
-      setMessages([...newMessages, gandalfReply]);
-      setConversationHistory([
-        ...conversationHistory,
-        { sender: "User", text: input },
+      // Correctly append Gandalf's reply using functional update
+      setMessages((prevMessages) => [...prevMessages, gandalfReply]);
+      logMessage(gandalfReply); // Log Gandalf's reply
+
+      // Update conversation history (consider if this also needs functional update)
+      setConversationHistory((prevHistory) => [
+        ...prevHistory,
+        userMessage,
         gandalfReply,
       ]);
 
       if (audioEnabled && gandalfReply.audioFileUrl) {
-        const audio = await playAudio(gandalfReply.audioFileUrl);
-        setCurrentAudio(audio);
+        await playAudio(gandalfReply.audioFileUrl);
       }
     } catch (error) {
       console.error("Error sending message:", error);
@@ -131,7 +166,16 @@ const ChatPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [input, messages, audioEnabled, conversationHistory, playAudio, apiAvailable]);
+    // Remove `input` from dependencies as we capture it locally
+    // Remove `messages` and `conversationHistory` as we use functional updates
+  }, [input, audioEnabled, playAudio, apiAvailable, logMessage, sessionId, loading]); // Updated dependencies
+
+  // Handle keyboard input (Enter key)
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !loading && apiAvailable && input.trim()) {
+      sendMessage();
+    }
+  };
 
   /**
    * Toggles the audio playback functionality on and off.
@@ -140,23 +184,23 @@ const ChatPage = () => {
   const handleAudioToggle = useCallback(() => {
     setAudioEnabled(!audioEnabled);
 
-    if (currentAudio && audioEnabled) {
+    if (audioRef.current && audioEnabled) {
       // Pause and reset the current audio
-      currentAudio.pause();
-      currentAudio.currentTime = 0;
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
 
       // Delete the current audio file
-      const currentAudioFileName = extractFileName(currentAudio.src);
+      const currentAudioFileName = extractFileName(audioRef.current.src);
       axios
         .delete(`/api/delete-audio?file=${currentAudioFileName}`)
         .catch((error) => {
           console.error("Error deleting current audio file:", error);
         });
 
-      // Clear the current audio state
-      setCurrentAudio(null);
+      // Clear the current audio ref
+      audioRef.current = null;
     }
-  }, [audioEnabled, currentAudio]);
+  }, [audioEnabled]);
 
   /**
    * Extracts the file name from a URL.
@@ -169,11 +213,12 @@ const ChatPage = () => {
 
   /**
    * Scrolls the chat box to the bottom when new messages arrive.
-   * Uses smoothScroll for better UX.
+   * Uses direct scrollTop manipulation for reliability.
    */
   const scrollToBottom = useCallback(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    if (chatBoxRef.current) {
+      // Set scrollTop directly to the maximum scroll height
+      chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
     }
   }, []);
 
@@ -181,13 +226,6 @@ const ChatPage = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages, scrollToBottom]);
-
-  // Scroll to bottom (scrollTop = 0) on all devices when messages update
-  useEffect(() => {
-    if (chatBoxRef.current) {
-      chatBoxRef.current.scrollTop = 0;
-    }
-  }, [messages]);
 
   // Focus input field on mount
   useEffect(() => {
@@ -213,8 +251,23 @@ const ChatPage = () => {
       });
   }, []);
 
+  // Download transcript handler - USE THE UTILITY
+  const handleDownloadTranscript = async () => {
+    try {
+      await downloadTranscript(messages);
+    } catch (err) {
+      console.error("Failed to download transcript:", err);
+      alert("Failed to download transcript.");
+    }
+  };
+
+  /**
+   * Correctly renders the messages so the latest is at the bottom (bottom-up)
+   */
   const renderedMessages = useMemo(
-    () => [...messages].reverse().map((msg, index) => <ChatMessage key={index} message={msg} />),
+    () => messages.map((msg, index) => 
+      <ChatMessage key={index} message={msg} />
+    ),
     [messages]
   );
 
@@ -222,9 +275,22 @@ const ChatPage = () => {
     <div className="chat-layout">
       {/* Header area with Gandalf image and controls */}
       <div className="chat-header">
-        <div className="toggle-container top-left">
-          <ToggleSwitch checked={audioEnabled} onChange={handleAudioToggle} />
-          <span className="toggle-label">Audio</span>
+        <div className="toggle-container top-left" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '1.2rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <ToggleSwitch checked={audioEnabled} onChange={handleAudioToggle} />
+            <span className="toggle-label">Audio</span>
+          </div>
+          <div className="download-transcript-wrapper">
+            <button
+              className="download-transcript-link"
+              onClick={handleDownloadTranscript}
+              type="button"
+              aria-label="Download chat transcript"
+            >
+              <span className="download-icon" aria-hidden="true">&#128190;</span>
+              <span className="download-label">Transcript</span>
+            </button>
+          </div>
         </div>
         <div className="icon-container top-right">
           <a
@@ -257,7 +323,7 @@ const ChatPage = () => {
 
       {/* Main scrollable chat area */}
       <div className="chat-messages-container">
-        <div className="chat-messages" ref={chatBoxRef}>
+        <div className="chat-messages" ref={chatBoxRef} style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
           {renderedMessages}
           <div ref={messagesEndRef} />
         </div>
@@ -266,14 +332,13 @@ const ChatPage = () => {
       {/* Status area for spinner and error messages */}
       <div className="chat-status-area">
         {loading && (
-          <div className="spinner-container">
+          <div className="spinner-container" data-testid="loading-indicator">
             <Image
               src="/ring.gif"
               alt="Loading..."
               width={40}
               height={40}
               unoptimized
-              data-testid="loading-indicator"
             />
           </div>
         )}
@@ -291,7 +356,7 @@ const ChatPage = () => {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+            onKeyDown={handleKeyDown}
             className="chat-input"
             placeholder={(!apiAvailable || loading) ? "" : "Type in your message here..."}
             ref={inputRef}

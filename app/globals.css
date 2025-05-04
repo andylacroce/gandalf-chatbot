@@ -129,6 +129,7 @@ body {
   max-width: 800px;
   margin: 0 auto;
   position: relative;
+  overflow: hidden; /* Ensure no unintended overflow */
 }
 
 /**
@@ -162,22 +163,25 @@ body {
   position: relative;
   margin-bottom: 10px;
   border-radius: 15px;
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Prevent unintended overflow */
 }
 
 /**
  * Chat Messages - The actual scrollable area containing messages
  */
 .chat-messages {
-  height: 100%;
+  flex: 1 1 auto;
   width: 100%;
-  overflow-y: auto;
+  overflow-y: auto; /* Enable vertical scrolling */
   padding: 1rem;
   background-color: var(--chatbox-background);
   display: flex;
   flex-direction: column-reverse;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(80,80,80,0.6) transparent;
+  max-height: calc(100vh - 200px); /* Ensure it doesn't exceed viewport */
+  scrollbar-width: thin; /* For Firefox */
+  scrollbar-color: rgba(80,80,80,0.6) transparent; /* For Firefox */
 }
 
 /* Webkit scrollbar styles */
@@ -213,10 +217,15 @@ body {
  * Chat Input Area - Fixed at the bottom of the viewport
  */
 .chat-input-area {
-  flex: 0 0 auto;
+  position: fixed; /* Ensure it stays at the bottom of the viewport */
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%); /* Center align the input area */
   width: 100%;
+  max-width: 800px; /* Match the width of the chat box */
   padding: 10px 0;
   background-color: var(--color-background);
+  z-index: 100; /* Ensure it stays above other elements */
   margin-bottom: env(safe-area-inset-bottom, 0); /* For iOS notched devices */
 }
 
@@ -794,5 +803,56 @@ button[disabled] {
     font-size: 1.05rem;
     max-width: 95vw;
     border-radius: 12px;
+  }
+}
+
+/* Download Transcript Styles */
+.download-transcript-wrapper {
+  margin-top: 0.3rem;
+  display: flex;
+  justify-content: flex-start;
+  width: 100%;
+}
+.download-transcript-link {
+  background: var(--card-body-bg);
+  border: 1px solid #5a4632;
+  color: var(--color-text);
+  border-radius: 3px;
+  padding: 0.13rem 0.7rem 0.13rem 0.5rem;
+  font-size: 0.93rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s, border 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 0.25em;
+  min-height: 1.7em;
+  min-width: 0;
+  font-family: var(--font-secondary);
+}
+.download-transcript-link:hover, .download-transcript-link:focus {
+  background: #3e2a18;
+  color: #ffe6b0;
+  border-color: #a67c52;
+  outline: none;
+}
+.download-icon {
+  font-size: 1em;
+  margin-right: 0.1em;
+  color: #ffe6b0;
+}
+.download-label {
+  font-size: 0.93em;
+  letter-spacing: 0.01em;
+  font-weight: 600;
+}
+@media (max-width: 576px) {
+  .download-transcript-link {
+    font-size: 0.87rem;
+    padding: 0.09rem 0.5rem 0.09rem 0.35rem;
+    min-height: 1.3em;
+  }
+  .download-label {
+    font-size: 0.87em;
   }
 }

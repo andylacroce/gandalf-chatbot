@@ -43,7 +43,7 @@ const ChatMessage = React.memo(({ message }: { message: Message }) => {
     message.sender === "User" ? "user-sender" : "gandalf-sender";
 
   return (
-    <div className={`my-2 ${messageClass}`}>
+    <div className={`my-2 ${messageClass}`} role="article">
       <div className="rounded p-2 text-sm">
         <div className={`mb-1 ${senderClass}`}>
           {message.sender === "User" ? "Me" : "Gandalf"}
