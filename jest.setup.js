@@ -1,12 +1,12 @@
 // Polyfill TextEncoder for Node.js before any other imports
-if (typeof global.TextEncoder === 'undefined') {
-  const { TextEncoder } = require('util');
+if (typeof global.TextEncoder === "undefined") {
+  const { TextEncoder } = require("util");
   global.TextEncoder = TextEncoder;
 }
 
 // Polyfill TextDecoder for Node.js before any other imports
-if (typeof global.TextDecoder === 'undefined') {
-  const { TextDecoder } = require('util');
+if (typeof global.TextDecoder === "undefined") {
+  const { TextDecoder } = require("util");
   global.TextDecoder = TextDecoder;
 }
 

@@ -1,4 +1,4 @@
-import 'openai/shims/node';
+import "openai/shims/node";
 import { NextApiRequest, NextApiResponse } from "next";
 import OpenAI from "openai";
 import { synthesizeSpeechToFile } from "../../src/utils/tts";
@@ -11,7 +11,9 @@ import type { ChatCompletionMessageParam } from "openai/resources/chat/completio
 import { setReplyCache } from "../../src/utils/cache";
 
 if (!process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
-  throw new Error("Missing GOOGLE_APPLICATION_CREDENTIALS_JSON environment variable");
+  throw new Error(
+    "Missing GOOGLE_APPLICATION_CREDENTIALS_JSON environment variable",
+  );
 }
 
 let googleAuthCredentials;
@@ -33,30 +35,45 @@ if (!apiKey) {
 }
 const openai = new OpenAI({ apiKey });
 
-function isOpenAIResponse(obj: any): obj is { choices: { message: { content: string } }[] } {
-  return obj && typeof obj === "object" && "choices" in obj && Array.isArray(obj.choices);
+function isOpenAIResponse(
+  obj: any,
+): obj is { choices: { message: { content: string } }[] } {
+  return (
+    obj &&
+    typeof obj === "object" &&
+    "choices" in obj &&
+    Array.isArray(obj.choices)
+  );
 }
 
-function buildOpenAIMessages(history: string[], userMessage: string): ChatCompletionMessageParam[] {
+function buildOpenAIMessages(
+  history: string[],
+  userMessage: string,
+): ChatCompletionMessageParam[] {
   const messages: ChatCompletionMessageParam[] = [
     {
       role: "system",
-      content:
-        `You are Gandalf the Grey, wizard of Middle-earth. Speak with wisdom, warmth, and a touch of playful forgetfulness. Never reference the modern world. Use poetic, old-world language, and occasionally tease or offer roundabout advice as Gandalf would. Stay in character at all times. Respond in no more than 50 words.`,
+      content: `You are Gandalf the Grey, wizard of Middle-earth. Speak with wisdom, warmth, and a touch of playful forgetfulness. Never reference the modern world. Use poetic, old-world language, and occasionally tease or offer roundabout advice as Gandalf would. Stay in character at all times. Respond in no more than 50 words.`,
     },
   ];
   for (const entry of history) {
     if (entry.startsWith("User: ")) {
       messages.push({ role: "user", content: entry.replace(/^User: /, "") });
     } else if (entry.startsWith("Gandalf: ")) {
-      messages.push({ role: "assistant", content: entry.replace(/^Gandalf: /, "") });
+      messages.push({
+        role: "assistant",
+        content: entry.replace(/^Gandalf: /, ""),
+      });
     }
   }
   messages.push({ role: "user", content: userMessage });
   return messages;
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
   if (req.method !== "POST") {
     res.setHeader("Allow", ["POST"]);
     return res.status(405).end(`Method ${req.method} Not Allowed`);
@@ -87,10 +104,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (conversationHistory.length > 50) {
       conversationHistory = conversationHistory.slice(-50);
     }
-    const messages = buildOpenAIMessages(conversationHistory.slice(0, -1), userMessage);
+    const messages = buildOpenAIMessages(
+      conversationHistory.slice(0, -1),
+      userMessage,
+    );
 
     // Timeout to avoid hanging
-    const timeout = new Promise((resolve) => setTimeout(() => resolve({ timeout: true }), 20000));
+    const timeout = new Promise((resolve) =>
+      setTimeout(() => resolve({ timeout: true }), 20000),
+    );
     const result = await Promise.race([
       openai.chat.completions.create({
         model: "gpt-4o",
@@ -136,8 +158,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       setReplyCache(audioFileName, gandalfReply);
     } catch (error) {
       logger.error("Text-to-Speech API error:", error);
-      const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
-      return res.status(500).json({ error: "Google Cloud TTS failed", details: errorMessage });
+      const errorMessage =
+        error instanceof Error ? error.message : JSON.stringify(error);
+      return res
+        .status(500)
+        .json({ error: "Google Cloud TTS failed", details: errorMessage });
     }
 
     logger.info(
@@ -150,7 +175,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
   } catch (error) {
     logger.error("API error:", error);
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
     res.status(500).json({
       reply: "Error fetching response from Gandalf.",
       error: errorMessage,

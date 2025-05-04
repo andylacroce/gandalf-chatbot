@@ -46,7 +46,10 @@ describe("Audio API Handler", () => {
     const { req, res } = createTestObjects();
     req.query = { file: "nonexistent.mp3" };
     jest.spyOn(require("fs"), "existsSync").mockReturnValue(false);
-    const handlerPromise = audioHandler(req as NextApiRequest, res as NextApiResponse);
+    const handlerPromise = audioHandler(
+      req as NextApiRequest,
+      res as NextApiResponse,
+    );
     await jest.runAllTimersAsync();
     await handlerPromise;
     expect(res.status).toHaveBeenCalledWith(404);
@@ -58,8 +61,15 @@ describe("Audio API Handler", () => {
       const { req, res } = createTestObjects();
       req.query = { file: "existing.mp3" };
       const audioContent = Buffer.from("audio content");
-      jest.spyOn(require("fs"), "existsSync").mockImplementation((filePath) => filePath === require("path").resolve("/tmp", "existing.mp3"));
-      jest.spyOn(require("fs"), "realpathSync").mockReturnValue(require("path").resolve("/tmp", "existing.mp3"));
+      jest
+        .spyOn(require("fs"), "existsSync")
+        .mockImplementation(
+          (filePath) =>
+            filePath === require("path").resolve("/tmp", "existing.mp3"),
+        );
+      jest
+        .spyOn(require("fs"), "realpathSync")
+        .mockReturnValue(require("path").resolve("/tmp", "existing.mp3"));
       jest.spyOn(require("fs"), "readFileSync").mockReturnValue(audioContent);
       await audioHandler(req as NextApiRequest, res as NextApiResponse);
       expect(res.setHeader).toHaveBeenCalledWith("Content-Type", "audio/mpeg");
@@ -70,11 +80,23 @@ describe("Audio API Handler", () => {
       const { req, res } = createTestObjects();
       req.query = { file: "existing.mp3" };
       const audioContent = Buffer.from("audio content");
-      jest.spyOn(require("fs"), "existsSync").mockImplementation((filePath) => filePath === require("path").resolve("public", "existing.mp3"));
-      jest.spyOn(require("fs"), "realpathSync").mockReturnValue(require("path").resolve("public", "existing.mp3"));
+      jest
+        .spyOn(require("fs"), "existsSync")
+        .mockImplementation(
+          (filePath) =>
+            filePath === require("path").resolve("public", "existing.mp3"),
+        );
+      jest
+        .spyOn(require("fs"), "realpathSync")
+        .mockReturnValue(require("path").resolve("public", "existing.mp3"));
       jest.spyOn(require("fs"), "readFileSync").mockReturnValue(audioContent);
       // Simulate /tmp not existing
-      jest.spyOn(require("fs"), "existsSync").mockImplementation((filePath) => filePath === require("path").resolve("public", "existing.mp3"));
+      jest
+        .spyOn(require("fs"), "existsSync")
+        .mockImplementation(
+          (filePath) =>
+            filePath === require("path").resolve("public", "existing.mp3"),
+        );
       await audioHandler(req as NextApiRequest, res as NextApiResponse);
       expect(res.setHeader).toHaveBeenCalledWith("Content-Type", "audio/mpeg");
       expect(res.send).toHaveBeenCalledWith(audioContent);
@@ -86,7 +108,9 @@ describe("Audio API Handler", () => {
       const { req, res } = createTestObjects();
       req.query = { file: "invalid.mp3" };
       jest.spyOn(require("fs"), "existsSync").mockReturnValue(true);
-      jest.spyOn(require("fs"), "realpathSync").mockReturnValue("/invalid/path/invalid.mp3");
+      jest
+        .spyOn(require("fs"), "realpathSync")
+        .mockReturnValue("/invalid/path/invalid.mp3");
       await audioHandler(req as NextApiRequest, res as NextApiResponse);
       expect(res.status).toHaveBeenCalledWith(403);
       expect(res.json).toHaveBeenCalledWith({ error: "Access forbidden" });
@@ -96,8 +120,12 @@ describe("Audio API Handler", () => {
       const { req, res } = createTestObjects();
       req.query = { file: "existing.mp3" };
       jest.spyOn(require("fs"), "existsSync").mockReturnValue(true);
-      jest.spyOn(require("fs"), "realpathSync").mockReturnValue(require("path").resolve("/tmp", "existing.mp3"));
-      jest.spyOn(require("fs"), "readFileSync").mockImplementation(() => { throw new Error("Error reading file"); });
+      jest
+        .spyOn(require("fs"), "realpathSync")
+        .mockReturnValue(require("path").resolve("/tmp", "existing.mp3"));
+      jest.spyOn(require("fs"), "readFileSync").mockImplementation(() => {
+        throw new Error("Error reading file");
+      });
       await audioHandler(req as NextApiRequest, res as NextApiResponse);
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith({ error: "Error reading file" });

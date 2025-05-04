@@ -11,8 +11,11 @@ describe("cache utility", () => {
       process.env.VERCEL_ENV = "1";
       jest.resetModules();
       // Clear in-memory cache
-      const memoryCache = require("../../src/utils/cache").__get__?.("memoryCache");
-      if (memoryCache) Object.keys(memoryCache).forEach(k => delete memoryCache[k]);
+      const memoryCache = require("../../src/utils/cache").__get__?.(
+        "memoryCache",
+      );
+      if (memoryCache)
+        Object.keys(memoryCache).forEach((k) => delete memoryCache[k]);
     });
     afterEach(() => {
       delete process.env.VERCEL_ENV;
@@ -84,14 +87,18 @@ describe("cache utility", () => {
     });
     it("handles file read error gracefully", () => {
       existsSyncSpy.mockReturnValue(true);
-      readFileSyncSpy.mockImplementation(() => { throw new Error("fail"); });
+      readFileSyncSpy.mockImplementation(() => {
+        throw new Error("fail");
+      });
       expect(cache.getReplyCache(key)).toBeNull();
     });
     it("handles file write error gracefully", () => {
       existsSyncSpy.mockReturnValue(true);
       let cacheObj: Record<string, string> = {};
       readFileSyncSpy.mockReturnValue(JSON.stringify(cacheObj));
-      writeFileSyncSpy.mockImplementation(() => { throw new Error("fail"); });
+      writeFileSyncSpy.mockImplementation(() => {
+        throw new Error("fail");
+      });
       expect(() => cache.setReplyCache(key, value)).not.toThrow();
       expect(() => cache.deleteReplyCache(key)).not.toThrow();
     });

@@ -60,15 +60,15 @@ const ChatPage = () => {
 
   // Generate a new session ID and session datetime on every mount
   useEffect(() => {
-    let newSessionId = '';
-    let sessionDatetime = '';
-    if (typeof window !== 'undefined') {
+    let newSessionId = "";
+    let sessionDatetime = "";
+    if (typeof window !== "undefined") {
       newSessionId = uuidv4();
       const now = new Date();
-      const pad = (n: number) => n.toString().padStart(2, '0');
+      const pad = (n: number) => n.toString().padStart(2, "0");
       sessionDatetime = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
-      sessionStorage.setItem('gandalf-session-id', newSessionId);
-      sessionStorage.setItem('gandalf-session-datetime', sessionDatetime);
+      sessionStorage.setItem("gandalf-session-id", newSessionId);
+      sessionStorage.setItem("gandalf-session-datetime", sessionDatetime);
     }
     setSessionId(newSessionId);
     setSessionDatetime(sessionDatetime);
@@ -81,15 +81,18 @@ const ChatPage = () => {
   const playAudio = useCallback(async (audioFileUrl: string) => {
     // Always pause and reset previous audio before playing new audio
     if (audioRef.current) {
-      if (typeof audioRef.current.pause === 'function') {
+      if (typeof audioRef.current.pause === "function") {
         audioRef.current.pause();
       }
-      if (typeof audioRef.current.currentTime === 'number') {
+      if (typeof audioRef.current.currentTime === "number") {
         audioRef.current.currentTime = 0;
       }
       try {
         const previousAudioFileName = extractFileName(audioRef.current.src);
-        if (previousAudioFileName && previousAudioFileName !== extractFileName(audioFileUrl)) {
+        if (
+          previousAudioFileName &&
+          previousAudioFileName !== extractFileName(audioFileUrl)
+        ) {
           await axios.delete(`/api/delete-audio?file=${previousAudioFileName}`);
         }
       } catch (error) {
@@ -101,7 +104,7 @@ const ChatPage = () => {
     // Always create a new Audio instance for each playback
     const audio = new Audio(audioFileUrl);
     audioRef.current = audio;
-    if (typeof (audio as any)._paused !== 'undefined') {
+    if (typeof (audio as any)._paused !== "undefined") {
       (audio as any)._paused = false;
     }
     audio.play();
@@ -122,20 +125,23 @@ const ChatPage = () => {
   }, []);
 
   // Function to log message asynchronously
-  const logMessage = useCallback(async (message: Message) => {
-    if (!sessionId || !sessionDatetime) return;
-    try {
-      // Fire-and-forget POST request to the logging API
-      await axios.post('/api/log-message', {
-        sender: message.sender,
-        text: message.text,
-        sessionId: sessionId, // Send the session ID
-        sessionDatetime: sessionDatetime, // Send the session datetime
-      });
-    } catch (error) {
-      console.warn("Failed to log message:", error); // Log warning, don't block user
-    }
-  }, [sessionId, sessionDatetime]); // Add sessionId and sessionDatetime dependencies
+  const logMessage = useCallback(
+    async (message: Message) => {
+      if (!sessionId || !sessionDatetime) return;
+      try {
+        // Fire-and-forget POST request to the logging API
+        await axios.post("/api/log-message", {
+          sender: message.sender,
+          text: message.text,
+          sessionId: sessionId, // Send the session ID
+          sessionDatetime: sessionDatetime, // Send the session datetime
+        });
+      } catch (error) {
+        console.warn("Failed to log message:", error); // Log warning, don't block user
+      }
+    },
+    [sessionId, sessionDatetime],
+  ); // Add sessionId and sessionDatetime dependencies
 
   const sendMessage = useCallback(async () => {
     if (!input.trim() || !apiAvailable || loading) return;
@@ -181,7 +187,15 @@ const ChatPage = () => {
     }
     // Remove `input` from dependencies as we capture it locally
     // Remove `messages` and `conversationHistory` as we use functional updates
-  }, [input, audioEnabled, playAudio, apiAvailable, logMessage, sessionId, loading]); // Updated dependencies
+  }, [
+    input,
+    audioEnabled,
+    playAudio,
+    apiAvailable,
+    logMessage,
+    loading,
+    sessionId, // Restored 'sessionId' to the dependency array for correct logging
+  ]); // Updated dependencies
 
   // Handle keyboard input (Enter key)
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -256,7 +270,8 @@ const ChatPage = () => {
 
   // Health check on mount
   useEffect(() => {
-    axios.get("/api/health")
+    axios
+      .get("/api/health")
       .then(() => setApiAvailable(true))
       .catch(() => {
         setApiAvailable(false);
@@ -278,18 +293,24 @@ const ChatPage = () => {
    * Correctly renders the messages so the latest is at the bottom (bottom-up)
    */
   const renderedMessages = useMemo(
-    () => messages.map((msg, index) => 
-      <ChatMessage key={index} message={msg} />
-    ),
-    [messages]
+    () =>
+      messages.map((msg, index) => <ChatMessage key={index} message={msg} />),
+    [messages],
   );
 
   return (
     <div className="chat-layout">
       {/* Header area with Gandalf image and controls */}
       <div className="chat-header">
-        <div className="toggle-container top-left" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '1.2rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <div
+          className="toggle-container top-left"
+          style={{
+            flexDirection: "column",
+            alignItems: "flex-start",
+            gap: "1.2rem",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
             <ToggleSwitch checked={audioEnabled} onChange={handleAudioToggle} />
             <span className="toggle-label">Audio</span>
           </div>
@@ -300,7 +321,9 @@ const ChatPage = () => {
               type="button"
               aria-label="Download chat transcript"
             >
-              <span className="download-icon" aria-hidden="true">&#128190;</span>
+              <span className="download-icon" aria-hidden="true">
+                &#128190;
+              </span>
               <span className="download-label">Transcript</span>
             </button>
           </div>
@@ -336,7 +359,15 @@ const ChatPage = () => {
 
       {/* Main scrollable chat area */}
       <div className="chat-messages-container">
-        <div className="chat-messages" ref={chatBoxRef} style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+        <div
+          className="chat-messages"
+          ref={chatBoxRef}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "flex-end",
+          }}
+        >
           {renderedMessages}
           <div ref={messagesEndRef} />
         </div>
@@ -371,7 +402,9 @@ const ChatPage = () => {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             className="chat-input"
-            placeholder={(!apiAvailable || loading) ? "" : "Type in your message here..."}
+            placeholder={
+              !apiAvailable || loading ? "" : "Type in your message here..."
+            }
             ref={inputRef}
             disabled={loading || !apiAvailable}
             autoFocus
@@ -381,7 +414,7 @@ const ChatPage = () => {
             className={`chat-send-button ${loading || !apiAvailable ? "disabled" : ""}`}
             disabled={loading || !apiAvailable}
           >
-            {(loading || !apiAvailable) ? "HOLD" : "Send"}
+            {loading || !apiAvailable ? "HOLD" : "Send"}
           </button>
         </div>
       </div>
@@ -389,8 +422,15 @@ const ChatPage = () => {
       {/* API unavailable modal */}
       {!apiAvailable && (
         <div className="modal-backdrop">
-          <div className="modal-error" role="alert" data-testid="api-error-message">
-            <span className="api-error-title" style={{ color: 'var(--color-text)' }}>
+          <div
+            className="modal-error"
+            role="alert"
+            data-testid="api-error-message"
+          >
+            <span
+              className="api-error-title"
+              style={{ color: "var(--color-text)" }}
+            >
               Gandalf is resting his eyes.
             </span>
             <span className="api-error-desc">

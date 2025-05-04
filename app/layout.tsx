@@ -25,9 +25,7 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
         <title>Gandalf Chatbot</title>
       </head>
       <body>
-        <div className="container">
-          {children}
-        </div>
+        <div className="container">{children}</div>
         <Analytics />
         <SpeedInsights />
       </body>

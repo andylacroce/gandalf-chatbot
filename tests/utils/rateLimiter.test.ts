@@ -132,7 +132,8 @@ describe("rateLimiter middleware", () => {
   it("should reset rate limit after TTL expires", async () => {
     // Reset the module state to clear any previous rate limit data
     jest.resetModules();
-    const resetRateLimiter = require("../../src/middleware/rateLimiter").default;
+    const resetRateLimiter =
+      require("../../src/middleware/rateLimiter").default;
 
     jest.useFakeTimers();
     const { res, next } = createTestObjects();

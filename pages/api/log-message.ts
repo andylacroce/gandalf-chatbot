@@ -1,17 +1,17 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { put, head } from '@vercel/blob';
-import fs from 'fs';
-import path from 'path';
+import { put, head } from "@vercel/blob";
+import fs from "fs";
+import path from "path";
 
 // Helper to escape HTML special characters to prevent XSS in logs
 function escapeHtml(str: string): string {
   return str.replace(/[&<>"']/g, function (tag) {
     const chars: { [key: string]: string } = {
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;',
-      "'": '&#39;'
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;",
     };
     return chars[tag] || tag;
   });
@@ -20,9 +20,10 @@ function escapeHtml(str: string): string {
 // Helper to check if an IP is a valid public IPv4 or IPv6 address
 function isValidPublicIp(ip: string): boolean {
   // Remove port if present
-  ip = ip.split(':')[0];
+  ip = ip.split(":")[0];
   // IPv4 regex
-  const ipv4 = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+  const ipv4 =
+    /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
   // IPv6 regex (simple, not exhaustive)
   const ipv6 = /^([\da-fA-F]{1,4}:){7}[\da-fA-F]{1,4}$/;
   // Private IPv4 ranges
@@ -31,21 +32,24 @@ function isValidPublicIp(ip: string): boolean {
     /^127\./,
     /^169\.254\./,
     /^172\.(1[6-9]|2[0-9]|3[0-1])\./,
-    /^192\.168\./
+    /^192\.168\./,
   ];
   if (ipv4.test(ip)) {
-    if (privateRanges.some(r => r.test(ip))) return false;
+    if (privateRanges.some((r) => r.test(ip))) return false;
     return true;
   }
   if (ipv6.test(ip)) {
     // Exclude loopback and link-local
-    if (ip === '::1' || ip.startsWith('fe80:')) return false;
+    if (ip === "::1" || ip.startsWith("fe80:")) return false;
     return true;
   }
   return false;
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
   if (req.method !== "POST") {
     res.setHeader("Allow", ["POST"]);
     return res.status(405).end(`Method ${req.method} Not Allowed`);
@@ -53,8 +57,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     const { sender, text, sessionId, sessionDatetime } = req.body;
-    if (!sender || typeof text === 'undefined' || !sessionId || !sessionDatetime) {
-      return res.status(400).json({ error: "Sender, text, sessionId, and sessionDatetime required" });
+    if (
+      !sender ||
+      typeof text === "undefined" ||
+      !sessionId ||
+      !sessionDatetime
+    ) {
+      return res
+        .status(400)
+        .json({
+          error: "Sender, text, sessionId, and sessionDatetime required",
+        });
     }
 
     // Sanitize sender and text to prevent XSS in logs
@@ -62,37 +75,46 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const safeText = escapeHtml(text);
 
     // Validate input types and lengths
-    if (typeof sender !== 'string' || sender.length > 100) {
+    if (typeof sender !== "string" || sender.length > 100) {
       return res.status(400).json({ error: "Invalid sender" });
     }
-    if (typeof text !== 'string' || text.length > 2000) {
+    if (typeof text !== "string" || text.length > 2000) {
       return res.status(400).json({ error: "Invalid text" });
     }
-    if (typeof sessionId !== 'string' || sessionId.length > 100) {
+    if (typeof sessionId !== "string" || sessionId.length > 100) {
       return res.status(400).json({ error: "Invalid sessionId" });
     }
-    if (typeof sessionDatetime !== 'string' || sessionDatetime.length > 30) {
+    if (typeof sessionDatetime !== "string" || sessionDatetime.length > 30) {
       return res.status(400).json({ error: "Invalid sessionDatetime" });
     }
 
     // Prevent log injection by removing newlines and control characters
-    const cleanSender = safeSender.replace(/[\r\n\t\0\x0B\f]/g, '');
-    const cleanText = safeText.replace(/[\r\n\t\0\x0B\f]/g, '');
+    const cleanSender = safeSender.replace(/[\r\n\t\0\x0B\f]/g, "");
+    const cleanText = safeText.replace(/[\r\n\t\0\x0B\f]/g, "");
 
     // --- Get IP (no geolocation for security) ---
-    const ip = (req.headers['x-forwarded-for'] as string || req.socket.remoteAddress || '').split(',')[0].trim() || 'UnknownIP';
-    const safeIp = ip.replace(/[^a-zA-Z0-9\.:_-]/g, ''); // Basic sanitization
+    const ip =
+      (
+        (req.headers["x-forwarded-for"] as string) ||
+        req.socket.remoteAddress ||
+        ""
+      )
+        .split(",")[0]
+        .trim() || "UnknownIP";
+    const safeIp = ip.replace(/[^a-zA-Z0-9\.:_-]/g, ""); // Basic sanitization
     // --- End IP ---
 
     const timestamp = new Date().toISOString();
     const logEntry = `[${timestamp}] [${safeIp}] ${cleanSender}: ${cleanText}\n`;
 
-    const date = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    const date = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
 
     // --- Determine Log Filename ---
     // Sanitize filename to prevent directory traversal
-    const safeSessionDatetime = sessionDatetime.replace(/[^a-zA-Z0-9_-]/g, '');
-    const safeShortSessionId = sessionId.slice(0, 8).replace(/[^a-zA-Z0-9]/g, '');
+    const safeSessionDatetime = sessionDatetime.replace(/[^a-zA-Z0-9_-]/g, "");
+    const safeShortSessionId = sessionId
+      .slice(0, 8)
+      .replace(/[^a-zA-Z0-9]/g, "");
     let logFilename: string = `${safeSessionDatetime}_session_${safeShortSessionId}.log`;
     // --- End Determine Log Filename ---
 
@@ -100,18 +122,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (process.env.BLOB_READ_WRITE_TOKEN) {
       // Append to Vercel Blob (Read, Append, Write)
       try {
-        let existingContent = '';
+        let existingContent = "";
         try {
           // Check if blob exists and get its content
           const blobInfo = await head(logFilename); // Check if file exists
           if (blobInfo && blobInfo.url) {
-            const response = await fetch(blobInfo.url + `?cachebust=${Date.now()}`); // Bypass CDN cache
+            const response = await fetch(
+              blobInfo.url + `?cachebust=${Date.now()}`,
+            ); // Bypass CDN cache
             if (response.ok) {
               existingContent = await response.text();
             }
           }
         } catch (error) {
-          if (typeof error === 'object' && error !== null && 'status' in error && (error as any).status !== 404) {
+          if (
+            typeof error === "object" &&
+            error !== null &&
+            "status" in error &&
+            (error as any).status !== 404
+          ) {
             // Ignore non-404 errors
           }
         }
@@ -120,27 +149,26 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         // Write the log content directly (no explicit UTF-8 conversion)
         await put(logFilename, newContent, {
-          access: 'public', // Or 'private'
+          access: "public", // Or 'private'
           allowOverwrite: true, // Allow overwriting the existing blob
         });
-
       } catch (error) {
         // Handle error silently
       }
     } else {
       // Append to local file
       try {
-        const logDir = path.resolve(process.cwd(), 'tmp', 'logs');
+        const logDir = path.resolve(process.cwd(), "tmp", "logs");
         const filePath = path.join(logDir, logFilename);
 
         // Validate that filePath is within logDir to prevent path traversal
         const resolvedFilePath = path.resolve(filePath);
         if (!resolvedFilePath.startsWith(logDir + path.sep)) {
-          throw new Error('Invalid log file path');
+          throw new Error("Invalid log file path");
         }
 
         fs.mkdirSync(logDir, { recursive: true });
-        fs.appendFileSync(resolvedFilePath, logEntry, 'utf8');
+        fs.appendFileSync(resolvedFilePath, logEntry, "utf8");
       } catch (error) {
         // Handle error silently
       }
@@ -148,7 +176,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // --- End Append to Log ---
 
     res.status(200).json({ success: true });
-
   } catch (error) {
     console.error("[Log API] Internal Server Error:", error);
     // Only return generic error messages to client

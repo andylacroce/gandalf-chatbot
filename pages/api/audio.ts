@@ -59,7 +59,9 @@ export default async function handler(
         normalizedAudioFilePath = checkFileExists(audioFilePath);
         found = !!normalizedAudioFilePath;
       } catch (err) {
-        return res.status(500).json({ error: "Failed to regenerate audio via TTS" });
+        return res
+          .status(500)
+          .json({ error: "Failed to regenerate audio via TTS" });
       }
     }
   }
@@ -67,8 +69,10 @@ export default async function handler(
   const allowedTmp = path.resolve("/tmp");
   const allowedPublic = path.resolve("public");
   if (
-    (normalizedAudioFilePath && !normalizedAudioFilePath.startsWith(allowedTmp)) &&
-    (normalizedLocalFilePath && !normalizedLocalFilePath.startsWith(allowedPublic))
+    normalizedAudioFilePath &&
+    !normalizedAudioFilePath.startsWith(allowedTmp) &&
+    normalizedLocalFilePath &&
+    !normalizedLocalFilePath.startsWith(allowedPublic)
   ) {
     return res.status(403).json({ error: "Access forbidden" });
   }

@@ -4,17 +4,23 @@ import path from "path";
 
 function getGoogleAuthCredentials() {
   if (!process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
-    throw new Error("Missing GOOGLE_APPLICATION_CREDENTIALS_JSON environment variable");
+    throw new Error(
+      "Missing GOOGLE_APPLICATION_CREDENTIALS_JSON environment variable",
+    );
   }
   if (process.env.VERCEL_ENV) {
     return JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
   } else {
-    const credentialsPath = path.resolve(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
+    const credentialsPath = path.resolve(
+      process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON,
+    );
     return JSON.parse(fs.readFileSync(credentialsPath, "utf8"));
   }
 }
 
-let ttsClient: import("@google-cloud/text-to-speech").TextToSpeechClient | null = null;
+let ttsClient:
+  | import("@google-cloud/text-to-speech").TextToSpeechClient
+  | null = null;
 function getTTSClient() {
   if (!ttsClient) {
     ttsClient = new textToSpeech.TextToSpeechClient({
@@ -50,11 +56,12 @@ export async function synthesizeSpeechToFile({
     languageCode: (voice.languageCodes && voice.languageCodes[0]) || "en-GB",
   };
   delete apiVoice.languageCodes;
-  const request: protos.google.cloud.texttospeech.v1.ISynthesizeSpeechRequest = {
-    input,
-    voice: apiVoice,
-    audioConfig,
-  };
+  const request: protos.google.cloud.texttospeech.v1.ISynthesizeSpeechRequest =
+    {
+      input,
+      voice: apiVoice,
+      audioConfig,
+    };
   const client = getTTSClient();
   const [response] = await client.synthesizeSpeech(request);
   if (!response || !response.audioContent) {

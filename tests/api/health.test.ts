@@ -13,7 +13,9 @@ describe("Health API Handler", () => {
     await healthHandler(req, res);
     // Accept either 200 or 500 depending on environment
     expect(res.status).toHaveBeenCalledWith(expect.any(Number));
-    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ status: expect.any(String) }));
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({ status: expect.any(String) }),
+    );
   });
 
   it("should return 500 and error details if credentials are missing or invalid", async () => {
@@ -34,7 +36,7 @@ describe("Health API Handler", () => {
         status: "error",
         openai: expect.objectContaining({ status: "error" }),
         tts: expect.objectContaining({ status: "error" }),
-      })
+      }),
     );
     // Restore env vars
     if (oldOpenAI) process.env.OPENAI_API_KEY = oldOpenAI;

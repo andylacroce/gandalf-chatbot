@@ -3,6 +3,7 @@
 A Next.js app featuring a real-time chat interface, AI-powered Gandalf persona, and voice responses via Google Text-to-Speech.
 
 ## Features
+
 - Voice responses via Google TTS
 - Chat powered by OpenAI's ChatGPT
 - Built with Next.js & React
@@ -20,6 +21,7 @@ A Next.js app featuring a real-time chat interface, AI-powered Gandalf persona, 
    npm install
    ```
 2. **Environment Variables**
+
    - Create `.env.local`:
      ```ini
      OPENAI_API_KEY=your_openai_api_key_here
@@ -28,6 +30,7 @@ A Next.js app featuring a real-time chat interface, AI-powered Gandalf persona, 
    - For Vercel, paste the full JSON string for `GOOGLE_APPLICATION_CREDENTIALS_JSON` in the dashboard.
 
 3. **Run Locally**
+
    ```bash
    npm run dev
    ```
@@ -38,10 +41,12 @@ A Next.js app featuring a real-time chat interface, AI-powered Gandalf persona, 
    ```
 
 ## Project Structure
+
 - `app/` - Next.js app & components
 - `pages/api/` - API routes
 - `src/` - Middleware, types, utils
 - `tests/` - Test files
 
 ## License
+
 NA

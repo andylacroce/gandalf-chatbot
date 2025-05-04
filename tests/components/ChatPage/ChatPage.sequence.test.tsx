@@ -18,7 +18,10 @@ describe("ChatPage", () => {
 
       // POST mock: only respond to actual user messages
       jest.mocked(axios.post).mockImplementation((url, body: any) => {
-        if (typeof body === "object" && body?.message?.includes("First message")) {
+        if (
+          typeof body === "object" &&
+          body?.message?.includes("First message")
+        ) {
           messageCount++;
           return Promise.resolve({
             data: {
@@ -27,7 +30,10 @@ describe("ChatPage", () => {
             },
           });
         }
-        if (typeof body === "object" && body?.message?.includes("Second message")) {
+        if (
+          typeof body === "object" &&
+          body?.message?.includes("Second message")
+        ) {
           messageCount++;
           return Promise.resolve({
             data: {
@@ -47,7 +53,9 @@ describe("ChatPage", () => {
 
     it("renders messages in correct order (oldest at top, newest at bottom)", async () => {
       const { getByPlaceholderText, queryAllByRole } = render(<ChatPage />);
-      const input = await waitFor(() => getByPlaceholderText("Type in your message here..."));
+      const input = await waitFor(() =>
+        getByPlaceholderText("Type in your message here..."),
+      );
       const sendButton = document.querySelector(".chat-send-button");
 
       // Send first message
