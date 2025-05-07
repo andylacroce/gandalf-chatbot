@@ -82,6 +82,7 @@ body {
 .chat-layout {
   display: flex;
   flex-direction: column;
+  min-height: 100vh;
   height: 100vh;
   width: 100%;
   max-width: 800px;
@@ -153,10 +154,9 @@ body {
   margin-bottom: 10px;
 }
 .chat-input-area {
-  position: fixed;
+  position: sticky;
   bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
   width: 100%;
   max-width: 800px;
   padding: 10px 0;
@@ -204,8 +204,7 @@ body {
 /* Mobile adjustments */
 @media (max-width: 576px) {
   .chat-layout {
-    max-width: 100%;
-    padding: 0 10px;
+    max-width: 100vw;
   }
   .chat-header {
     padding: 5px 0;
@@ -231,6 +230,10 @@ body {
   .chat-status-area {
     min-height: 30px;
     margin-bottom: 5px;
+  }
+  .chat-input-area {
+    max-width: 100vw;
+    padding-bottom: env(safe-area-inset-bottom, 0);
   }
   .user-message,
   .gandalf-message {
