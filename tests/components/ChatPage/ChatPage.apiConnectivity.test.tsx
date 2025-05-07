@@ -17,7 +17,7 @@ describe("ChatPage API connectivity", () => {
 
   it("shows API connectivity error and disables chat if /api/health fails", async () => {
     jest.mocked(axios.get).mockRejectedValue(new Error("Network Error"));
-    const { getByTestId, container } = render(<ChatPage />);
+    const { getByTestId } = render(<ChatPage />);
 
     // Check for API error message
     await waitFor(() => {
@@ -25,18 +25,18 @@ describe("ChatPage API connectivity", () => {
     });
 
     // The input should be present and disabled when API is down
-    const input = container.querySelector(".chat-input");
-    const button = container.querySelector(".chat-send-button");
+    const input = getByTestId("chat-input");
+    const button = getByTestId("chat-send-button");
 
     expect(input).toBeInTheDocument();
     expect(input).toBeDisabled();
     expect(button).toBeDisabled();
-    expect(button?.textContent).toBe("HOLD");
+    expect(button.textContent).toBe("HOLD");
   });
 
   it("does not show API error if /api/health succeeds", async () => {
     jest.mocked(axios.get).mockResolvedValue({ data: { status: "ok" } });
-    const { queryByTestId, getByPlaceholderText, container } = render(
+    const { queryByTestId, getByPlaceholderText, getByTestId } = render(
       <ChatPage />,
     );
 
@@ -44,9 +44,9 @@ describe("ChatPage API connectivity", () => {
       expect(
         getByPlaceholderText("Type in your message here..."),
       ).not.toBeDisabled();
-      const button = container.querySelector(".chat-send-button");
+      const button = getByTestId("chat-send-button");
       expect(button).not.toBeDisabled();
-      expect(button?.textContent).toBe("Send");
+      expect(button.textContent).toBe("Send");
     });
 
     expect(queryByTestId("api-error-message")).not.toBeInTheDocument();
@@ -55,10 +55,10 @@ describe("ChatPage API connectivity", () => {
   it("applies correct styling to disabled elements when API is unavailable", async () => {
     jest.mocked(axios.get).mockRejectedValue(new Error("Service unavailable"));
 
-    const { container } = render(<ChatPage />);
+    const { getByTestId, container } = render(<ChatPage />);
 
     await waitFor(() => {
-      const button = container.querySelector(".chat-send-button");
+      const button = getByTestId("chat-send-button");
       expect(button).toHaveClass("disabled");
 
       // Check that modal backdrop is shown
@@ -66,7 +66,7 @@ describe("ChatPage API connectivity", () => {
       expect(modalBackdrop).toBeInTheDocument();
 
       // Chat input should be empty placeholder when API is down
-      const input = container.querySelector(".chat-input") as HTMLInputElement;
+      const input = getByTestId("chat-input") as HTMLInputElement;
       expect(input.placeholder).toBe("");
     });
   });

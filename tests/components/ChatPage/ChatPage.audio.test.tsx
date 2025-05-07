@@ -54,11 +54,11 @@ describe("ChatPage Audio Integration", () => {
         audioFileUrl: "/api/audio?file=gandalf_reply.mp3",
       },
     });
-    const { getByPlaceholderText, container } = render(<ChatPage />);
-    const input = getByPlaceholderText("Type in your message here...");
-    const sendButton = container.querySelector(".chat-send-button");
+    const { getByTestId } = render(<ChatPage />);
+    const input = getByTestId("chat-input");
+    const sendButton = getByTestId("chat-send-button");
     fireEvent.change(input, { target: { value: "Hello, Gandalf!" } });
-    fireEvent.click(sendButton!);
+    fireEvent.click(sendButton);
     await waitFor(() => {
       expect(audioInstances.length).toBe(1);
       expect(audioInstances[0].play).toHaveBeenCalled();
@@ -84,27 +84,26 @@ describe("ChatPage Audio Integration", () => {
       });
     });
 
-    const { getByPlaceholderText, container, getByText, queryByTestId } =
-      render(<ChatPage />);
-    const input = getByPlaceholderText("Type in your message here...");
-    const sendButton = container.querySelector(".chat-send-button");
+    const { getByTestId, getByText, queryByTestId, container } = render(
+      <ChatPage />,
+    );
+    const input = getByTestId("chat-input");
+    const sendButton = getByTestId("chat-send-button");
 
     // Ensure audio is toggled ON if toggle exists
-    const toggleContainer = container.querySelector(".toggle-container");
-    if (toggleContainer) {
-      const audioLabel = getByText("Audio");
-      expect(audioLabel).toBeInTheDocument();
-      const toggleElement = toggleContainer.querySelector(
-        "[class*='toggle-switch']",
-      );
-      if (toggleElement && !toggleElement.className.includes("checked")) {
-        fireEvent.click(toggleElement);
-      }
+    const toggleContainer = getByTestId("toggle-container");
+    const audioLabel = getByText("Audio");
+    expect(audioLabel).toBeInTheDocument();
+    const toggleElement = toggleContainer.querySelector(
+      "[class*='toggle-switch']",
+    );
+    if (toggleElement && !toggleElement.className.includes("checked")) {
+      fireEvent.click(toggleElement);
     }
 
     // Send first message
     fireEvent.change(input, { target: { value: "Hello" } });
-    fireEvent.click(sendButton!);
+    fireEvent.click(sendButton);
 
     await waitFor(() => {
       expect(audioInstances.length).toBe(1);
@@ -120,7 +119,7 @@ describe("ChatPage Audio Integration", () => {
 
     // Send second message
     fireEvent.change(input, { target: { value: "Hi again" } });
-    fireEvent.click(sendButton!);
+    fireEvent.click(sendButton);
 
     await waitFor(() => {
       expect(audioInstances.length).toBe(2);
@@ -142,24 +141,24 @@ describe("ChatPage Audio Integration", () => {
           audioFileUrl: "/api/audio?file=another.mp3",
         },
       });
-    const { container, getByText } = render(<ChatPage />);
-    const input = container.querySelector(".chat-input") as HTMLInputElement;
-    const sendButton = container.querySelector(".chat-send-button");
+    const { getByTestId, getByText } = render(<ChatPage />);
+    const input = getByTestId("chat-input");
+    const sendButton = getByTestId("chat-send-button");
     fireEvent.change(input, { target: { value: "Hello" } });
-    fireEvent.click(sendButton!);
+    fireEvent.click(sendButton);
     await waitFor(() => expect(audioInstances.length).toBe(1));
     // Toggle audio off
-    const toggleContainer = container.querySelector(".toggle-container");
+    const toggleContainer = getByTestId("toggle-container");
     const audioLabel = getByText("Audio");
     expect(toggleContainer).not.toBeNull();
     expect(audioLabel).toBeInTheDocument();
-    const toggleElement = toggleContainer!.querySelector(
+    const toggleElement = toggleContainer.querySelector(
       "[class*='toggle-switch']",
     );
     fireEvent.click(toggleElement!);
     // Send another message
     fireEvent.change(input, { target: { value: "Another message" } });
-    fireEvent.click(sendButton!);
+    fireEvent.click(sendButton);
     // No new audio should be created
     await waitFor(() => {
       expect(audioInstances.length).toBe(1);

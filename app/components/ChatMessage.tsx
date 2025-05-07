@@ -4,6 +4,7 @@
  */
 
 import React from "react";
+import styles from "./styles/ChatMessage.module.css";
 
 /**
  * Interface representing a chat message's structure.
@@ -37,16 +38,15 @@ const ChatMessage = React.memo(({ message }: { message: Message }) => {
   }
 
   // Determine CSS classes based on message sender
-  const messageClass =
-    message.sender === "User" ? "user-message" : "gandalf-message";
-  const senderClass =
-    message.sender === "User" ? "user-sender" : "gandalf-sender";
+  const isUser = message.sender === "User";
+  const messageClass = isUser ? styles.userMessage : styles.gandalfMessage;
+  const senderClass = isUser ? styles.sender : `${styles.sender} ${styles.gandalfSender}`;
 
   return (
-    <div className={`my-2 ${messageClass}`} role="article">
+    <div className={`my-2 ${styles.message} ${messageClass}`} role="article">
       <div className="rounded p-2 text-sm">
         <div className={`mb-1 ${senderClass}`}>
-          {message.sender === "User" ? "Me" : "Gandalf"}
+          {isUser ? "Me" : "Gandalf"}
         </div>
         {message.text}
       </div>

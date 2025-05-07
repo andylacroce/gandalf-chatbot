@@ -52,15 +52,13 @@ describe("ChatPage", () => {
     });
 
     it("renders messages in correct order (oldest at top, newest at bottom)", async () => {
-      const { getByPlaceholderText, queryAllByRole } = render(<ChatPage />);
-      const input = await waitFor(() =>
-        getByPlaceholderText("Type in your message here..."),
-      );
-      const sendButton = document.querySelector(".chat-send-button");
+      const { getByTestId, queryAllByRole } = render(<ChatPage />);
+      const input = getByTestId("chat-input");
+      const sendButton = getByTestId("chat-send-button");
 
       // Send first message
       fireEvent.change(input, { target: { value: "First message" } });
-      fireEvent.click(sendButton!);
+      fireEvent.click(sendButton);
 
       await waitFor(() => {
         const articles = queryAllByRole("article");
@@ -71,7 +69,7 @@ describe("ChatPage", () => {
 
       // Send second message
       fireEvent.change(input, { target: { value: "Second message" } });
-      fireEvent.click(sendButton!);
+      fireEvent.click(sendButton);
 
       await waitFor(() => {
         const articles = queryAllByRole("article");

@@ -25,7 +25,8 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
         <title>Gandalf Chatbot</title>
       </head>
       <body>
-        <div className="container">{children}</div>
+        {/* Removed .container wrapper to allow sticky positioning to work */}
+        {children}
         <Analytics />
         <SpeedInsights />
       </body>

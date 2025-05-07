@@ -1,0 +1,25 @@
+/* ChatMessage.module.css - styles specific to ChatMessage component */
+
+.message {
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+.userMessage {
+  background-color: var(--user-message-bg);
+  align-self: flex-end;
+  text-align: right;
+}
+.gandalfMessage {
+  background-color: var(--gandalf-message-bg);
+  align-self: flex-start;
+  color: #2d1e12;
+}
+.sender {
+  font-weight: bold;
+  color: var(--color-sender);
+  margin-bottom: 5px;
+}
+.gandalfSender {
+  color: var(--gandalf-sender);
+}

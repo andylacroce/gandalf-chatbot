@@ -38,14 +38,14 @@ describe("ChatPage", () => {
           ),
       );
 
-      const { getByPlaceholderText, container } = render(<ChatPage />);
-      const input = getByPlaceholderText("Type in your message here...");
-      const sendButton = container.querySelector(".chat-send-button");
+      const { getByTestId } = render(<ChatPage />);
+      const input = getByTestId("chat-input");
+      const sendButton = getByTestId("chat-send-button");
       expect(sendButton).toBeInTheDocument();
 
       // Trigger sending message
       fireEvent.change(input, { target: { value: "Hello, Gandalf!" } });
-      fireEvent.click(sendButton!);
+      fireEvent.click(sendButton);
 
       // Verify disabled state during loading
       expect(input).toBeDisabled();
@@ -79,16 +79,14 @@ describe("ChatPage", () => {
           ),
       );
 
-      const { getByPlaceholderText, getByTestId, container } = render(
-        <ChatPage />,
-      );
-      const input = getByPlaceholderText("Type in your message here...");
-      const sendButton = container.querySelector(".chat-send-button");
+      const { getByTestId } = render(<ChatPage />);
+      const input = getByTestId("chat-input");
+      const sendButton = getByTestId("chat-send-button");
       expect(sendButton).toBeInTheDocument();
 
       // Send message
       fireEvent.change(input, { target: { value: "Hello, Gandalf!" } });
-      fireEvent.click(sendButton!);
+      fireEvent.click(sendButton);
 
       // Advance timer to trigger loading state
       jest.advanceTimersByTime(100);
@@ -124,17 +122,15 @@ describe("ChatPage", () => {
           ),
       );
 
-      const { getByPlaceholderText, container, getByText } = render(
-        <ChatPage />,
-      );
-      const input = getByPlaceholderText("Type in your message here...");
-      const sendButton = container.querySelector(".chat-send-button");
+      const { getByTestId } = render(<ChatPage />);
+      const input = getByTestId("chat-input");
+      const sendButton = getByTestId("chat-send-button");
       expect(sendButton).toBeInTheDocument();
       expect(sendButton!.textContent).toBe("Send");
 
       // Send message
       fireEvent.change(input, { target: { value: "Hello, Gandalf!" } });
-      fireEvent.click(sendButton!);
+      fireEvent.click(sendButton);
 
       // Check button text changed to HOLD
       expect(sendButton!.textContent).toBe("HOLD");

@@ -20,6 +20,7 @@ import { downloadTranscript } from "../../src/utils/downloadTranscript"; // Impo
 import ToggleSwitch from "@trendmicro/react-toggle-switch";
 import { v4 as uuidv4 } from "uuid"; // Import uuid
 import "@trendmicro/react-toggle-switch/dist/react-toggle-switch.css";
+import styles from "./styles/ChatPage.module.css";
 
 /**
  * Interface representing a chat message in the conversation.
@@ -275,11 +276,12 @@ const ChatPage = () => {
   );
 
   return (
-    <div className="chat-layout">
+    <div className={styles.chatLayout} data-testid="chat-layout">
       {/* Header area with Gandalf image and controls */}
-      <div className="chat-header">
+      <div className={styles.chatHeader} data-testid="chat-header">
         <div
-          className="toggle-container top-left"
+          className={`${styles.toggleContainer} top-left`}
+          data-testid="toggle-container"
           style={{
             flexDirection: "column",
             alignItems: "flex-start",
@@ -290,21 +292,21 @@ const ChatPage = () => {
             <ToggleSwitch checked={audioEnabled} onChange={handleAudioToggle} />
             <span className="toggle-label">Audio</span>
           </div>
-          <div className="download-transcript-wrapper">
+          <div className={styles.downloadTranscriptWrapper}>
             <button
-              className="download-transcript-link"
+              className={styles.downloadTranscriptLink}
               onClick={handleDownloadTranscript}
               type="button"
               aria-label="Download chat transcript"
             >
-              <span className="download-icon" aria-hidden="true">
+              <span className={styles.downloadIcon} aria-hidden="true">
                 &#128190;
               </span>
-              <span className="download-label">Transcript</span>
+              <span className={styles.downloadLabel}>Transcript</span>
             </button>
           </div>
         </div>
-        <div className="icon-container top-right">
+        <div className={`icon-container top-right ${styles.iconContainer}`}>
           <a
             href="https://mastodon.world/@AndyLacroce"
             target="_blank"
@@ -320,7 +322,7 @@ const ChatPage = () => {
             <Image src="/dexter.webp" alt="Dexter" width={50} height={50} />
           </a>
         </div>
-        <div className="gandalf-image-container">
+        <div className={styles.gandalfImageContainer}>
           <Image
             src="/gandalf.jpg"
             alt="Gandalf"
@@ -334,7 +336,7 @@ const ChatPage = () => {
       </div>
 
       {/* Main scrollable chat area */}
-      <div className="chat-messages-container">
+      <div className="chat-messages-container" data-testid="chat-messages-container">
         <div
           className="chat-messages"
           ref={chatBoxRef}
@@ -350,7 +352,7 @@ const ChatPage = () => {
       </div>
 
       {/* Status area for spinner and error messages */}
-      <div className="chat-status-area">
+      <div className="chat-status-area" data-testid="chat-status-area">
         {loading && (
           <div className="spinner-container" data-testid="loading-indicator">
             <Image
@@ -370,25 +372,27 @@ const ChatPage = () => {
       </div>
 
       {/* Input area fixed at the bottom */}
-      <div className="chat-input-area">
-        <div className="chat-input-container">
+      <div className={styles.chatInputArea} data-testid="chat-input-area">
+        <div className={styles.chatInputContainer} data-testid="chat-input-container">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="chat-input"
+            className={styles.chatInput}
             placeholder={
               !apiAvailable || loading ? "" : "Type in your message here..."
             }
             ref={inputRef}
             disabled={loading || !apiAvailable}
             autoFocus
+            data-testid="chat-input"
           />
           <button
             onClick={sendMessage}
-            className={`chat-send-button ${loading || !apiAvailable ? "disabled" : ""}`}
+            className={`${styles.chatSendButton} ${loading || !apiAvailable ? styles.disabled : ""}`}
             disabled={loading || !apiAvailable}
+            data-testid="chat-send-button"
           >
             {loading || !apiAvailable ? "HOLD" : "Send"}
           </button>
@@ -397,7 +401,7 @@ const ChatPage = () => {
 
       {/* API unavailable modal */}
       {!apiAvailable && (
-        <div className="modal-backdrop">
+        <div className="modal-backdrop" data-testid="modal-backdrop">
           <div
             className="modal-error"
             role="alert"

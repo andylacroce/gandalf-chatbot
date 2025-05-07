@@ -16,16 +16,14 @@ describe("ChatPage", () => {
 
     it("displays an error message when the API call fails", async () => {
       jest.mocked(axios.post).mockRejectedValue(new Error("API call failed"));
-      const { getByPlaceholderText, getByText, container } = render(
-        <ChatPage />,
-      );
+      const { getByTestId, getByText } = render(<ChatPage />);
 
-      const input = getByPlaceholderText("Type in your message here...");
-      const sendButton = container.querySelector(".chat-send-button");
+      const input = getByTestId("chat-input");
+      const sendButton = getByTestId("chat-send-button");
       expect(sendButton).toBeInTheDocument();
 
       fireEvent.change(input, { target: { value: "Hello, Gandalf!" } });
-      fireEvent.click(sendButton!);
+      fireEvent.click(sendButton);
 
       await waitFor(() => {
         expect(
@@ -36,16 +34,14 @@ describe("ChatPage", () => {
 
     it("handles network errors gracefully", async () => {
       jest.mocked(axios.post).mockRejectedValue(new Error("Network Error"));
-      const { getByPlaceholderText, getByText, container } = render(
-        <ChatPage />,
-      );
+      const { getByTestId, getByText } = render(<ChatPage />);
 
-      const input = getByPlaceholderText("Type in your message here...");
-      const sendButton = container.querySelector(".chat-send-button");
+      const input = getByTestId("chat-input");
+      const sendButton = getByTestId("chat-send-button");
       expect(sendButton).toBeInTheDocument();
 
       fireEvent.change(input, { target: { value: "Hello, Gandalf!" } });
-      fireEvent.click(sendButton!);
+      fireEvent.click(sendButton);
 
       await waitFor(() => {
         expect(

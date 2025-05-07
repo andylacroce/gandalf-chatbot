@@ -14,7 +14,7 @@ describe("ChatPage", () => {
     });
 
     it("renders ChatPage component with all key elements", () => {
-      const { getByPlaceholderText, getByAltText, container } = render(
+      const { getByPlaceholderText, getByAltText, getByTestId } = render(
         <ChatPage />,
       );
 
@@ -27,14 +27,13 @@ describe("ChatPage", () => {
       expect(getByAltText("Gandalf")).toBeInTheDocument();
 
       // Check for main structural elements
-      expect(container.querySelector(".chat-layout")).toBeInTheDocument();
-      expect(container.querySelector(".chat-header")).toBeInTheDocument();
-      expect(
-        container.querySelector(".chat-messages-container"),
-      ).toBeInTheDocument();
-      expect(container.querySelector(".chat-messages")).toBeInTheDocument();
-      expect(container.querySelector(".chat-input-area")).toBeInTheDocument();
-      expect(container.querySelector(".chat-status-area")).toBeInTheDocument();
+      expect(getByTestId("chat-layout")).toBeInTheDocument();
+      expect(getByTestId("chat-header")).toBeInTheDocument();
+      expect(getByTestId("chat-messages-container")).toBeInTheDocument();
+      expect(getByTestId("chat-input-area")).toBeInTheDocument();
+      expect(getByTestId("chat-input-container")).toBeInTheDocument();
+      expect(getByTestId("chat-input")).toBeInTheDocument();
+      expect(getByTestId("chat-send-button")).toBeInTheDocument();
     });
   });
 });

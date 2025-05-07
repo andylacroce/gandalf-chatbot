@@ -21,18 +21,15 @@ describe("ChatPage", () => {
           audioFileUrl: "/api/audio?file=gandalf_reply.mp3",
         },
       });
-      const { getByPlaceholderText, getByText, container } = render(
-        <ChatPage />,
-      );
+      const { getByTestId, getByText } = render(<ChatPage />);
 
-      // Find input and send button using the new class names
-      const input = getByPlaceholderText("Type in your message here...");
-      const sendButton = container.querySelector(".chat-send-button");
+      const input = getByTestId("chat-input");
+      const sendButton = getByTestId("chat-send-button");
       expect(sendButton).toBeInTheDocument();
 
       // Send message
       fireEvent.change(input, { target: { value: "Hello, Gandalf!" } });
-      fireEvent.click(sendButton!);
+      fireEvent.click(sendButton);
 
       // Verify API call
       expect(axios.post).toHaveBeenCalledWith("/api/chat", {
@@ -53,16 +50,15 @@ describe("ChatPage", () => {
           audioFileUrl: "/api/audio?file=gandalf_reply.mp3",
         },
       });
-      const { getByPlaceholderText, container } = render(<ChatPage />);
+      const { getByTestId } = render(<ChatPage />);
 
-      // Find input and send button
-      const input = getByPlaceholderText("Type in your message here...");
-      const sendButton = container.querySelector(".chat-send-button");
+      const input = getByTestId("chat-input");
+      const sendButton = getByTestId("chat-send-button");
       expect(sendButton).toBeInTheDocument();
 
       // Send message and check input is cleared
       fireEvent.change(input, { target: { value: "Hello, Gandalf!" } });
-      fireEvent.click(sendButton!);
+      fireEvent.click(sendButton);
 
       await waitFor(() => {
         expect((input as HTMLInputElement).value).toBe("");
@@ -70,11 +66,11 @@ describe("ChatPage", () => {
     });
 
     it("does not send a message when input is empty", () => {
-      const { container } = render(<ChatPage />);
-      const sendButton = container.querySelector(".chat-send-button");
+      const { getByTestId } = render(<ChatPage />);
+      const sendButton = getByTestId("chat-send-button");
       expect(sendButton).toBeInTheDocument();
 
-      fireEvent.click(sendButton!);
+      fireEvent.click(sendButton);
       expect(axios.post).not.toHaveBeenCalled();
     });
 
@@ -85,9 +81,9 @@ describe("ChatPage", () => {
           audioFileUrl: "/api/audio?file=gandalf_reply.mp3",
         },
       });
-      const { getByPlaceholderText, getByText } = render(<ChatPage />);
+      const { getByTestId, getByText } = render(<ChatPage />);
 
-      const input = getByPlaceholderText("Type in your message here...");
+      const input = getByTestId("chat-input");
       fireEvent.change(input, { target: { value: "Hello, Gandalf!" } });
       fireEvent.keyDown(input, { key: "Enter" });
 
