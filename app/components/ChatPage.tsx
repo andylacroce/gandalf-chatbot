@@ -76,14 +76,11 @@ const ChatPage = () => {
     setSessionDatetime(sessionDatetime);
   }, []);
 
-  /**
-   * Extracts the file name from a URL.
-   * Parses the URL and extracts the 'file' query parameter.
-   */
-  const extractFileName = (url: string): string => {
+  // Extracts the file name from a URL, wrapped in useCallback for stable reference
+  const extractFileName = useCallback((url: string): string => {
     const parsedUrl = new URL(url, window.location.origin);
     return parsedUrl.searchParams.get("file") || "";
-  };
+  }, []);
 
   /**
    * Plays an audio file from the provided URL, ensuring only one audio plays at a time.
@@ -213,7 +210,7 @@ const ChatPage = () => {
       }
       return newEnabled;
     });
-  }, [extractFileName]);
+  }, []);
 
   /**
    * Scrolls the chat box to the bottom when new messages arrive.
