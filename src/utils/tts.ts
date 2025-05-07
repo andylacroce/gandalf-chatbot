@@ -72,6 +72,7 @@ export async function synthesizeSpeechToFile({
         throw new Error("TTS API response is missing audioContent");
       }
       fs.writeFileSync(filePath, response.audioContent, "binary");
+      console.log(`[AUDIO CREATE] Created audio file: ${filePath}`);
       // Clean up all other .mp3 files in /tmp except the one just created
       try {
         const tmpDir = path.dirname(filePath);
