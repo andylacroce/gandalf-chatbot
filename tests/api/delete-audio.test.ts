@@ -125,9 +125,9 @@ describe("delete-audio API Handler", () => {
 
     /**
      * Test graceful handling of already deleted files
-     * Should return 200 OK with a specific message when file doesn't exist (ENOENT error)
+     * Should return 404 Not Found when file doesn't exist (ENOENT error)
      */
-    it("should return 200 if the file is already deleted (ENOENT error)", async () => {
+    it("should return 404 if the file is already deleted (ENOENT error)", async () => {
       const { req, res, mockJoin, mockAccess } = createTestObjects();
       req.query = { file: "test.mp3" };
       mockJoin.mockReturnValue("/tmp/test.mp3");
@@ -143,10 +143,8 @@ describe("delete-audio API Handler", () => {
 
       expect(mockJoin).toHaveBeenCalledWith("/tmp", "test.mp3");
       expect(mockAccess).toHaveBeenCalledWith("/tmp/test.mp3");
-      expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith({
-        message: "File already deleted",
-      });
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.json).toHaveBeenCalledWith({ error: "File not found" });
     });
   });
 

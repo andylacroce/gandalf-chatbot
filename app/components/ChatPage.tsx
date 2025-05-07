@@ -51,6 +51,7 @@ const ChatPage = () => {
   const [conversationHistory, setConversationHistory] = useState<Message[]>([]);
   const [sessionId, setSessionId] = useState<string>(""); // State for session ID
   const [sessionDatetime, setSessionDatetime] = useState<string>(""); // State for session datetime
+  const [audioFiles, setAudioFiles] = useState<string[]>([]); // Track all played audio files
 
   // Refs
   const chatBoxRef = useRef<HTMLDivElement>(null);
@@ -75,11 +76,24 @@ const ChatPage = () => {
   }, []);
 
   /**
+   * Extracts the file name from a URL.
+   * Parses the URL and extracts the 'file' query parameter.
+   */
+  const extractFileName = (url: string): string => {
+    const parsedUrl = new URL(url, window.location.origin);
+    return parsedUrl.searchParams.get("file") || "";
+  };
+
+  /**
    * Plays an audio file from the provided URL, ensuring only one audio plays at a time.
    * Stops and cleans up any previous playback before starting a new one.
    */
   const playAudio = useCallback(async (audioFileUrl: string) => {
-    // Always pause and reset previous audio before playing new audio
+    const currentFileName = extractFileName(audioFileUrl);
+    setAudioFiles((prev) => {
+      if (!prev.includes(currentFileName)) return [...prev, currentFileName];
+      return prev;
+    });
     if (audioRef.current) {
       if (typeof audioRef.current.pause === "function") {
         audioRef.current.pause();
@@ -87,42 +101,21 @@ const ChatPage = () => {
       if (typeof audioRef.current.currentTime === "number") {
         audioRef.current.currentTime = 0;
       }
-      try {
-        const previousAudioFileName = extractFileName(audioRef.current.src);
-        if (
-          previousAudioFileName &&
-          previousAudioFileName !== extractFileName(audioFileUrl)
-        ) {
-          await axios.delete(`/api/delete-audio?file=${previousAudioFileName}`);
-        }
-      } catch (error) {
-        console.error("Error deleting previous audio file:", error);
-      }
-      // Do NOT set audioRef.current = null here!
     }
-
-    // Always create a new Audio instance for each playback
+    // No more frontend cleanup of old files
     const audio = new Audio(audioFileUrl);
     audioRef.current = audio;
     if (typeof (audio as any)._paused !== "undefined") {
       (audio as any)._paused = false;
     }
     audio.play();
-
     audio.onended = async () => {
-      try {
-        const currentAudioFileName = extractFileName(audioFileUrl);
-        await axios.delete(`/api/delete-audio?file=${currentAudioFileName}`);
-      } catch (error) {
-        console.error("Error deleting audio file:", error);
-      }
       if (audioRef.current === audio) {
         audioRef.current = null;
       }
     };
-
     return audio;
-  }, []);
+  }, [extractFileName]);
 
   // Function to log message asynchronously
   const logMessage = useCallback(
@@ -208,34 +201,18 @@ const ChatPage = () => {
    * When toggled off, it stops any currently playing audio and cleans up resources.
    */
   const handleAudioToggle = useCallback(() => {
-    setAudioEnabled(!audioEnabled);
-
-    if (audioRef.current && audioEnabled) {
-      // Pause and reset the current audio
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-
-      // Delete the current audio file
-      const currentAudioFileName = extractFileName(audioRef.current.src);
-      axios
-        .delete(`/api/delete-audio?file=${currentAudioFileName}`)
-        .catch((error) => {
-          console.error("Error deleting current audio file:", error);
-        });
-
-      // Clear the current audio ref
-      audioRef.current = null;
-    }
-  }, [audioEnabled]);
-
-  /**
-   * Extracts the file name from a URL.
-   * Parses the URL and extracts the 'file' query parameter.
-   */
-  const extractFileName = (url: string): string => {
-    const parsedUrl = new URL(url, window.location.origin);
-    return parsedUrl.searchParams.get("file") || "";
-  };
+    setAudioEnabled((prev) => {
+      const newEnabled = !prev;
+      if (!newEnabled) {
+        // Only pause/reset audio, do not delete files
+        if (audioRef.current) {
+          audioRef.current.pause();
+          audioRef.current.currentTime = 0;
+        }
+      }
+      return newEnabled;
+    });
+  }, [extractFileName]);
 
   /**
    * Scrolls the chat box to the bottom when new messages arrive.

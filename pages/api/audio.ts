@@ -34,16 +34,9 @@ export default async function handler(
   let normalizedAudioFilePath = checkFileExists(audioFilePath);
   let normalizedLocalFilePath = checkFileExists(localFilePath);
   let found = false;
-  for (let i = 0; i < 5; i++) {
-    if (normalizedAudioFilePath || normalizedLocalFilePath) {
-      found = true;
-      break;
-    }
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    normalizedAudioFilePath = checkFileExists(audioFilePath);
-    normalizedLocalFilePath = checkFileExists(localFilePath);
-  }
-  // Regenerate audio if missing but text is available
+
+  // Only wait for file if we just tried to regenerate it
+  let triedRegenerate = false;
   if (!normalizedAudioFilePath && !normalizedLocalFilePath) {
     let originalText = getOriginalTextForAudio(sanitizedFile);
     if (!originalText) {
@@ -56,6 +49,7 @@ export default async function handler(
           filePath: audioFilePath,
           ssml: true,
         });
+        triedRegenerate = true;
         normalizedAudioFilePath = checkFileExists(audioFilePath);
         found = !!normalizedAudioFilePath;
       } catch (err) {
@@ -65,6 +59,15 @@ export default async function handler(
       }
     }
   }
+  // If we just regenerated, wait for file to appear (retry up to 5 times)
+  if (triedRegenerate && !normalizedAudioFilePath) {
+    for (let i = 0; i < 5; i++) {
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      normalizedAudioFilePath = checkFileExists(audioFilePath);
+      if (normalizedAudioFilePath) break;
+    }
+  }
+
   // Security: only allow files in /tmp or /public
   const allowedTmp = path.resolve("/tmp");
   const allowedPublic = path.resolve("public");

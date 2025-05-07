@@ -56,16 +56,47 @@ export async function synthesizeSpeechToFile({
     languageCode: (voice.languageCodes && voice.languageCodes[0]) || "en-GB",
   };
   delete apiVoice.languageCodes;
-  const request: protos.google.cloud.texttospeech.v1.ISynthesizeSpeechRequest =
-    {
-      input,
-      voice: apiVoice,
-      audioConfig,
-    };
+  const request: protos.google.cloud.texttospeech.v1.ISynthesizeSpeechRequest = {
+    input,
+    voice: apiVoice,
+    audioConfig,
+  };
   const client = getTTSClient();
-  const [response] = await client.synthesizeSpeech(request);
-  if (!response || !response.audioContent) {
-    throw new Error("TTS API response is missing audioContent");
+
+  // Retry logic for TTS
+  let lastError: any = null;
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const [response] = await client.synthesizeSpeech(request);
+      if (!response || !response.audioContent) {
+        throw new Error("TTS API response is missing audioContent");
+      }
+      fs.writeFileSync(filePath, response.audioContent, "binary");
+      // Clean up all other .mp3 files in /tmp except the one just created
+      try {
+        const tmpDir = path.dirname(filePath);
+        const newFile = path.basename(filePath);
+        const files = fs.readdirSync(tmpDir);
+        for (const file of files) {
+          if (file.endsWith('.mp3') && file !== newFile) {
+            try {
+              fs.unlinkSync(path.join(tmpDir, file));
+              console.log(`[AUDIO CLEANUP] Deleted old audio file: ${file}`);
+            } catch (err) {
+              console.warn(`[AUDIO CLEANUP] Failed to delete file: ${file}`, err);
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('[AUDIO CLEANUP] Error during cleanup:', err);
+      }
+      return;
+    } catch (err) {
+      lastError = err;
+      if (attempt < 3) {
+        await new Promise((resolve) => setTimeout(resolve, 500));
+      }
+    }
   }
-  fs.writeFileSync(filePath, response.audioContent, "binary");
+  throw lastError;
 }

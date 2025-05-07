@@ -23,7 +23,7 @@ export default async function handler(
     return res.status(200).json({ message: "File deleted" });
   } catch (error: any) {
     if (error.code === "ENOENT") {
-      return res.status(200).json({ message: "File already deleted" });
+      return res.status(404).json({ error: "File not found" });
     }
     return res.status(500).json({ error: "Error deleting file" });
   }
