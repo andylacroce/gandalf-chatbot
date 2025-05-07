@@ -4,8 +4,10 @@
 # - Triggers on pull requests and pushes to main or master.
 # - Checks out the code and sets up Node.js 20.
 # - Installs dependencies with npm ci.
-# - Runs all tests using npm test.
-# - Fails the workflow if any test fails.
+# - Runs linting and type checking.
+# - Runs all tests with coverage using npm test.
+# - Uploads the coverage report as an artifact.
+# - Fails the workflow if any step fails.
 #
 # Use this workflow to ensure code quality and prevent merging code that breaks tests.
 
@@ -29,4 +31,11 @@ jobs:
         with:
           node-version: 20
       - run: npm ci
-      - run: npm test
+      - run: npm run lint
+      - run: npm run type-check
+      - run: npm test -- --coverage
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
