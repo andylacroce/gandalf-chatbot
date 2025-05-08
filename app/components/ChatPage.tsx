@@ -16,11 +16,18 @@ import axios from "axios";
 import "../globals.css";
 import Image from "next/image";
 import ChatMessage from "./ChatMessage";
+import ChatMessagesList from "./ChatMessagesList";
 import { downloadTranscript } from "../../src/utils/downloadTranscript"; // Import the utility
 import ToggleSwitch from "@trendmicro/react-toggle-switch";
 import { v4 as uuidv4 } from "uuid"; // Import uuid
 import "@trendmicro/react-toggle-switch/dist/react-toggle-switch.css";
 import styles from "./styles/ChatPage.module.css";
+import { useSession } from "./useSession";
+import { useAudioPlayer } from "./useAudioPlayer";
+import ChatInput from "./ChatInput";
+import ChatStatus from "./ChatStatus";
+import ApiUnavailableModal from "./ApiUnavailableModal";
+import ChatHeader from "./ChatHeader";
 
 /**
  * Interface representing a chat message in the conversation.
@@ -50,90 +57,19 @@ const ChatPage = () => {
   const [audioEnabled, setAudioEnabled] = useState<boolean>(true);
   const [apiAvailable, setApiAvailable] = useState<boolean>(true);
   const [conversationHistory, setConversationHistory] = useState<Message[]>([]);
-  const [sessionId, setSessionId] = useState<string>(""); // State for session ID
-  const [sessionDatetime, setSessionDatetime] = useState<string>(""); // State for session datetime
+  const [sessionId, sessionDatetime] = useSession(); // Use useSession hook
   const [audioFiles, setAudioFiles] = useState<string[]>([]); // Track all played audio files
 
   // Refs
   const chatBoxRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const audioEnabledRef = useRef(audioEnabled);
   useEffect(() => {
     audioEnabledRef.current = audioEnabled;
   }, [audioEnabled]);
 
-  // Generate a new session ID and session datetime on every mount
-  useEffect(() => {
-    let newSessionId = "";
-    let sessionDatetime = "";
-    if (typeof window !== "undefined") {
-      newSessionId = uuidv4();
-      const now = new Date();
-      const pad = (n: number) => n.toString().padStart(2, "0");
-      sessionDatetime = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
-      sessionStorage.setItem("gandalf-session-id", newSessionId);
-      sessionStorage.setItem("gandalf-session-datetime", sessionDatetime);
-    }
-    setSessionId(newSessionId);
-    setSessionDatetime(sessionDatetime);
-  }, []);
-
-  // Extracts the file name from a URL, wrapped in useCallback for stable reference
-  const extractFileName = useCallback((url: string): string => {
-    const parsedUrl = new URL(url, window.location.origin);
-    return parsedUrl.searchParams.get("file") || "";
-  }, []);
-
-  /**
-   * Plays an audio file from the provided URL, ensuring only one audio plays at a time.
-   * Stops and cleans up any previous playback before starting a new one.
-   * Now respects the audioEnabled state and will not play audio if toggled off.
-   */
-  const playAudio = useCallback(async (audioFileUrl: string) => {
-    // Check audioEnabled immediately using ref
-    if (!audioEnabledRef.current) return;
-    const currentFileName = extractFileName(audioFileUrl);
-    setAudioFiles((prev) => {
-      if (!prev.includes(currentFileName)) return [...prev, currentFileName];
-      return prev;
-    });
-    if (audioRef.current) {
-      if (typeof audioRef.current.pause === "function") {
-        audioRef.current.pause();
-      }
-      if (typeof audioRef.current.currentTime === "number") {
-        audioRef.current.currentTime = 0;
-      }
-    }
-    const audio = new Audio(audioFileUrl);
-    audioRef.current = audio;
-    if (typeof (audio as any)._paused !== "undefined") {
-      (audio as any)._paused = false;
-    }
-    // Check audioEnabled again after creating the audio object
-    if (!audioEnabledRef.current) return;
-    // Add a 'play' event listener to abort if audioEnabled is false at play time
-    const handlePlay = () => {
-      if (!audioEnabledRef.current) {
-        audio.pause();
-        audio.currentTime = 0;
-      }
-    };
-    audio.addEventListener('play', handlePlay);
-    // Clean up the event listener on end
-    audio.onended = async () => {
-      audio.removeEventListener('play', handlePlay);
-      if (audioRef.current === audio) {
-        audioRef.current = null;
-      }
-    };
-    // Play only if audioEnabled is still true
-    if (!audioEnabledRef.current) return;
-    audio.play();
-    return audio;
-  }, [extractFileName]);
+  const { playAudio, audioRef } = useAudioPlayer(audioEnabledRef);
 
   // Function to log message asynchronously
   const logMessage = useCallback(
@@ -230,7 +166,7 @@ const ChatPage = () => {
       }
       return newEnabled;
     });
-  }, []);
+  }, [audioRef]);
 
   /**
    * Scrolls the chat box to the bottom when new messages arrive.
@@ -301,128 +237,34 @@ const ChatPage = () => {
     }
   };
 
-  /**
-   * Render messages so the latest is last (bottom)
-   */
-  const renderedMessages = useMemo(
-    () =>
-      messages.map((msg, index) => <ChatMessage key={index} message={msg} />),
-    [messages],
-  );
-
   return (
     <div className={styles.chatLayout} data-testid="chat-layout">
-      <div className={styles.chatHeader} data-testid="chat-header">
-        <div className={styles.chatHeaderContent}>
-          <div className={styles.toggleContainer} data-testid="toggle-container">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <ToggleSwitch checked={audioEnabled} onChange={handleAudioToggle} />
-              <span className="toggle-label">Audio</span>
-            </div>
-            <div className={styles.downloadTranscriptWrapper}>
-              <button
-                className={styles.downloadTranscriptLink}
-                onClick={handleDownloadTranscript}
-                type="button"
-                aria-label="Download chat transcript"
-              >
-                <span className={styles.downloadIcon} aria-hidden="true">
-                  &#128190;
-                </span>
-                <span className={styles.downloadLabel}>Transcript</span>
-              </button>
-            </div>
-          </div>
-          <div className={styles.gandalfImageContainer}>
-            <Image
-              src="/gandalf.jpg"
-              alt="Gandalf"
-              priority={true}
-              width={150}
-              height={150}
-              className="rounded-circle"
-              style={{ objectFit: 'cover' }}
-            />
-          </div>
-          <div className={styles.iconContainer}>
-            <a
-              href="https://mastodon.world/@AndyLacroce"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Image src="/mastodon.png" alt="Mastodon" width={50} height={50} />
-            </a>
-            <a
-              href="https://www.andylacroce.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Image src="/dexter.webp" alt="Dexter" width={50} height={50} />
-            </a>
-          </div>
-        </div>
-      </div>
-      <div className={styles.chatMessagesScroll} data-testid="chat-messages-container" ref={chatBoxRef} style={{ paddingTop: 20 }}>
-        {renderedMessages}
-        <div ref={messagesEndRef} />
-      </div>
+      <ChatHeader
+        audioEnabled={audioEnabled}
+        onAudioToggle={handleAudioToggle}
+        onDownloadTranscript={handleDownloadTranscript}
+      />
+      <ChatMessagesList
+        messages={messages}
+        messagesEndRef={messagesEndRef}
+        className={styles.chatMessagesScroll}
+      />
       {loading && (
         <div data-testid="loading-indicator" className={styles.spinnerContainerFixed}>
           <Image src="/ring.gif" alt="Loading..." width={40} height={40} unoptimized />
         </div>
       )}
-      <div className={styles.chatInputArea} data-testid="chat-input-area">
-        <div className={styles.chatInputContainer} data-testid="chat-input-container">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            className={styles.chatInput}
-            placeholder={!apiAvailable || loading ? "" : "Type in your message here..."}
-            ref={inputRef}
-            disabled={loading || !apiAvailable}
-            autoFocus
-            data-testid="chat-input"
-          />
-          <button
-            onClick={sendMessage}
-            className={`${styles.chatSendButton} ${loading || !apiAvailable ? styles.disabled : ""}`}
-            disabled={loading || !apiAvailable}
-            data-testid="chat-send-button"
-          >
-            {loading || !apiAvailable ? "HOLD" : "Send"}
-          </button>
-        </div>
-      </div>
-      {/* Status area for error messages only */}
-      <div className="chat-status-area" data-testid="chat-status-area">
-        {error && (
-          <div className="alert alert-danger" data-testid="error-message">
-            {error}
-          </div>
-        )}
-      </div>
-      {/* API unavailable modal */}
-      {!apiAvailable && (
-        <div className="modal-backdrop" data-testid="modal-backdrop">
-          <div
-            className="modal-error"
-            role="alert"
-            data-testid="api-error-message"
-          >
-            <span
-              className="api-error-title"
-              style={{ color: "var(--color-text)" }}
-            >
-              Gandalf is resting his eyes.
-            </span>
-            <span className="api-error-desc">
-              The chat is asleep for now. Please return soon!
-            </span>
-          </div>
-        </div>
-      )}
+      <ChatInput
+        input={input}
+        setInput={setInput}
+        onSend={sendMessage}
+        onKeyDown={handleKeyDown}
+        loading={loading}
+        apiAvailable={apiAvailable}
+        inputRef={inputRef}
+      />
+      <ChatStatus error={error} />
+      <ApiUnavailableModal show={!apiAvailable} />
     </div>
   );
 };
