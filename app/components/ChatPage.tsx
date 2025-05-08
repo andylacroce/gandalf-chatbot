@@ -228,12 +228,30 @@ const ChatPage = () => {
     scrollToBottom();
   }, [messages, scrollToBottom]);
 
+  // Scroll to bottom on window resize (e.g., mobile keyboard appears)
+  useEffect(() => {
+    const handleResize = () => {
+      scrollToBottom();
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [scrollToBottom]);
+
   // Focus input field on mount
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
     }
   }, []);
+
+  // Scroll to bottom when input is focused (mobile keyboard)
+  useEffect(() => {
+    const input = inputRef.current;
+    if (!input) return;
+    const handleFocus = () => scrollToBottom();
+    input.addEventListener('focus', handleFocus);
+    return () => input.removeEventListener('focus', handleFocus);
+  }, [scrollToBottom]);
 
   // Re-focus input field after loading completes
   useEffect(() => {
