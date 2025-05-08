@@ -9,7 +9,7 @@
   max-height: 100vh;
   margin: 0;
   background: var(--color-background);
-  overflow: hidden;
+  min-height: 0; /* Ensure flex children can shrink for scrolling */
 }
 
 .chatHeader {
@@ -44,6 +44,7 @@
 
 .chatMessagesScroll {
   flex: 1 1 auto;
+  min-height: 0; /* Required for flexbox scroll */
   overflow-y: auto;
   overflow-x: hidden;
   display: flex;

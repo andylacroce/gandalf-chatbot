@@ -292,7 +292,6 @@ const ChatPage = () => {
 
   return (
     <div className={styles.chatLayout} data-testid="chat-layout">
-      {/* Header fixed at the top */}
       <div className={styles.chatHeader} data-testid="chat-header">
         <div className={styles.chatHeaderContent}>
           <div className={styles.toggleContainer} data-testid="toggle-container">
@@ -343,44 +342,15 @@ const ChatPage = () => {
           </div>
         </div>
       </div>
-
-      {/* Main scrollable chat area */}
-      <div
-        className={styles.chatMessagesScroll}
-        data-testid="chat-messages-container"
-        ref={chatBoxRef}
-        style={{ paddingTop: 20 }} // Add top padding instead of spacer div
-      >
+      <div className={styles.chatMessagesScroll} data-testid="chat-messages-container" ref={chatBoxRef} style={{ paddingTop: 20 }}>
         {renderedMessages}
         <div ref={messagesEndRef} />
       </div>
-
-      {/* Spinner in a fixed-height, fixed-position div above the input bar */}
       {loading && (
-        <div
-          data-testid="loading-indicator"
-          className={styles.spinnerContainerFixed}
-        >
-          <Image
-            src="/ring.gif"
-            alt="Loading..."
-            width={40}
-            height={40}
-            unoptimized
-          />
+        <div data-testid="loading-indicator" className={styles.spinnerContainerFixed}>
+          <Image src="/ring.gif" alt="Loading..." width={40} height={40} unoptimized />
         </div>
       )}
-
-      {/* Status area for error messages only */}
-      <div className="chat-status-area" data-testid="chat-status-area">
-        {error && (
-          <div className="alert alert-danger" data-testid="error-message">
-            {error}
-          </div>
-        )}
-      </div>
-
-      {/* Input area fixed at the bottom */}
       <div className={styles.chatInputArea} data-testid="chat-input-area">
         <div className={styles.chatInputContainer} data-testid="chat-input-container">
           <input
@@ -389,9 +359,7 @@ const ChatPage = () => {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             className={styles.chatInput}
-            placeholder={
-              !apiAvailable || loading ? "" : "Type in your message here..."
-            }
+            placeholder={!apiAvailable || loading ? "" : "Type in your message here..."}
             ref={inputRef}
             disabled={loading || !apiAvailable}
             autoFocus
@@ -407,7 +375,14 @@ const ChatPage = () => {
           </button>
         </div>
       </div>
-
+      {/* Status area for error messages only */}
+      <div className="chat-status-area" data-testid="chat-status-area">
+        {error && (
+          <div className="alert alert-danger" data-testid="error-message">
+            {error}
+          </div>
+        )}
+      </div>
       {/* API unavailable modal */}
       {!apiAvailable && (
         <div className="modal-backdrop" data-testid="modal-backdrop">
