@@ -264,7 +264,7 @@ const ChatPage = () => {
   };
 
   /**
-   * Correctly renders the messages so the latest is at the bottom (bottom-up)
+   * Render messages so the latest is last (bottom)
    */
   const renderedMessages = useMemo(
     () =>
@@ -274,93 +274,90 @@ const ChatPage = () => {
 
   return (
     <div className={styles.chatLayout} data-testid="chat-layout">
-      {/* Header area with Gandalf image and controls */}
+      {/* Header fixed at the top */}
       <div className={styles.chatHeader} data-testid="chat-header">
-        <div
-          className={`${styles.toggleContainer} top-left`}
-          data-testid="toggle-container"
-          style={{
-            flexDirection: "column",
-            alignItems: "flex-start",
-            gap: "1.2rem",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <ToggleSwitch checked={audioEnabled} onChange={handleAudioToggle} />
-            <span className="toggle-label">Audio</span>
+        <div className={styles.chatHeaderContent}>
+          <div className={styles.toggleContainer} data-testid="toggle-container">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <ToggleSwitch checked={audioEnabled} onChange={handleAudioToggle} />
+              <span className="toggle-label">Audio</span>
+            </div>
+            <div className={styles.downloadTranscriptWrapper}>
+              <button
+                className={styles.downloadTranscriptLink}
+                onClick={handleDownloadTranscript}
+                type="button"
+                aria-label="Download chat transcript"
+              >
+                <span className={styles.downloadIcon} aria-hidden="true">
+                  &#128190;
+                </span>
+                <span className={styles.downloadLabel}>Transcript</span>
+              </button>
+            </div>
           </div>
-          <div className={styles.downloadTranscriptWrapper}>
-            <button
-              className={styles.downloadTranscriptLink}
-              onClick={handleDownloadTranscript}
-              type="button"
-              aria-label="Download chat transcript"
+          <div className={styles.gandalfImageContainer}>
+            <Image
+              src="/gandalf.jpg"
+              alt="Gandalf"
+              priority={true}
+              width={150}
+              height={150}
+              className="rounded-circle"
+              style={{ objectFit: 'cover' }}
+            />
+          </div>
+          <div className={styles.iconContainer}>
+            <a
+              href="https://mastodon.world/@AndyLacroce"
+              target="_blank"
+              rel="noopener noreferrer"
             >
-              <span className={styles.downloadIcon} aria-hidden="true">
-                &#128190;
-              </span>
-              <span className={styles.downloadLabel}>Transcript</span>
-            </button>
+              <Image src="/mastodon.png" alt="Mastodon" width={50} height={50} />
+            </a>
+            <a
+              href="https://www.andylacroce.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Image src="/dexter.webp" alt="Dexter" width={50} height={50} />
+            </a>
           </div>
-        </div>
-        <div className={`icon-container top-right ${styles.iconContainer}`}>
-          <a
-            href="https://mastodon.world/@AndyLacroce"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image src="/mastodon.png" alt="Mastodon" width={50} height={50} />
-          </a>
-          <a
-            href="https://www.andylacroce.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image src="/dexter.webp" alt="Dexter" width={50} height={50} />
-          </a>
-        </div>
-        <div className={styles.gandalfImageContainer}>
-          <Image
-            src="/gandalf.jpg"
-            alt="Gandalf"
-            priority={true}
-            width={150}
-            height={150}
-            className="rounded-circle"
-            style={{ objectFit: "cover" }}
-          />
         </div>
       </div>
 
       {/* Main scrollable chat area */}
-      <div className="chat-messages-container" data-testid="chat-messages-container">
-        <div
-          className="chat-messages"
-          ref={chatBoxRef}
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "flex-end",
-          }}
-        >
-          {renderedMessages}
-          <div ref={messagesEndRef} />
-        </div>
+      <div
+        className={styles.chatMessagesScroll}
+        data-testid="chat-messages-container"
+        ref={chatBoxRef}
+      >
+        {/* Spacer for header image (Gandalf) to reduce top margin */}
+        <div style={{ height: 20, flex: '0 0 20px' }} />
+        {renderedMessages}
+        <div ref={messagesEndRef} />
+        {/* Spacer for spinner so chat bubbles never overlap it */}
+        <div style={{ height: loading ? 70 : 0, flex: `0 0 ${loading ? 70 : 0}px` }} />
       </div>
 
-      {/* Status area for spinner and error messages */}
+      {/* Spinner in a fixed-height, fixed-position div above the input bar */}
+      {loading && (
+        <div
+          data-testid="loading-indicator"
+          className={styles.spinnerContainerFixed}
+        >
+          <Image
+            src="/ring.gif"
+            alt="Loading..."
+            width={40}
+            height={40}
+            unoptimized
+          />
+        </div>
+      )}
+
+      {/* Status area for error messages only */}
       <div className="chat-status-area" data-testid="chat-status-area">
-        {loading && (
-          <div className="spinner-container" data-testid="loading-indicator">
-            <Image
-              src="/ring.gif"
-              alt="Loading..."
-              width={40}
-              height={40}
-              unoptimized
-            />
-          </div>
-        )}
         {error && (
           <div className="alert alert-danger" data-testid="error-message">
             {error}
@@ -369,7 +366,7 @@ const ChatPage = () => {
       </div>
 
       {/* Input area fixed at the bottom */}
-      <div className={styles.chatInputArea} data-testid="chat-input-area">
+      <div className={styles.chatInputArea} data-testid="chat-input-area" style={{ position: 'fixed', left: '50%', transform: 'translateX(-50%)', bottom: 0, width: '100%', maxWidth: 800, zIndex: 10 }}>
         <div className={styles.chatInputContainer} data-testid="chat-input-container">
           <input
             type="text"

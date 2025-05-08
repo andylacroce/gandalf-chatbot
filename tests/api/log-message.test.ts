@@ -20,7 +20,8 @@ describe("/api/log-message", () => {
         sessionDatetime: "2025-05-03T12-00-00",
       },
     });
-    await handler(req, res);
+    (req as any).env = {}; // Add missing env property
+    await handler(req as any, res as any);
     expect(res._getStatusCode()).toBe(200);
     expect(JSON.parse(res._getData())).toHaveProperty("success", true);
   });
@@ -30,13 +31,15 @@ describe("/api/log-message", () => {
       method: "POST",
       body: { sender: "user" },
     });
-    await handler(req, res);
+    (req as any).env = {}; // Add missing env property
+    await handler(req as any, res as any);
     expect(res._getStatusCode()).toBe(400);
   });
 
   it("returns 405 for GET", async () => {
     const { req, res } = createMocks({ method: "GET" });
-    await handler(req, res);
+    (req as any).env = {}; // Add missing env property
+    await handler(req as any, res as any);
     expect(res._getStatusCode()).toBe(405);
   });
 });
