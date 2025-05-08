@@ -85,6 +85,7 @@ const ChatPage = () => {
   /**
    * Plays an audio file from the provided URL, ensuring only one audio plays at a time.
    * Stops and cleans up any previous playback before starting a new one.
+   * Now respects the audioEnabled state and will not play audio if toggled off.
    */
   const playAudio = useCallback(async (audioFileUrl: string) => {
     const currentFileName = extractFileName(audioFileUrl);
@@ -106,6 +107,8 @@ const ChatPage = () => {
     if (typeof (audio as any)._paused !== "undefined") {
       (audio as any)._paused = false;
     }
+    // Check audioEnabled right before playing to avoid race condition
+    if (!audioEnabled) return;
     audio.play();
     audio.onended = async () => {
       if (audioRef.current === audio) {
@@ -113,7 +116,7 @@ const ChatPage = () => {
       }
     };
     return audio;
-  }, [extractFileName]);
+  }, [extractFileName, audioEnabled]);
 
   // Function to log message asynchronously
   const logMessage = useCallback(

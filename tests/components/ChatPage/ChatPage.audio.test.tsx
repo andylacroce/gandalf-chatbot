@@ -164,4 +164,32 @@ describe("ChatPage Audio Integration", () => {
       expect(audioInstances.length).toBe(1);
     });
   });
+
+  it("does not play audio if toggled off right before playback (race condition)", async () => {
+    jest.mocked(axios.post).mockResolvedValue({
+      data: {
+        reply: "Race condition test",
+        audioFileUrl: "/api/audio?file=race.mp3",
+      },
+    });
+    const { getByTestId, getByText } = render(<ChatPage />);
+    const input = getByTestId("chat-input");
+    const sendButton = getByTestId("chat-send-button");
+    // Toggle audio ON if not already
+    const toggleContainer = getByTestId("toggle-container");
+    const audioLabel = getByText("Audio");
+    const toggleElement = toggleContainer.querySelector("[class*='toggle-switch']");
+    if (toggleElement && !toggleElement.className.includes("checked")) {
+      fireEvent.click(toggleElement);
+    }
+    // Simulate user typing and clicking send
+    fireEvent.change(input, { target: { value: "Test race" } });
+    // Immediately toggle audio OFF just before sending
+    fireEvent.click(toggleElement!);
+    fireEvent.click(sendButton);
+    // Wait to ensure no audio is played
+    await waitFor(() => {
+      expect(audioInstances.length).toBe(0);
+    });
+  });
 });
