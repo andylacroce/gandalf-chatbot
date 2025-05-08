@@ -59,6 +59,10 @@ const ChatPage = () => {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const audioEnabledRef = useRef(audioEnabled);
+  useEffect(() => {
+    audioEnabledRef.current = audioEnabled;
+  }, [audioEnabled]);
 
   // Generate a new session ID and session datetime on every mount
   useEffect(() => {
@@ -88,6 +92,8 @@ const ChatPage = () => {
    * Now respects the audioEnabled state and will not play audio if toggled off.
    */
   const playAudio = useCallback(async (audioFileUrl: string) => {
+    // Check audioEnabled immediately using ref
+    if (!audioEnabledRef.current) return;
     const currentFileName = extractFileName(audioFileUrl);
     setAudioFiles((prev) => {
       if (!prev.includes(currentFileName)) return [...prev, currentFileName];
@@ -101,22 +107,33 @@ const ChatPage = () => {
         audioRef.current.currentTime = 0;
       }
     }
-    // No more frontend cleanup of old files
     const audio = new Audio(audioFileUrl);
     audioRef.current = audio;
     if (typeof (audio as any)._paused !== "undefined") {
       (audio as any)._paused = false;
     }
-    // Check audioEnabled right before playing to avoid race condition
-    if (!audioEnabled) return;
-    audio.play();
+    // Check audioEnabled again after creating the audio object
+    if (!audioEnabledRef.current) return;
+    // Add a 'play' event listener to abort if audioEnabled is false at play time
+    const handlePlay = () => {
+      if (!audioEnabledRef.current) {
+        audio.pause();
+        audio.currentTime = 0;
+      }
+    };
+    audio.addEventListener('play', handlePlay);
+    // Clean up the event listener on end
     audio.onended = async () => {
+      audio.removeEventListener('play', handlePlay);
       if (audioRef.current === audio) {
         audioRef.current = null;
       }
     };
+    // Play only if audioEnabled is still true
+    if (!audioEnabledRef.current) return;
+    audio.play();
     return audio;
-  }, [extractFileName, audioEnabled]);
+  }, [extractFileName]);
 
   // Function to log message asynchronously
   const logMessage = useCallback(
