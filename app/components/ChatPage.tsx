@@ -349,9 +349,8 @@ const ChatPage = () => {
         className={styles.chatMessagesScroll}
         data-testid="chat-messages-container"
         ref={chatBoxRef}
+        style={{ paddingTop: 20 }} // Add top padding instead of spacer div
       >
-        {/* Spacer for header image (Gandalf) to reduce top margin */}
-        <div style={{ height: 20, flex: '0 0 20px' }} />
         {renderedMessages}
         <div ref={messagesEndRef} />
       </div>
@@ -382,7 +381,7 @@ const ChatPage = () => {
       </div>
 
       {/* Input area fixed at the bottom */}
-      <div className={styles.chatInputArea} data-testid="chat-input-area" style={{ position: 'fixed', left: '50%', transform: 'translateX(-50%)', bottom: 0, width: '100%', maxWidth: 800, zIndex: 10 }}>
+      <div className={styles.chatInputArea} data-testid="chat-input-area">
         <div className={styles.chatInputContainer} data-testid="chat-input-container">
           <input
             type="text"

@@ -45,6 +45,7 @@
 .chatMessagesScroll {
   flex: 1 1 auto;
   overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -56,6 +57,7 @@
   padding-right: 12px;
   position: relative;
   padding-bottom: 70px; /* Only account for input area, not spinner, to avoid double spacing */
+  min-height: 0; /* allow flexbox to shrink for scrolling */
 }
 
 .spinnerContainerFixed {
@@ -65,8 +67,9 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100vw;
-  max-width: 100vw;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
   pointer-events: none;
   height: 70px;
 }
@@ -76,8 +79,9 @@
   bottom: 0;
   left: 0;
   right: 0;
-  width: 100vw;
-  max-width: 100vw;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
   background: var(--color-background);
   z-index: 200;
   box-shadow: 0 -2px 12px #000a;
