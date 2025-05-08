@@ -354,8 +354,6 @@ const ChatPage = () => {
         <div style={{ height: 20, flex: '0 0 20px' }} />
         {renderedMessages}
         <div ref={messagesEndRef} />
-        {/* Spacer for spinner so chat bubbles never overlap it */}
-        <div style={{ height: loading ? 70 : 0, flex: `0 0 ${loading ? 70 : 0}px` }} />
       </div>
 
       {/* Spinner in a fixed-height, fixed-position div above the input bar */}
