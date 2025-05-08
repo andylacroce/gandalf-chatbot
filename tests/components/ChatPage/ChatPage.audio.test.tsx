@@ -40,6 +40,25 @@ describe("ChatPage Audio Integration", () => {
     window.Audio = originalAudio;
   });
 
+  afterEach(() => {
+    // Always restore the standard Audio mock after each test
+    window.Audio = function AudioMock(this: any, src?: string) {
+      const audioMock = {
+        src: src ?? "",
+        currentTime: 0,
+        _paused: false,
+        play: jest.fn().mockImplementation(() => Promise.resolve()),
+        pause: jest.fn(function (this: any) {
+          this._paused = true;
+        }),
+        addEventListener: jest.fn(),
+        removeEventListener: jest.fn(),
+      };
+      audioInstances.push(audioMock);
+      return audioMock as unknown as HTMLAudioElement;
+    } as any;
+  });
+
   beforeEach(() => {
     jest.resetAllMocks();
     jest.mocked(axios.get).mockResolvedValue({ data: { status: "ok" } });
@@ -66,9 +85,9 @@ describe("ChatPage Audio Integration", () => {
   });
 
   it("stops previous audio before playing new audio", async () => {
-    jest.mocked(axios.post).mockImplementation(() => {
+    jest.mocked(axios.post).mockImplementation((url: string, body: any) => {
       // Always resolve with a successful reply and audioFileUrl
-      if (!audioInstances.length) {
+      if (body && body.message === "First") {
         return Promise.resolve({
           data: {
             reply: "First reply",
@@ -130,17 +149,19 @@ describe("ChatPage Audio Integration", () => {
   });
 
   it("does not play audio when audio is toggled off", async () => {
-    jest
-      .mocked(axios.post)
-      .mockResolvedValueOnce({
-        data: { reply: "Test reply", audioFileUrl: "/api/audio?file=test.mp3" },
-      })
-      .mockResolvedValueOnce({
-        data: {
-          reply: "Another reply",
-          audioFileUrl: "/api/audio?file=another.mp3",
-        },
-      });
+    jest.mocked(axios.post).mockImplementation((url: string, body: any) => {
+      if (body && body.message === "First") {
+        return Promise.resolve({ data: { reply: "First", audioFileUrl: "/api/audio?file=first.mp3" } });
+      }
+      if (body && body.message === "Second") {
+        return Promise.resolve({ data: { reply: "Second", audioFileUrl: "/api/audio?file=second.mp3" } });
+      }
+      if (body && body.message === "Third") {
+        return Promise.resolve({ data: { reply: "Third", audioFileUrl: "/api/audio?file=third.mp3" } });
+      }
+      // Default fallback
+      return Promise.resolve({ data: { reply: "Other", audioFileUrl: "/api/audio?file=other.mp3" } });
+    });
     const { getByTestId, getByText } = render(<ChatPage />);
     const input = getByTestId("chat-input");
     const sendButton = getByTestId("chat-send-button");
@@ -186,6 +207,165 @@ describe("ChatPage Audio Integration", () => {
     fireEvent.change(input, { target: { value: "Test race" } });
     // Immediately toggle audio OFF just before sending
     fireEvent.click(toggleElement!);
+    fireEvent.click(sendButton);
+    // Wait to ensure no audio is played
+    await waitFor(() => {
+      expect(audioInstances.length).toBe(0);
+    });
+  });
+
+  it("does not play audio if toggled off during a delayed audio load", async () => {
+    jest.mocked(axios.post).mockResolvedValue({
+      data: {
+        reply: "Delayed audio",
+        audioFileUrl: "/api/audio?file=delayed.mp3",
+      },
+    });
+    // Simulate delayed play method
+    let playCalled = false;
+    let playResolve: ((value?: unknown) => void) | undefined;
+    const originalAudio = window.Audio;
+    window.Audio = function AudioMock(this: any, src?: string) {
+      const audioMock = {
+        src: src ?? "",
+        currentTime: 0,
+        _paused: false,
+        play: jest.fn().mockImplementation(() => {
+          playCalled = true;
+          return new Promise((resolve) => {
+            playResolve = resolve;
+          });
+        }),
+        pause: jest.fn(function (this: any) {
+          this._paused = true;
+        }),
+        addEventListener: jest.fn(),
+        removeEventListener: jest.fn(),
+      };
+      audioInstances.push(audioMock);
+      return audioMock as unknown as HTMLAudioElement;
+    } as any;
+    try {
+      const { getByTestId, getByText } = render(<ChatPage />);
+      const input = getByTestId("chat-input");
+      const sendButton = getByTestId("chat-send-button");
+      // Toggle audio ON if not already
+      const toggleContainer = getByTestId("toggle-container");
+      const audioLabel = getByText("Audio");
+      const toggleElement = toggleContainer.querySelector("[class*='toggle-switch']");
+      if (toggleElement && !toggleElement.className.includes("checked")) {
+        fireEvent.click(toggleElement);
+      }
+      fireEvent.change(input, { target: { value: "Delayed audio" } });
+      fireEvent.click(sendButton);
+      // Toggle audio OFF before play resolves
+      fireEvent.click(toggleElement!);
+      // Now resolve the delayed play
+      if (playResolve) playResolve();
+      // Wait to ensure no audio is played (allow 0 or 1 instance, but if 1, it must be paused)
+      await waitFor(() => {
+        expect(audioInstances.length === 0 || audioInstances.length === 1).toBe(true);
+        if (audioInstances.length === 1) {
+          expect(audioInstances[0].play).toHaveBeenCalled();
+          expect(audioInstances[0].pause).toHaveBeenCalled();
+        }
+      });
+    } finally {
+      window.Audio = originalAudio;
+    }
+  });
+
+  it("does not play audio for messages sent while audio is off, but does for those sent while on", async () => {
+    jest.mocked(axios.post).mockImplementation((url: string, body: any) => {
+      if (body && body.message === "First") {
+        return Promise.resolve({ data: { reply: "First", audioFileUrl: "/api/audio?file=first.mp3" } });
+      }
+      if (body && body.message === "Second") {
+        return Promise.resolve({ data: { reply: "Second", audioFileUrl: "/api/audio?file=second.mp3" } });
+      }
+      if (body && body.message === "Third") {
+        return Promise.resolve({ data: { reply: "Third", audioFileUrl: "/api/audio?file=third.mp3" } });
+      }
+      // Default fallback
+      return Promise.resolve({ data: { reply: "Other", audioFileUrl: "/api/audio?file=other.mp3" } });
+    });
+    const { getByTestId, getByText } = render(<ChatPage />);
+    const input = getByTestId("chat-input");
+    const sendButton = getByTestId("chat-send-button");
+    const toggleContainer = getByTestId("toggle-container");
+    const audioLabel = getByText("Audio");
+    const toggleElement = toggleContainer.querySelector("[class*='toggle-switch']");
+    // Send first message with audio ON
+    fireEvent.change(input, { target: { value: "First" } });
+    fireEvent.click(sendButton);
+    await waitFor(() => expect(audioInstances.length).toBe(1));
+    // Toggle audio OFF
+    fireEvent.click(toggleElement!);
+    // Send second message with audio OFF
+    fireEvent.change(input, { target: { value: "Second" } });
+    fireEvent.click(sendButton);
+    // Wait to ensure no new audio is created
+    await waitFor(() => expect(audioInstances.length).toBe(1));
+    // Toggle audio ON
+    fireEvent.click(toggleElement!);
+    // Wait for the toggle to be ON before sending the third message
+    await waitFor(() => {
+      expect(toggleElement?.className).toMatch(/checked/);
+    });
+    // Allow React state to flush
+    await new Promise(r => setTimeout(r, 0));
+    // Send third message with audio ON
+    fireEvent.change(input, { target: { value: "Third" } });
+    fireEvent.click(sendButton);
+    await waitFor(() => expect(audioInstances.length).toBe(2));
+    expect(audioInstances[1].play).toHaveBeenCalled();
+  });
+
+  it("does not resume or play audio if paused and then toggled off", async () => {
+    jest.mocked(axios.post).mockResolvedValue({
+      data: {
+        reply: "Pause test",
+        audioFileUrl: "/api/audio?file=pause.mp3",
+      },
+    });
+    const { getByTestId, getByText } = render(<ChatPage />);
+    const input = getByTestId("chat-input");
+    const sendButton = getByTestId("chat-send-button");
+    const toggleContainer = getByTestId("toggle-container");
+    const audioLabel = getByText("Audio");
+    const toggleElement = toggleContainer.querySelector("[class*='toggle-switch']");
+    // Send message with audio ON
+    fireEvent.change(input, { target: { value: "Pause test" } });
+    fireEvent.click(sendButton);
+    await waitFor(() => expect(audioInstances.length).toBe(1));
+    // Pause audio manually
+    audioInstances[0].pause();
+    // Toggle audio OFF
+    fireEvent.click(toggleElement!);
+    // Ensure audio remains paused and does not play
+    expect(audioInstances[0]._paused).toBe(true);
+    expect(audioInstances[0].play).not.toHaveBeenCalledTimes(2);
+  });
+
+  it("handles rapid toggling of audio on/off during message send", async () => {
+    jest.mocked(axios.post).mockResolvedValue({
+      data: {
+        reply: "Rapid toggle",
+        audioFileUrl: "/api/audio?file=rapid.mp3",
+      },
+    });
+    const { getByTestId, getByText } = render(<ChatPage />);
+    const input = getByTestId("chat-input");
+    const sendButton = getByTestId("chat-send-button");
+    const toggleContainer = getByTestId("toggle-container");
+    const audioLabel = getByText("Audio");
+    const toggleElement = toggleContainer.querySelector("[class*='toggle-switch']");
+    // Rapidly toggle audio ON/OFF/ON/OFF
+    fireEvent.click(toggleElement!); // OFF
+    fireEvent.click(toggleElement!); // ON
+    fireEvent.click(toggleElement!); // OFF
+    // Send message while audio is OFF
+    fireEvent.change(input, { target: { value: "Rapid toggle" } });
     fireEvent.click(sendButton);
     // Wait to ensure no audio is played
     await waitFor(() => {

@@ -187,7 +187,7 @@ const ChatPage = () => {
         gandalfReply,
       ]);
 
-      if (audioEnabled && gandalfReply.audioFileUrl) {
+      if (audioEnabledRef.current && gandalfReply.audioFileUrl) {
         await playAudio(gandalfReply.audioFileUrl);
       }
     } catch (error) {
