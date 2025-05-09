@@ -4,6 +4,10 @@ import winston from "winston";
  * Winston logger instance for application-wide logging.
  * @type {import('winston').Logger}
  */
+if (typeof globalThis.setImmediate === "undefined") {
+  (globalThis as any).setImmediate = (fn: (...args: any[]) => void, ...args: any[]) => setTimeout(fn, 0, ...args);
+}
+
 const logger = winston.createLogger({
   level: "info",
   format: winston.format.combine(
