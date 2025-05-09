@@ -62,8 +62,12 @@ describe("ChatPage API connectivity", () => {
       expect(button).toHaveClass("disabled");
 
       // Check that modal backdrop is shown
-      const modalBackdrop = container.querySelector(".modal-backdrop");
-      expect(modalBackdrop).toBeInTheDocument();
+      expect(getByTestId("modal-backdrop")).toBeInTheDocument();
+
+      // Check for updated modal text
+      expect(getByTestId("api-error-message")).toBeInTheDocument();
+      expect(getByTestId("api-error-message").textContent).toMatch(/Gandalf has vanished from the White Council/i);
+      expect(getByTestId("api-error-message").textContent).toMatch(/The Grey Pilgrim is away, perhaps consulting with Elrond or lost in thought atop Orthanc/i);
 
       // Chat input should be empty placeholder when API is down
       const input = getByTestId("chat-input") as HTMLInputElement;

@@ -260,7 +260,7 @@ const ChatPage = () => {
         onSend={sendMessage}
         onKeyDown={handleKeyDown}
         loading={loading}
-        apiAvailable={apiAvailable}
+        apiAvailable={apiAvailable && !(!apiAvailable)} // disables input if API is unavailable
         inputRef={inputRef}
       />
       <ChatStatus error={error} />

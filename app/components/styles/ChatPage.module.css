@@ -138,6 +138,56 @@
   width: 100%;
 }
 
+.modalBackdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modalError {
+  background: var(--color-background, #fff);
+  color: var(--color-text, #222);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px #0008;
+  padding: 2.5rem 2rem 2rem 2rem;
+  min-width: 320px;
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  word-break: break-word;
+  white-space: normal;
+}
+
+@media (max-width: 600px) {
+  .modalError {
+    max-width: 95vw;
+    padding: 1.5rem 0.5rem 1.5rem 0.5rem;
+    font-size: 1rem;
+  }
+}
+
+.apiErrorTitle {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  color: var(--color-primary, #7c4dff);
+}
+
+.apiErrorDesc {
+  font-size: 1.1rem;
+  color: var(--color-text, #222);
+}
+
 @media (max-width: 800px) {
   .chatLayout,
   .chatHeader,

@@ -36,7 +36,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
       />
       <button
         onClick={onSend}
-        className={`${styles.chatSendButton} ${loading || !apiAvailable ? styles.disabled : ""}`}
+        className={
+          loading || !apiAvailable
+            ? `${styles.chatSendButton} ${styles.disabled}`
+            : styles.chatSendButton
+        }
         disabled={loading || !apiAvailable}
         data-testid="chat-send-button"
       >

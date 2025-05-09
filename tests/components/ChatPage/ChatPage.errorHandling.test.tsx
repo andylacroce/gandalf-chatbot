@@ -60,10 +60,8 @@ describe("ChatPage", () => {
 
       await waitFor(() => {
         expect(queryByTestId("api-error-message")).toBeInTheDocument();
-        expect(getByText("Gandalf is resting his eyes.")).toBeInTheDocument();
-        expect(
-          getByText("The chat is asleep for now. Please return soon!"),
-        ).toBeInTheDocument();
+        expect(getByText(/Gandalf has vanished from the White Council/i)).toBeInTheDocument();
+        expect(getByText(/The Grey Pilgrim is away, perhaps consulting with Elrond or lost in thought atop Orthanc/i)).toBeInTheDocument();
       });
     });
   });
