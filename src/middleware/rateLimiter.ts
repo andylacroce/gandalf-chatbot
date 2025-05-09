@@ -5,6 +5,7 @@
  */
 
 import { NextApiRequest, NextApiResponse } from "next";
+import logger from "../utils/logger";
 
 /**
  * Simple in-memory cache implementation for use in tests and as fallback.
@@ -51,7 +52,7 @@ if (process.env.NODE_ENV === "test") {
     // Dynamic import to avoid Jest issues
     CacheImplementation = require("lru-cache");
   } catch (e) {
-    console.warn(
+    logger.warn(
       "Failed to load lru-cache, falling back to in-memory implementation",
     );
     CacheImplementation = InMemoryCache;

@@ -1,4 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
+import logger from "../../src/utils/logger";
 
 /**
  * Next.js API route handler for generating and downloading chat transcripts.
@@ -20,16 +21,13 @@ export default async function handler(
   const { messages } = req.body;
 
   if (!Array.isArray(messages)) {
-    console.error(
+    logger.error(
       "[Transcript API] Invalid request: Messages array required in JSON body.",
     );
     return res.status(400).json({ error: "Messages array required" });
   }
 
-  console.log(
-    "[Transcript API] Received messages for download:",
-    messages.length,
-  );
+  logger.info(`[Transcript API] Received messages for download: ${messages.length}`);
 
   // Format transcript as plain text
   const transcript = messages
@@ -47,7 +45,7 @@ export default async function handler(
   const filename = `Gandalf Chat Transcript ${datetime}.txt`;
   const encodedFilename = encodeURIComponent(filename);
 
-  console.log("[Transcript API] Generated download filename:", filename);
+  logger.info(`[Transcript API] Generated download filename: ${filename}`);
 
   res.setHeader("Content-Type", "text/plain");
   res.setHeader(
@@ -55,10 +53,7 @@ export default async function handler(
     // Use the simpler filename for download
     `attachment; filename="${filename}"; filename*=UTF-8''${encodedFilename}`,
   );
-  console.log(
-    "[Transcript API] Set Content-Disposition header for download:",
-    `attachment; filename="${filename}"; filename*=UTF-8''${encodedFilename}`,
-  );
+  logger.info(`[Transcript API] Set Content-Disposition header for download: attachment; filename=\"${filename}\"; filename*=UTF-8''${encodedFilename}`);
   res.status(200).send(transcript);
-  console.log("[Transcript API] Sent transcript response for download.");
+  logger.info("[Transcript API] Sent transcript response for download.");
 }

@@ -1,6 +1,7 @@
 import textToSpeech, { protos } from "@google-cloud/text-to-speech";
 import fs from "fs";
 import path from "path";
+import logger from "./logger";
 
 /**
  * Retrieves Google Cloud authentication credentials for TTS.
@@ -94,7 +95,7 @@ export async function synthesizeSpeechToFile({
         throw new Error("TTS API response is missing audioContent");
       }
       fs.writeFileSync(filePath, response.audioContent, "binary");
-      console.log(`[AUDIO CREATE] Created audio file: ${filePath}`);
+      logger.info(`[AUDIO CREATE] Created audio file: ${filePath}`);
       // Clean up all other .mp3 files in /tmp except the one just created
       try {
         const tmpDir = path.dirname(filePath);
@@ -104,14 +105,14 @@ export async function synthesizeSpeechToFile({
           if (file.endsWith('.mp3') && file !== newFile) {
             try {
               fs.unlinkSync(path.join(tmpDir, file));
-              console.log(`[AUDIO CLEANUP] Deleted old audio file: ${file}`);
+              logger.info(`[AUDIO CLEANUP] Deleted old audio file: ${file}`);
             } catch (err) {
-              console.warn(`[AUDIO CLEANUP] Failed to delete file: ${file}`, err);
+              logger.warn(`[AUDIO CLEANUP] Failed to delete file: ${file}`, err);
             }
           }
         }
       } catch (err) {
-        console.warn('[AUDIO CLEANUP] Error during cleanup:', err);
+        logger.warn('[AUDIO CLEANUP] Error during cleanup:', err);
       }
       return;
     } catch (err) {

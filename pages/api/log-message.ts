@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { put, head } from "@vercel/blob";
 import fs from "fs";
 import path from "path";
+import logger from "../../src/utils/logger";
 
 /**
  * Escapes HTML special characters to prevent XSS in logs.
@@ -169,7 +170,7 @@ export default async function handler(
           allowOverwrite: true, // Allow overwriting the existing blob
         });
       } catch (error) {
-        // Handle error silently
+        logger.error("[Log API] Error appending to Vercel Blob:", error);
       }
     } else {
       // Append to local file
@@ -186,14 +187,14 @@ export default async function handler(
         fs.mkdirSync(logDir, { recursive: true });
         fs.appendFileSync(resolvedFilePath, logEntry, "utf8");
       } catch (error) {
-        // Handle error silently
+        logger.error("[Log API] Error appending to local file:", error);
       }
     }
     // --- End Append to Log ---
 
     res.status(200).json({ success: true });
   } catch (error) {
-    console.error("[Log API] Internal Server Error:", error);
+    logger.error("[Log API] Internal Server Error:", error);
     // Only return generic error messages to client
     res.status(500).json({ error: "Internal Server Error" });
   }

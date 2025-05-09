@@ -3,6 +3,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import OpenAI from "openai";
 import textToSpeech, { protos } from "@google-cloud/text-to-speech";
 import fs from "fs";
+import logger from "../../src/utils/logger";
 
 /**
  * Next.js API route handler for health checks.
@@ -35,7 +36,7 @@ export default async function handler(
     openaiStatus = "error";
     openaiError = err.message || String(err);
     if (process.env.NODE_ENV !== "production") {
-      console.error("[HealthCheck] OpenAI error:", err);
+      logger.error("[HealthCheck] OpenAI error:", err);
     }
   }
 
@@ -68,17 +69,17 @@ export default async function handler(
     ttsStatus = "error";
     ttsError = err.message || String(err);
     if (process.env.NODE_ENV !== "production") {
-      console.error("[HealthCheck] Google TTS error:", err);
+      logger.error("[HealthCheck] Google TTS error:", err);
     }
   }
 
   if (openaiStatus === "ok" && ttsStatus === "ok") {
     if (process.env.NODE_ENV !== "production")
-      console.log("[HealthCheck] All services healthy");
+      logger.info("[HealthCheck] All services healthy");
     return res.status(200).json({ status: "ok" });
   }
   if (process.env.NODE_ENV !== "production")
-    console.error("[HealthCheck] Service error", {
+    logger.error("[HealthCheck] Service error", {
       openaiStatus,
       openaiError,
       ttsStatus,
