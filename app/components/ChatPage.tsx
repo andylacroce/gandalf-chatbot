@@ -10,15 +10,12 @@ import React, {
   useEffect,
   useRef,
   useCallback,
-  useMemo,
 } from "react";
 import axios from "axios";
 import "../globals.css";
 import Image from "next/image";
-import ChatMessage from "./ChatMessage";
 import ChatMessagesList from "./ChatMessagesList";
 import { downloadTranscript } from "../../src/utils/downloadTranscript"; // Import the utility
-import ToggleSwitch from "@trendmicro/react-toggle-switch";
 import { v4 as uuidv4 } from "uuid"; // Import uuid
 import "@trendmicro/react-toggle-switch/dist/react-toggle-switch.css";
 import styles from "./styles/ChatPage.module.css";
@@ -28,19 +25,8 @@ import ChatInput from "./ChatInput";
 import ChatStatus from "./ChatStatus";
 import ApiUnavailableModal from "./ApiUnavailableModal";
 import ChatHeader from "./ChatHeader";
-
-/**
- * Interface representing a chat message in the conversation.
- * @interface Message
- * @property {string} text - The content of the message.
- * @property {string} sender - The sender of the message ('User' or 'Gandalf').
- * @property {string} [audioFileUrl] - Optional URL to the audio file of the message.
- */
-interface Message {
-  text: string;
-  sender: string;
-  audioFileUrl?: string;
-}
+import { Message } from "../../src/types/message";
+import { useChatScrollAndFocus } from "./useChatScrollAndFocus";
 
 /**
  * ChatPage component that handles the chat interface and interactions with the Gandalf AI.
@@ -70,6 +56,13 @@ const ChatPage = () => {
   }, [audioEnabled]);
 
   const { playAudio, audioRef } = useAudioPlayer(audioEnabledRef);
+
+  useChatScrollAndFocus({
+    chatBoxRef,
+    inputRef,
+    messages,
+    loading
+  });
 
   // Function to log message asynchronously
   const logMessage = useCallback(
@@ -171,54 +164,6 @@ const ChatPage = () => {
       inputRef.current.focus();
     }
   }, [audioRef, inputRef]);
-
-  /**
-   * Scrolls the chat box to the bottom when new messages arrive.
-   * Uses direct scrollTop manipulation for reliability.
-   */
-  const scrollToBottom = useCallback(() => {
-    if (chatBoxRef.current) {
-      // Set scrollTop directly to the maximum scroll height
-      chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
-    }
-  }, []);
-
-  // Scroll to bottom when messages update
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages, scrollToBottom]);
-
-  // Scroll to bottom on window resize (e.g., mobile keyboard appears)
-  useEffect(() => {
-    const handleResize = () => {
-      scrollToBottom();
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [scrollToBottom]);
-
-  // Focus input field on mount
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, []);
-
-  // Scroll to bottom when input is focused (mobile keyboard)
-  useEffect(() => {
-    const input = inputRef.current;
-    if (!input) return;
-    const handleFocus = () => scrollToBottom();
-    input.addEventListener('focus', handleFocus);
-    return () => input.removeEventListener('focus', handleFocus);
-  }, [scrollToBottom]);
-
-  // Re-focus input field after loading completes
-  useEffect(() => {
-    if (!loading && inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [loading]);
 
   // Health check on mount
   useEffect(() => {
