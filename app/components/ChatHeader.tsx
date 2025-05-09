@@ -7,9 +7,10 @@ interface ChatHeaderProps {
   audioEnabled: boolean;
   onAudioToggle: () => void;
   onDownloadTranscript: () => void;
+  onHeaderLinkClick?: () => void;
 }
 
-const ChatHeader: React.FC<ChatHeaderProps> = ({ audioEnabled, onAudioToggle, onDownloadTranscript }) => (
+const ChatHeader: React.FC<ChatHeaderProps> = ({ audioEnabled, onAudioToggle, onDownloadTranscript, onHeaderLinkClick }) => (
   <div className={styles.chatHeader} data-testid="chat-header">
     <div className={styles.chatHeaderContent}>
       <div className={styles.toggleContainer} data-testid="toggle-container">
@@ -20,7 +21,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ audioEnabled, onAudioToggle, on
         <div className={styles.downloadTranscriptWrapper}>
           <button
             className={styles.downloadTranscriptLink}
-            onClick={onDownloadTranscript}
+            onClick={() => { onDownloadTranscript(); if (onHeaderLinkClick) onHeaderLinkClick(); }}
             type="button"
             aria-label="Download chat transcript"
           >
@@ -47,6 +48,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ audioEnabled, onAudioToggle, on
           href="https://mastodon.world/@AndyLacroce"
           target="_blank"
           rel="noopener noreferrer"
+          onClick={onHeaderLinkClick}
         >
           <Image src="/mastodon.png" alt="Mastodon" width={50} height={50} />
         </a>
@@ -54,6 +56,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ audioEnabled, onAudioToggle, on
           href="https://www.andylacroce.com/"
           target="_blank"
           rel="noopener noreferrer"
+          onClick={onHeaderLinkClick}
         >
           <Image src="/dexter.webp" alt="Dexter" width={50} height={50} />
         </a>

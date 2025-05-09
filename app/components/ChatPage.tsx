@@ -166,7 +166,11 @@ const ChatPage = () => {
       }
       return newEnabled;
     });
-  }, [audioRef]);
+    // Focus the input after toggling audio
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [audioRef, inputRef]);
 
   /**
    * Scrolls the chat box to the bottom when new messages arrive.
@@ -237,12 +241,19 @@ const ChatPage = () => {
     }
   };
 
+  const handleHeaderLinkClick = useCallback(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [inputRef]);
+
   return (
     <div className={styles.chatLayout} data-testid="chat-layout">
       <ChatHeader
         audioEnabled={audioEnabled}
         onAudioToggle={handleAudioToggle}
         onDownloadTranscript={handleDownloadTranscript}
+        onHeaderLinkClick={handleHeaderLinkClick}
       />
       <ChatMessagesList
         messages={messages}
