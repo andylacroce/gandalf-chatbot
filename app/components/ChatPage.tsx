@@ -16,7 +16,6 @@ import "../globals.css";
 import Image from "next/image";
 import ChatMessagesList from "./ChatMessagesList";
 import { downloadTranscript } from "../../src/utils/downloadTranscript"; // Import the utility
-import { v4 as uuidv4 } from "uuid"; // Import uuid
 import "@trendmicro/react-toggle-switch/dist/react-toggle-switch.css";
 import styles from "./styles/ChatPage.module.css";
 import { useSession } from "./useSession";
@@ -42,14 +41,11 @@ const ChatPage = () => {
   const [error, setError] = useState<string>("");
   const [audioEnabled, setAudioEnabled] = useState<boolean>(true);
   const [apiAvailable, setApiAvailable] = useState<boolean>(true);
-  const [conversationHistory, setConversationHistory] = useState<Message[]>([]);
   const [sessionId, sessionDatetime] = useSession(); // Use useSession hook
-  const [audioFiles, setAudioFiles] = useState<string[]>([]); // Track all played audio files
 
   // Refs
   const chatBoxRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
   const audioEnabledRef = useRef(audioEnabled);
   useEffect(() => {
     audioEnabledRef.current = audioEnabled;
@@ -108,13 +104,6 @@ const ChatPage = () => {
       // Correctly append Gandalf's reply using functional update
       setMessages((prevMessages) => [...prevMessages, gandalfReply]);
       logMessage(gandalfReply); // Log Gandalf's reply
-
-      // Update conversation history (consider if this also needs functional update)
-      setConversationHistory((prevHistory) => [
-        ...prevHistory,
-        userMessage,
-        gandalfReply,
-      ]);
 
       if (audioEnabledRef.current && gandalfReply.audioFileUrl) {
         await playAudio(gandalfReply.audioFileUrl);
@@ -202,7 +191,6 @@ const ChatPage = () => {
       />
       <ChatMessagesList
         messages={messages}
-        messagesEndRef={messagesEndRef}
         className={styles.chatMessagesScroll}
       />
       {loading && (
