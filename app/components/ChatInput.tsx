@@ -1,5 +1,5 @@
 import React from "react";
-import styles from "../components/styles/ChatPage.module.css";
+import styles from "./styles/ChatInput.module.css";
 
 interface ChatInputProps {
   input: string;

@@ -1,5 +1,5 @@
 import React from "react";
-import styles from "../components/styles/ChatPage.module.css";
+import styles from "./styles/ChatHeader.module.css";
 import ToggleSwitch from "@trendmicro/react-toggle-switch";
 import Image from "next/image";
 
@@ -13,17 +13,17 @@ interface ChatHeaderProps {
 const ChatHeader: React.FC<ChatHeaderProps> = ({ audioEnabled, onAudioToggle, onDownloadTranscript, onHeaderLinkClick }) => (
   <div className={styles.chatHeader} data-testid="chat-header">
     <div className={styles.chatHeaderContent}>
-      <div className={styles.toggleContainer} data-testid="toggle-container">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+      <div className={styles.headerLeft}>
+        <div data-testid="toggle-container" className="flex items-center">
           <ToggleSwitch checked={audioEnabled} onChange={onAudioToggle} />
-          <span className="toggle-label">Audio</span>
+          <span className={styles.toggleLabel}>Audio</span>
         </div>
-        <div className={styles.downloadTranscriptWrapper}>
+        <div className="mt-2">
           <button
-            className={styles.downloadTranscriptLink}
-            onClick={() => { onDownloadTranscript(); if (onHeaderLinkClick) onHeaderLinkClick(); }}
+            className={`${styles.downloadTranscriptLink} flex items-center gap-1 ml-0`}
             type="button"
             aria-label="Download chat transcript"
+            onClick={() => { onDownloadTranscript(); if (onHeaderLinkClick) onHeaderLinkClick(); }}
           >
             <span className={styles.downloadIcon} aria-hidden="true">
               &#128190;
@@ -32,7 +32,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ audioEnabled, onAudioToggle, on
           </button>
         </div>
       </div>
-      <div className={styles.gandalfImageContainer}>
+      <div className={styles.headerCenter}>
         <Image
           src="/gandalf.jpg"
           alt="Gandalf"
@@ -43,7 +43,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ audioEnabled, onAudioToggle, on
           style={{ objectFit: 'cover' }}
         />
       </div>
-      <div className={styles.iconContainer}>
+      <div className={styles.headerRight}>
         <a
           href="https://mastodon.world/@AndyLacroce"
           target="_blank"

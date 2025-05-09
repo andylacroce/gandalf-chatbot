@@ -1,0 +1,141 @@
+/* ChatHeader.module.css - Dedicated header styles for grid-based, responsive layout */
+
+.chatHeader {
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  background: var(--color-background);
+  padding: 10px 0 0 0;
+  box-shadow: 0 2px 8px #0003;
+  width: 100vw;
+  max-width: 100vw;
+  margin: 0;
+}
+
+.chatHeaderContent {
+  display: grid;
+  grid-template-columns: minmax(0,auto) 1fr minmax(0,auto);
+  align-items: center;
+  width: 100vw;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 4vw;
+  box-sizing: border-box;
+  gap: 0.5rem;
+}
+
+.headerLeft {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  min-width: 0;
+  grid-column: 1;
+}
+
+.headerLeft > div:first-child {
+  margin-bottom: 0.8rem;
+}
+
+.headerCenter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  grid-column: 2;
+}
+
+.headerRight {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 0;
+  grid-column: 3;
+}
+
+.downloadTranscriptLink {
+  font-size: 1rem;
+  font-family: var(--font-primary, 'Segoe UI', 'Arial', sans-serif);
+  font-weight: 600;
+  padding: 0.38em 0.9em;
+  border-radius: 7px;
+  background: var(--button-bg);
+  color: var(--button-text);
+  box-shadow: 0 2px 8px var(--button-shadow, #0002);
+  border: 1.5px solid var(--button-bg);
+  transition: background 0.2s, font-size 0.2s, padding 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  outline: none;
+  margin-left: 0;
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  width: auto;
+  align-self: flex-start;
+  letter-spacing: 0.01em;
+}
+
+.downloadTranscriptLink:hover {
+  background: var(--button-hover-bg);
+  box-shadow: 0 4px 16px var(--button-shadow-hover, #0004);
+  border-color: var(--button-hover-bg);
+}
+
+.toggleLabel {
+  font-size: 0.98rem;
+  font-family: var(--font-primary, 'Segoe UI', 'Arial', sans-serif);
+  font-weight: 700;
+  color: var(--color-primary);
+  margin-left: 0;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  text-shadow: none;
+  transition: font-size 0.2s, color 0.2s, margin-left 0.2s;
+}
+
+@media (max-width: 800px) {
+  .chatHeaderContent {
+    padding-left: 4vw !important;
+    padding-right: 4vw !important;
+    max-width: 100vw;
+    grid-template-columns: minmax(0,auto) 1fr minmax(0,auto);
+  }
+}
+@media (max-width: 600px) {
+  .chatHeaderContent {
+    padding-left: 2vw !important;
+    padding-right: 2vw !important;
+    grid-template-columns: minmax(0,auto) 1fr minmax(0,auto);
+    gap: 0.3rem;
+  }
+  .headerCenter img {
+    width: 80px !important;
+    height: 80px !important;
+  }
+  .downloadTranscriptLink {
+    font-size: 0.7rem;
+    padding: 0.18em 0.36em;
+    border-radius: 6px;
+    margin-left: 0;
+    min-width: 0;
+  }
+  .toggleLabel {
+    font-size: 0.82rem;
+    margin-left: 0;
+  }
+  .toggleSwitch {
+    padding: 0;
+    margin: 0;
+  }
+}
+@media (max-width: 400px) {
+  .downloadTranscriptLink {
+    font-size: 0.78rem;
+    padding: 0.16em 0.28em;
+    border-radius: 6px;
+  }
+}
