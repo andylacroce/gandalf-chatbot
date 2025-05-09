@@ -13,7 +13,7 @@
 .gandalfMessage {
   background-color: var(--gandalf-message-bg);
   align-self: flex-start;
-  color: #2d1e12;
+  color: var(--card-body-bg); /* Use variable for dark text */
 }
 .sender {
   font-weight: bold;
