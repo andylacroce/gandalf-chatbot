@@ -1,25 +1,39 @@
-/* ChatMessage.module.css - styles specific to ChatMessage component */
+/* =============================
+   ChatMessage.module.css
+   - Styles specific to the ChatMessage component
+   - Handles message bubble appearance for user and Gandalf
+   - Uses CSS variables from globals.css for theme consistency
+   ============================= */
 
+/* Message bubble base style */
 .message {
   border-radius: 10px;
   padding: 10px;
   margin-bottom: 10px;
 }
+
+/* User message bubble (right-aligned) */
 .userMessage {
   background-color: var(--user-message-bg);
   align-self: flex-end;
   text-align: right;
 }
+
+/* Gandalf message bubble (left-aligned, themed) */
 .gandalfMessage {
   background-color: var(--gandalf-message-bg);
   align-self: flex-start;
   color: var(--card-body-bg); /* Use variable for dark text */
 }
+
+/* Sender name styling */
 .sender {
   font-weight: bold;
   color: var(--color-sender);
   margin-bottom: 5px;
 }
+
+/* Gandalf sender name override */
 .gandalfSender {
   color: var(--gandalf-sender);
 }

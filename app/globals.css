@@ -1,17 +1,20 @@
 /* =============================
    GLOBALS.CSS (MANAGED)
+   - Global styles for the Gandalf Chatbot app
    - Uses PurgeCSS in production via PostCSS
    - For component-specific styles, prefer CSS modules in app/components/styles/
    - Add dynamic class names to the PurgeCSS safelist in postcss.config.cjs if needed
+   - See README for CSS documentation practices
    ============================= */
 
-/* Import Google Fonts */
+/* --- Google Fonts Import --- */
 @import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&family=Lato:wght@400;700&display=swap");
 
 :root {
-  /* Typography */
+  /* Typography variables */
   --font-primary: "Open Sans", sans-serif;
   --font-secondary: "Lato", sans-serif;
+  /* Color palette for backgrounds, text, and UI elements */
   --color-background: #000000;
   --color-text: #f7ecd6;
   --color-sender: #e0c28c;
@@ -34,7 +37,11 @@
   --gandalf-sender: #7c5e3c;
 }
 
-/* Reset and base styles */
+/* --- CSS Reset and Base Styles --- */
+/*
+  Reset and normalize browser styles for consistency.
+  Set up base font, background, and layout for the app.
+*/
 * {
   box-sizing: border-box;
   margin: 0;
@@ -67,16 +74,22 @@ body {
   flex-direction: column;
 }
 
-/* Utility and shared styles */
+/* --- Utility and Shared Styles --- */
+/*
+  Utility classes for border radius, padding, font size, and margin.
+  Use these for quick layout tweaks in components.
+*/
 .rounded { border-radius: 10px; }
 .p-2 { padding: 10px; }
 .text-sm { font-size: 0.98rem; }
 .mb-1 { margin-bottom: 5px; }
 .my-2 { margin-top: 10px; margin-bottom: 10px; }
 
-/* Reset, variables, and third-party overrides remain */
-
-/* Toggle Switch Customization for @trendmicro/react-toggle-switch */
+/* --- Third-Party Component Overrides --- */
+/*
+  Customization for @trendmicro/react-toggle-switch and other third-party components.
+  Use class selectors to override library styles as needed.
+*/
 [class*="toggle-switch---switch"][class*="checked"]
   [class*="toggle-switch---toggle"] {
   background-color: #2e7d32 !important;
