@@ -7,10 +7,12 @@ A Next.js app featuring a real-time chat interface, AI-powered Gandalf persona, 
 - Voice responses via Google TTS
 - Chat powered by OpenAI's ChatGPT
 - Built with Next.js & React
-- TypeScript
-- Rate limiting
-- Tested with Jest
-- Responsive design
+- TypeScript throughout
+- Rate limiting for API protection
+- Comprehensive Jest test suite
+- Responsive, accessible design
+- Downloadable chat transcripts
+- Logging to Vercel Blob or local file system
 
 ## Setup
 
@@ -43,9 +45,26 @@ A Next.js app featuring a real-time chat interface, AI-powered Gandalf persona, 
 ## Project Structure
 
 - `app/` - Next.js app & components
-- `pages/api/` - API routes
-- `src/` - Middleware, types, utils
-- `tests/` - Test files
+- `pages/api/` - API routes (chat, logging, health, transcript, audio)
+- `src/` - Middleware, types, utilities (TTS, logger, cache, etc.)
+- `tests/` - Test files for API, components, and utilities
+
+## Documentation
+
+- API and utility documentation is generated using TypeDoc and JSDoc comments.
+- The generated HTML docs in `docs/` are not committed to git (see `.gitignore`).
+- To generate documentation for the entire project locally, run:
+  ```bash
+  npx typedoc --out docs .
+  ```
+  Then open `docs/index.html` in your browser.
+
+## Code Documentation & Best Practices
+
+- All main API routes and utilities are documented with JSDoc comments for clarity and maintainability.
+- JSDoc is used to describe function parameters, return values, and usage. See source files in `src/utils/` and `pages/api/` for examples.
+- TypeScript types are used throughout for safety and editor support.
+- Follow best practices for code comments and documentation. See [JSDoc guide](https://jsdoc.app/) for more info.
 
 ## License
 

@@ -1,5 +1,9 @@
 import winston from "winston";
 
+/**
+ * Winston logger instance for application-wide logging.
+ * @type {import('winston').Logger}
+ */
 const logger = winston.createLogger({
   level: "info",
   format: winston.format.combine(

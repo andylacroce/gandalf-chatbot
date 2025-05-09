@@ -23,6 +23,11 @@ function saveCacheToFile(cache: Record<string, string>) {
   } catch {}
 }
 
+/**
+ * Sets a reply in the cache (in-memory or file-based depending on environment).
+ * @param {string} key - The cache key.
+ * @param {string} value - The value to cache.
+ */
 export function setReplyCache(key: string, value: string) {
   if (isVercel) {
     memoryCache[key] = value;
@@ -33,6 +38,11 @@ export function setReplyCache(key: string, value: string) {
   }
 }
 
+/**
+ * Retrieves a reply from the cache.
+ * @param {string} key - The cache key.
+ * @returns {string|null} The cached value or null if not found.
+ */
 export function getReplyCache(key: string): string | null {
   if (isVercel) {
     return memoryCache[key] || null;
@@ -42,6 +52,10 @@ export function getReplyCache(key: string): string | null {
   }
 }
 
+/**
+ * Deletes a reply from the cache.
+ * @param {string} key - The cache key.
+ */
 export function deleteReplyCache(key: string) {
   if (isVercel) {
     delete memoryCache[key];

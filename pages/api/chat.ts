@@ -17,6 +17,12 @@ if (!process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
 }
 
 let googleAuthCredentials;
+
+/**
+ * Retrieves Google Cloud credentials for TTS and other APIs.
+ * @returns {object} The parsed credentials object.
+ * @throws {Error} If credentials are missing or invalid.
+ */
 function getGoogleCredentials() {
   let creds = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
   if (!creds) throw new Error("Missing GOOGLE_APPLICATION_CREDENTIALS_JSON");
@@ -35,6 +41,11 @@ if (!apiKey) {
 }
 const openai = new OpenAI({ apiKey });
 
+/**
+ * Checks if the given object is a valid OpenAI chat completion response.
+ * @param {any} obj - The object to check.
+ * @returns {boolean} True if the object is a valid response.
+ */
 function isOpenAIResponse(
   obj: any,
 ): obj is { choices: { message: { content: string } }[] } {
@@ -46,6 +57,12 @@ function isOpenAIResponse(
   );
 }
 
+/**
+ * Builds the OpenAI chat message array from conversation history and user input.
+ * @param {string[]} history - The conversation history (excluding the latest user message).
+ * @param {string} userMessage - The latest user message.
+ * @returns {ChatCompletionMessageParam[]} The formatted message array for OpenAI API.
+ */
 function buildOpenAIMessages(
   history: string[],
   userMessage: string,
@@ -70,6 +87,19 @@ function buildOpenAIMessages(
   return messages;
 }
 
+/**
+ * Next.js API route handler for chat requests.
+ * Handles user input, calls OpenAI, and returns Gandalf's reply and audio.
+ * - Accepts POST requests with a 'message' in the body.
+ * - Calls OpenAI API with chat history and system prompt.
+ * - Generates a Gandalf-style reply and synthesizes audio using Google TTS.
+ * - Returns the reply and a URL to the generated audio file.
+ *
+ * @param {NextApiRequest} req - The API request object.
+ * @param {NextApiResponse} res - The API response object.
+ * @returns {Promise<void>} Resolves when the response is sent.
+ * @throws {Error} On missing input, OpenAI/TTS errors, or internal failures.
+ */
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,

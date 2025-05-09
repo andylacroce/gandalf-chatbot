@@ -1,5 +1,12 @@
 import { NextApiRequest, NextApiResponse } from "next";
 
+/**
+ * Next.js API route handler for generating and downloading chat transcripts.
+ * Accepts POST requests with a messages array and returns a text file.
+ * @param {NextApiRequest} req - The API request object.
+ * @param {NextApiResponse} res - The API response object.
+ * @returns {Promise<void>} Resolves when the response is sent.
+ */
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,

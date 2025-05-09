@@ -1,3 +1,9 @@
+/**
+ * Downloads the chat transcript as a text file by calling the /api/transcript endpoint.
+ * @param {Array<object>} messages - The array of chat messages to include in the transcript.
+ * @returns {Promise<void>} Resolves when the download is triggered.
+ * @throws {Error} If the transcript fetch fails.
+ */
 export async function downloadTranscript(messages: any[]) {
   const response = await fetch("/api/transcript", {
     method: "POST",

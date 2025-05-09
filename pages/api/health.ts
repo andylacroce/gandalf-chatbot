@@ -4,6 +4,13 @@ import OpenAI from "openai";
 import textToSpeech, { protos } from "@google-cloud/text-to-speech";
 import fs from "fs";
 
+/**
+ * Next.js API route handler for health checks.
+ * Checks OpenAI and Google TTS service health.
+ * @param {NextApiRequest} req - The API request object.
+ * @param {NextApiResponse} res - The API response object.
+ * @returns {Promise<void>} Resolves when the response is sent.
+ */
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,

@@ -2,6 +2,11 @@ import textToSpeech, { protos } from "@google-cloud/text-to-speech";
 import fs from "fs";
 import path from "path";
 
+/**
+ * Retrieves Google Cloud authentication credentials for TTS.
+ * @returns {object} The credentials object.
+ * @throws {Error} If credentials are missing or invalid.
+ */
 function getGoogleAuthCredentials() {
   if (!process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
     throw new Error(
@@ -21,6 +26,11 @@ function getGoogleAuthCredentials() {
 let ttsClient:
   | import("@google-cloud/text-to-speech").TextToSpeechClient
   | null = null;
+
+/**
+ * Returns a singleton instance of the Google Text-to-Speech client.
+ * @returns {import("@google-cloud/text-to-speech").TextToSpeechClient}
+ */
 function getTTSClient() {
   if (!ttsClient) {
     ttsClient = new textToSpeech.TextToSpeechClient({
@@ -30,6 +40,18 @@ function getTTSClient() {
   return ttsClient;
 }
 
+/**
+ * Synthesizes speech from text and writes the result to a file.
+ * Retries up to 3 times on failure. Cleans up old audio files in the same directory.
+ * @param {object} params - The parameters for synthesis.
+ * @param {string} params.text - The text or SSML to synthesize.
+ * @param {string} params.filePath - The output file path for the audio.
+ * @param {boolean} [params.ssml=false] - Whether the input is SSML.
+ * @param {object} [params.voice] - Voice configuration for TTS.
+ * @param {object} [params.audioConfig] - Audio configuration for TTS.
+ * @returns {Promise<void>} Resolves when the file is written.
+ * @throws {Error} If synthesis fails after retries.
+ */
 export async function synthesizeSpeechToFile({
   text,
   filePath,

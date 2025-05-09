@@ -93,8 +93,6 @@ const rateLimiterCache = new CacheImplementation({
 /**
  * Extracts the client IP address from the request.
  * Handles various proxy scenarios by checking x-forwarded-for header.
- *
- * @function
  * @param {NextApiRequest} req - The Next.js API request object
  * @returns {string|null} The client's IP address or null if not found
  */
@@ -110,14 +108,10 @@ const extractClientIp = (req: NextApiRequest): string | null => {
  * Rate limiting middleware function.
  * Tracks request counts by IP address and enforces limits.
  * Responds with 429 status when limits are exceeded.
- *
- * @function
  * @param {NextApiRequest} req - The Next.js API request object
  * @param {NextApiResponse} res - The Next.js API response object
  * @param {Function} next - The function to call when the request should proceed
  * @returns {Promise<void>} Resolves when request is allowed or blocked
- * @example
- * await rateLimiter(req, res, next);
  */
 const rateLimiter = async (
   req: NextApiRequest,

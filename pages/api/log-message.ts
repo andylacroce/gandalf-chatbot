@@ -3,7 +3,11 @@ import { put, head } from "@vercel/blob";
 import fs from "fs";
 import path from "path";
 
-// Helper to escape HTML special characters to prevent XSS in logs
+/**
+ * Escapes HTML special characters to prevent XSS in logs.
+ * @param {string} str - The string to escape.
+ * @returns {string} The escaped string.
+ */
 function escapeHtml(str: string): string {
   return str.replace(/[&<>"']/g, function (tag) {
     const chars: { [key: string]: string } = {
@@ -17,7 +21,11 @@ function escapeHtml(str: string): string {
   });
 }
 
-// Helper to check if an IP is a valid public IPv4 or IPv6 address
+/**
+ * Checks if an IP is a valid public IPv4 or IPv6 address.
+ * @param {string} ip - The IP address to check.
+ * @returns {boolean} True if the IP is public.
+ */
 function isValidPublicIp(ip: string): boolean {
   // Remove port if present
   ip = ip.split(":")[0];
@@ -46,6 +54,14 @@ function isValidPublicIp(ip: string): boolean {
   return false;
 }
 
+/**
+ * Next.js API route handler for logging chat messages.
+ * Accepts POST requests with sender, text, sessionId, and sessionDatetime.
+ * Logs messages to Vercel Blob or local file system.
+ * @param {NextApiRequest} req - The API request object.
+ * @param {NextApiResponse} res - The API response object.
+ * @returns {Promise<void>} Resolves when the response is sent.
+ */
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
