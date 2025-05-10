@@ -53,7 +53,7 @@ describe("Audio API Handler", () => {
     await jest.runAllTimersAsync();
     await handlerPromise;
     expect(res.status).toHaveBeenCalledWith(404);
-    expect(res.json).toHaveBeenCalledWith({ error: "File not found" });
+    expect(res.json).toHaveBeenCalledWith({ error: "File not found after all regeneration attempts" });
   });
 
   describe("file retrieval tests", () => {
