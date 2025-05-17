@@ -8,10 +8,24 @@ import logger from "../../src/utils/logger";
  * @param {NextApiResponse} res - The API response object.
  * @returns {Promise<void>} Resolves when the response is sent.
  */
+function isInternalRequest(req: import("next").NextApiRequest): boolean {
+  const internalSecret = process.env.INTERNAL_API_SECRET;
+  const clientSecret = req.headers["x-internal-api-secret"];
+  if (process.env.NODE_ENV !== "production") {
+    return true;
+  }
+  return Boolean(internalSecret) && clientSecret === internalSecret;
+}
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
+  if (!isInternalRequest(req)) {
+    logger.warn(`[Transcript API] 401 Unauthorized: Attempted access from non-internal source`);
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
   if (req.method !== "POST") {
     logger.info(`[Transcript API] 405 Method Not Allowed for ${req.method}`);
     res.setHeader("Allow", ["POST"]);

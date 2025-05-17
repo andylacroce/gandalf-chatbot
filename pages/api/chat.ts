@@ -88,6 +88,20 @@ function buildOpenAIMessages(
 }
 
 /**
+ * Checks if the request is from an internal source.
+ * @param {NextApiRequest} req - The API request object.
+ * @returns {boolean} True if the request is internal.
+ */
+function isInternalRequest(req: import("next").NextApiRequest): boolean {
+  const internalSecret = process.env.INTERNAL_API_SECRET;
+  const clientSecret = req.headers["x-internal-api-secret"];
+  if (process.env.NODE_ENV !== "production") {
+    return true;
+  }
+  return Boolean(internalSecret) && clientSecret === internalSecret;
+}
+
+/**
  * Next.js API route handler for chat requests.
  * Handles user input, calls OpenAI, and returns Gandalf's reply and audio.
  * - Accepts POST requests with a 'message' in the body.
@@ -104,6 +118,13 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
+  if (!isInternalRequest(req)) {
+    logger.warn(
+      `[Chat API] 401 Unauthorized: Attempted access from non-internal source`,
+    );
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
   if (req.method !== "POST") {
     logger.info(`[Chat API] 405 Method Not Allowed for ${req.method}`);
     res.setHeader("Allow", ["POST"]);

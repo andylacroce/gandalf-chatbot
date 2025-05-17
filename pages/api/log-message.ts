@@ -55,6 +55,16 @@ function isValidPublicIp(ip: string): boolean {
   return false;
 }
 
+// --- Internal API authentication middleware ---
+function isInternalRequest(req: import("next").NextApiRequest): boolean {
+  const internalSecret = process.env.INTERNAL_API_SECRET;
+  const clientSecret = req.headers["x-internal-api-secret"];
+  if (process.env.NODE_ENV !== "production") {
+    return true;
+  }
+  return Boolean(internalSecret) && clientSecret === internalSecret;
+}
+
 /**
  * Next.js API route handler for logging chat messages.
  * Accepts POST requests with sender, text, sessionId, and sessionDatetime.
@@ -67,6 +77,13 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
+  if (!isInternalRequest(req)) {
+    logger.warn(
+      `[Log API] 401 Unauthorized: Attempted access from non-internal source`,
+    );
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
   if (req.method !== "POST") {
     logger.info(`[Log API] 405 Method Not Allowed for ${req.method}`);
     res.setHeader("Allow", ["POST"]);

@@ -24,10 +24,25 @@ function getOriginalTextForAudio(sanitizedFile: string): string | null {
   return null;
 }
 
+function isInternalRequest(req: import("next").NextApiRequest): boolean {
+  const internalSecret = process.env.INTERNAL_API_SECRET;
+  const clientSecret = req.headers["x-internal-api-secret"];
+  // Allow all requests in development (localhost) for easier local testing
+  if (process.env.NODE_ENV !== "production") {
+    return true;
+  }
+  return Boolean(internalSecret) && clientSecret === internalSecret;
+}
+
 export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse,
+  req: import("next").NextApiRequest,
+  res: import("next").NextApiResponse,
 ) {
+  if (!isInternalRequest(req)) {
+    logger.warn(`[Audio API] 401 Unauthorized: Attempted access from non-internal source`);
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
   const { file } = req.query;
   if (!file || typeof file !== "string") {
     logger.info(`[Audio API] 400 Bad Request: File parameter is required`);

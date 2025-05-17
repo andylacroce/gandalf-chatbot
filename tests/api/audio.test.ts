@@ -15,6 +15,7 @@ describe("Audio API Handler", () => {
   const createTestObjects = () => {
     const req = {
       query: {},
+      headers: { "x-internal-api-secret": process.env.INTERNAL_API_SECRET },
     } as Partial<NextApiRequest>;
 
     const res = {
@@ -26,6 +27,10 @@ describe("Audio API Handler", () => {
 
     return { req, res };
   };
+
+  beforeEach(() => {
+    process.env.INTERNAL_API_SECRET = process.env.INTERNAL_API_SECRET || "test-secret";
+  });
 
   afterEach(() => {
     jest.restoreAllMocks();
