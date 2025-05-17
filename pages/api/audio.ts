@@ -27,6 +27,8 @@ function getOriginalTextForAudio(sanitizedFile: string): string | null {
 function isInternalRequest(req: import("next").NextApiRequest): boolean {
   const internalSecret = process.env.INTERNAL_API_SECRET;
   const clientSecret = req.headers["x-internal-api-secret"];
+  // Use console.warn for debug so it always appears in Vercel logs
+  console.warn(`[Audio API] Debug: clientSecret=${clientSecret}, internalSecret=${internalSecret}, NODE_ENV=${process.env.NODE_ENV}, VERCEL_ENV=${process.env.VERCEL_ENV}`);
   if (
     process.env.NODE_ENV !== "production" ||
     (typeof process.env.VERCEL_ENV === "string" && process.env.VERCEL_ENV !== "production")
