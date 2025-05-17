@@ -105,6 +105,7 @@ export default async function handler(
   res: NextApiResponse,
 ) {
   if (req.method !== "POST") {
+    logger.info(`[Chat API] 405 Method Not Allowed for ${req.method}`);
     res.setHeader("Allow", ["POST"]);
     return res.status(405).end(`Method ${req.method} Not Allowed`);
   }
@@ -112,6 +113,7 @@ export default async function handler(
   try {
     const userMessage = req.body.message;
     if (!userMessage) {
+      logger.info(`[Chat API] 400 Bad Request: Message is required`);
       return res.status(400).json({ error: "Message is required" });
     }
 
@@ -154,13 +156,20 @@ export default async function handler(
       timeout,
     ]);
     if (result && typeof result === "object" && "timeout" in result) {
+      logger.info(`[Chat API] 408 Request Timeout`);
       return res.status(408).json({ reply: "Request timed out." });
     }
     if (!isOpenAIResponse(result)) {
+      logger.info(
+        `[Chat API] 500 Internal Server Error: Invalid OpenAI response`,
+      );
       throw new Error("Invalid response from OpenAI");
     }
     const gandalfReply = result.choices[0]?.message?.content?.trim() ?? "";
     if (!gandalfReply || gandalfReply.trim() === "") {
+      logger.info(
+        `[Chat API] 500 Internal Server Error: Empty Gandalf response`,
+      );
       throw new Error("Generated Gandalf response is empty.");
     }
     conversationHistory.push(`Gandalf: ${gandalfReply}`);
@@ -198,7 +207,7 @@ export default async function handler(
     logger.info(
       `${timestamp}|${userIp}|${userLocation}|${userMessage.replace(/"/g, '""')}|${gandalfReply.replace(/"/g, '""')}`,
     );
-
+    logger.info(`[Chat API] 200 OK: Reply and audioFileUrl sent`);
     res.status(200).json({
       reply: gandalfReply,
       audioFileUrl: `/api/audio?file=${audioFileName}`,
@@ -207,6 +216,7 @@ export default async function handler(
     logger.error("API error:", error);
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error";
+    logger.info(`[Chat API] 500 Internal Server Error`);
     res.status(500).json({
       reply: "Error fetching response from Gandalf.",
       error: errorMessage,

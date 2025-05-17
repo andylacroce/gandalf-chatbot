@@ -68,6 +68,7 @@ export default async function handler(
   res: NextApiResponse,
 ) {
   if (req.method !== "POST") {
+    logger.info(`[Log API] 405 Method Not Allowed for ${req.method}`);
     res.setHeader("Allow", ["POST"]);
     return res.status(405).end(`Method ${req.method} Not Allowed`);
   }
@@ -80,6 +81,7 @@ export default async function handler(
       !sessionId ||
       !sessionDatetime
     ) {
+      logger.info(`[Log API] 400 Bad Request: Missing required fields`);
       return res
         .status(400)
         .json({
@@ -93,15 +95,19 @@ export default async function handler(
 
     // Validate input types and lengths
     if (typeof sender !== "string" || sender.length > 100) {
+      logger.info(`[Log API] 400 Bad Request: Invalid sender`);
       return res.status(400).json({ error: "Invalid sender" });
     }
     if (typeof text !== "string" || text.length > 2000) {
+      logger.info(`[Log API] 400 Bad Request: Invalid text`);
       return res.status(400).json({ error: "Invalid text" });
     }
     if (typeof sessionId !== "string" || sessionId.length > 100) {
+      logger.info(`[Log API] 400 Bad Request: Invalid sessionId`);
       return res.status(400).json({ error: "Invalid sessionId" });
     }
     if (typeof sessionDatetime !== "string" || sessionDatetime.length > 30) {
+      logger.info(`[Log API] 400 Bad Request: Invalid sessionDatetime`);
       return res.status(400).json({ error: "Invalid sessionDatetime" });
     }
 
@@ -193,9 +199,10 @@ export default async function handler(
     // --- End Append to Log ---
 
     res.status(200).json({ success: true });
+    logger.info(`[Log API] 200 OK: Log entry written for sessionId=${sessionId}`);
   } catch (error) {
     logger.error("[Log API] Internal Server Error:", error);
-    // Only return generic error messages to client
     res.status(500).json({ error: "Internal Server Error" });
+    logger.info(`[Log API] 500 Internal Server Error`);
   }
 }

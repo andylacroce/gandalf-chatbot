@@ -13,6 +13,7 @@ export default async function handler(
   res: NextApiResponse,
 ) {
   if (req.method !== "POST") {
+    logger.info(`[Transcript API] 405 Method Not Allowed for ${req.method}`);
     res.setHeader("Allow", ["POST"]);
     return res.status(405).end(`Method ${req.method} Not Allowed`);
   }
@@ -21,6 +22,7 @@ export default async function handler(
   const { messages, exportedAt } = req.body;
 
   if (!Array.isArray(messages)) {
+    logger.info(`[Transcript API] 400 Bad Request: Messages array required`);
     logger.error(
       "[Transcript API] Invalid request: Messages array required in JSON body.",
     );
@@ -56,7 +58,7 @@ export default async function handler(
   );
   logger.info(`[Transcript API] Set Content-Disposition header for download: attachment; filename=\"${filename}\"; filename*=UTF-8''${encodedFilename}`);
   res.status(200).send(transcript);
-  logger.info("[Transcript API] Sent transcript response for download.");
+  logger.info(`[Transcript API] 200 OK: Transcript sent for download, messages=${messages.length}`);
 }
 
 // Helper for HTML escaping

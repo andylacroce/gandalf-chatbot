@@ -38,6 +38,7 @@ export default async function handler(
     if (process.env.NODE_ENV !== "production") {
       logger.error("[HealthCheck] OpenAI error:", err);
     }
+    logger.info(`[HealthCheck] 500 OpenAI error: ${openaiError}`);
   }
 
   let ttsStatus = "ok";
@@ -71,11 +72,13 @@ export default async function handler(
     if (process.env.NODE_ENV !== "production") {
       logger.error("[HealthCheck] Google TTS error:", err);
     }
+    logger.info(`[HealthCheck] 500 Google TTS error: ${ttsError}`);
   }
 
   if (openaiStatus === "ok" && ttsStatus === "ok") {
     if (process.env.NODE_ENV !== "production")
       logger.info("[HealthCheck] All services healthy");
+    logger.info(`[HealthCheck] 200 OK: All services healthy`);
     return res.status(200).json({ status: "ok" });
   }
   if (process.env.NODE_ENV !== "production")
@@ -85,6 +88,7 @@ export default async function handler(
       ttsStatus,
       ttsError,
     });
+  logger.info(`[HealthCheck] 500 Service error: openaiStatus=${openaiStatus}, ttsStatus=${ttsStatus}`);
   return res.status(500).json({
     status: "error",
     openai: { status: openaiStatus, error: openaiError },

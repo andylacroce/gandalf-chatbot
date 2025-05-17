@@ -30,6 +30,7 @@ export default async function handler(
 ) {
   const { file } = req.query;
   if (!file || typeof file !== "string") {
+    logger.info(`[Audio API] 400 Bad Request: File parameter is required`);
     return res.status(400).json({ error: "File parameter is required" });
   }
   // Only allow filename, not path
@@ -132,10 +133,12 @@ export default async function handler(
     normalizedLocalFilePath &&
     !normalizedLocalFilePath.startsWith(allowedPublic)
   ) {
+    logger.info(`[Audio API] 403 Forbidden: Access forbidden for file ${sanitizedFile}`);
     return res.status(403).json({ error: "Access forbidden" });
   }
   const filePath = normalizedAudioFilePath || normalizedLocalFilePath;
   if (!filePath || !fs.existsSync(filePath)) {
+    logger.info(`[Audio API] 404 Not Found: File not found after all regen attempts for ${sanitizedFile}`);
     logger.error(`[AUDIO] File not found after all regen attempts: ${sanitizedFile}`, { regenError });
     return res.status(404).json({ error: "File not found after all regeneration attempts" });
   }
@@ -143,9 +146,11 @@ export default async function handler(
   try {
     audioContent = fs.readFileSync(filePath);
   } catch (err) {
+    logger.info(`[Audio API] 500 Internal Server Error: Error reading file ${filePath}`);
     logger.error(`[AUDIO] Error reading file ${filePath}:`, err);
     return res.status(500).json({ error: "Error reading file" });
   }
+  logger.info(`[Audio API] 200 OK: Audio file sent for ${sanitizedFile}`);
   res.setHeader("Content-Type", "audio/mpeg");
   res.send(audioContent);
 }
