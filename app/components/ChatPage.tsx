@@ -118,12 +118,11 @@ const ChatPage = () => {
     // Remove `messages` and `conversationHistory` as we use functional updates
   }, [
     input,
-    audioEnabled,
     playAudio,
     apiAvailable,
     logMessage,
     loading
-  ]); // input added back to dependencies
+  ]); // input added back to dependencies per lint rule
 
   // Handle keyboard input (Enter key)
   const handleKeyDown = (e: React.KeyboardEvent) => {
