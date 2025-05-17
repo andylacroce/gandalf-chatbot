@@ -11,7 +11,10 @@ import logger from "../../src/utils/logger";
 function isInternalRequest(req: import("next").NextApiRequest): boolean {
   const internalSecret = process.env.INTERNAL_API_SECRET;
   const clientSecret = req.headers["x-internal-api-secret"];
-  if (process.env.NODE_ENV !== "production") {
+  if (
+    process.env.NODE_ENV !== "production" ||
+    (typeof process.env.VERCEL_ENV === "string" && process.env.VERCEL_ENV !== "production")
+  ) {
     return true;
   }
   return Boolean(internalSecret) && clientSecret === internalSecret;
