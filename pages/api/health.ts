@@ -12,31 +12,10 @@ import logger from "../../src/utils/logger";
  * @param {NextApiResponse} res - The API response object.
  * @returns {Promise<void>} Resolves when the response is sent.
  */
-function isInternalRequest(req: import("next").NextApiRequest): boolean {
-  const internalSecret = process.env.INTERNAL_API_SECRET;
-  const clientSecret = req.headers["x-internal-api-secret"];
-  logger.warn(`[Health API] Debug: clientSecret=${clientSecret}, internalSecret=${internalSecret}, NODE_ENV=${process.env.NODE_ENV}, VERCEL_ENV=${process.env.VERCEL_ENV}`);
-  // Allow all requests in development (localhost) for easier local testing
-  // On Vercel, NODE_ENV may be set to 'production' even for preview/development deployments.
-  // To allow access on Vercel preview/dev, also allow if VERCEL_ENV is not 'production'.
-  if (
-    process.env.NODE_ENV !== "production" ||
-    (typeof process.env.VERCEL_ENV === "string" && process.env.VERCEL_ENV !== "production")
-  ) {
-    return true;
-  }
-  return Boolean(internalSecret) && clientSecret === internalSecret;
-}
-
 export default async function handler(
   req: import("next").NextApiRequest,
   res: import("next").NextApiResponse,
 ) {
-  if (!isInternalRequest(req)) {
-    logger.warn(`[Health API] 401 Unauthorized: Attempted access from non-internal source`);
-    return res.status(401).json({ error: "Unauthorized" });
-  }
-
   let openaiStatus = "ok";
   let openaiError = null;
   try {
