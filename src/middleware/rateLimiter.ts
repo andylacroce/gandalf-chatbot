@@ -1,6 +1,17 @@
 /**
  * Rate limiting middleware to prevent API abuse.
  * Implements IP-based request limiting using LRU cache.
+ *
+ * Features:
+ * - Limits each IP to 100 requests per 15 minutes (configurable)
+ * - Tracks request counts and window reset per IP
+ * - Responds with 429 and logs when limit is exceeded
+ * - Sets the following headers on all responses:
+ *     - X-RateLimit-Limit: Maximum requests allowed per window
+ *     - X-RateLimit-Remaining: Requests remaining in the current window
+ *     - X-RateLimit-Reset: Unix timestamp (seconds) when the window resets
+ *     - Retry-After: (on 429) Seconds until the next allowed request
+ *
  * @module rateLimiter
  */
 
@@ -140,6 +151,10 @@ const rateLimiter = async (
       resetTime: currentTime + rateLimitOptions.windowMs,
     };
     rateLimiterCache.set(ip, rateData);
+    // Set rate limit headers
+    res.setHeader("X-RateLimit-Limit", rateLimitOptions.maxRequests);
+    res.setHeader("X-RateLimit-Remaining", rateLimitOptions.maxRequests - 1);
+    res.setHeader("X-RateLimit-Reset", Math.floor(rateData.resetTime / 1000));
     return next();
   }
 
@@ -149,21 +164,40 @@ const rateLimiter = async (
     rateData.count = 1;
     rateData.resetTime = currentTime + rateLimitOptions.windowMs;
     rateLimiterCache.set(ip, rateData);
+    // Set rate limit headers
+    res.setHeader("X-RateLimit-Limit", rateLimitOptions.maxRequests);
+    res.setHeader("X-RateLimit-Remaining", rateLimitOptions.maxRequests - 1);
+    res.setHeader("X-RateLimit-Reset", Math.floor(rateData.resetTime / 1000));
     return next();
   }
 
   // Check if rate limit exceeded
   if (rateData.count >= rateLimitOptions.maxRequests) {
     rateLimiterCache.set(ip, rateData); // Ensure the cache is updated before responding
+    const retryAfter = Math.ceil((rateData.resetTime - currentTime) / 1000);
+    // Log the rate limit event
+    logger.info(`[RateLimiter] 429 Too Many Requests for IP: ${ip}`);
+    // Set headers
+    res.setHeader("Retry-After", retryAfter);
+    res.setHeader("X-RateLimit-Limit", rateLimitOptions.maxRequests);
+    res.setHeader("X-RateLimit-Remaining", 0);
+    res.setHeader("X-RateLimit-Reset", Math.floor(rateData.resetTime / 1000));
     return res.status(429).json({
       error: "Too many requests, please try again later.",
-      retryAfter: Math.ceil((rateData.resetTime - currentTime) / 1000), // Retry-After in seconds
+      retryAfter,
     });
   }
 
   // Increment request count
   rateData.count += 1;
   rateLimiterCache.set(ip, rateData);
+  // Set rate limit headers
+  res.setHeader("X-RateLimit-Limit", rateLimitOptions.maxRequests);
+  res.setHeader(
+    "X-RateLimit-Remaining",
+    rateLimitOptions.maxRequests - rateData.count,
+  );
+  res.setHeader("X-RateLimit-Reset", Math.floor(rateData.resetTime / 1000));
   next();
 };
 

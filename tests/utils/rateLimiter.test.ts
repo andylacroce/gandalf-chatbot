@@ -1,6 +1,15 @@
 /**
  * @fileoverview Test suite for the rate limiter middleware.
- * Tests request limiting functionality, IP address detection, and time-based reset.
+ * Tests request limiting functionality, IP address detection, time-based reset, and response headers.
+ *
+ * The rate limiter middleware now sets the following headers on all responses:
+ *   - X-RateLimit-Limit: Maximum requests allowed per window
+ *   - X-RateLimit-Remaining: Requests remaining in the current window
+ *   - X-RateLimit-Reset: Unix timestamp (seconds) when the window resets
+ *   - Retry-After: (on 429) Seconds until the next allowed request
+ *
+ * 429 responses are logged for monitoring/abuse detection.
+ *
  * @module tests/rateLimiter
  */
 
@@ -34,6 +43,7 @@ describe("rateLimiter middleware", () => {
     const res: Partial<NextApiResponse> = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn(),
+      setHeader: jest.fn(), // Mock setHeader for rate limit headers
     };
     const next = jest.fn();
     return { req, res, next };
@@ -186,6 +196,7 @@ describe("rateLimiter middleware", () => {
         const testRes: Partial<NextApiResponse> = {
           status: jest.fn().mockReturnThis(),
           json: jest.fn(),
+          setHeader: jest.fn(), // Mock setHeader for rate limit headers
         };
         const testNext = jest.fn();
 

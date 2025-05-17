@@ -8,19 +8,24 @@ A Next.js app featuring a real-time chat interface, AI-powered Gandalf persona, 
 - Chat powered by OpenAI's ChatGPT
 - Built with Next.js & React
 - TypeScript throughout
-- Rate limiting for API protection
+- **Robust rate limiting for API protection**
 - Comprehensive Jest test suite
 - Responsive, accessible design
 - Downloadable chat transcripts
 - Logging to Vercel Blob or local file system
-- **Internal API endpoints secured in production**
+- **All internal API endpoints are public by default**
 
-## Internal API Security
+## API Rate Limiting
 
-All internal API endpoints (`audio`, `delete-audio`, `health`, `log-message`, `transcript`, `chat`) require the `x-internal-api-secret` header in production for security. In local development (`NODE_ENV !== "production"`), these endpoints are accessible without the secret header for easier testing and development.
+All API endpoints are protected by a rate limiter middleware:
 
-- In production: requests must include the `x-internal-api-secret` header matching the `INTERNAL_API_SECRET` environment variable.
-- In development: the header is not required; all requests are allowed.
+- **Limits each IP to 100 requests per 15 minutes** (configurable)
+- Responds with HTTP 429 and logs the event if the limit is exceeded
+- Sets the following headers on all responses:
+  - `X-RateLimit-Limit`: Maximum requests allowed per window
+  - `X-RateLimit-Remaining`: Requests remaining in the current window
+  - `X-RateLimit-Reset`: Unix timestamp (seconds) when the window resets
+  - `Retry-After`: (on 429) Seconds until the next allowed request
 
 ## Setup
 
@@ -36,7 +41,6 @@ All internal API endpoints (`audio`, `delete-audio`, `health`, `log-message`, `t
      ```ini
      OPENAI_API_KEY=your_openai_api_key_here
      GOOGLE_APPLICATION_CREDENTIALS_JSON=config/gcp-key.json
-     INTERNAL_API_SECRET=your_internal_secret_here
      ```
    - For Vercel, paste the full JSON string for `GOOGLE_APPLICATION_CREDENTIALS_JSON` in the dashboard.
 
@@ -50,8 +54,8 @@ All internal API endpoints (`audio`, `delete-audio`, `health`, `log-message`, `t
    ```bash
    npm test
    ```
-   - API endpoint tests automatically mock the `x-internal-api-secret` header and required environment variables.
-   - All internal API endpoints are tested for both development and production security logic.
+   - API endpoint tests automatically mock required environment variables.
+   - All internal API endpoints are tested for public access and rate limiting.
 
 ## Project Structure
 
