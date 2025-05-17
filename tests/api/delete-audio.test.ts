@@ -23,7 +23,7 @@ describe("delete-audio API Handler", () => {
    * Returns isolated request, response, and mock objects for each test
    */
   const createTestObjects = () => {
-    const req = { query: {} } as Partial<NextApiRequest>;
+    const req = { query: {}, headers: { "x-internal-api-secret": process.env.INTERNAL_API_SECRET } } as Partial<NextApiRequest>;
     const res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn(),
@@ -49,6 +49,10 @@ describe("delete-audio API Handler", () => {
    */
   afterAll(() => {
     jest.restoreAllMocks();
+  });
+
+  beforeEach(() => {
+    process.env.INTERNAL_API_SECRET = process.env.INTERNAL_API_SECRET || "test-secret";
   });
 
   /**

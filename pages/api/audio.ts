@@ -24,10 +24,30 @@ function getOriginalTextForAudio(sanitizedFile: string): string | null {
   return null;
 }
 
+function isInternalRequest(req: import("next").NextApiRequest): boolean {
+  const internalSecret = process.env.INTERNAL_API_SECRET;
+  const clientSecret = req.headers["x-internal-api-secret"];
+  // Use both console.warn and logger.warn for debug so it always appears in Vercel logs
+  console.warn(`[Audio API] Debug: clientSecret=`, clientSecret, `internalSecret=`, internalSecret, `NODE_ENV=`, process.env.NODE_ENV, `VERCEL_ENV=`, process.env.VERCEL_ENV, `headers=`, req.headers);
+  logger.warn(`[Audio API] Debug: clientSecret=`, clientSecret, `internalSecret=`, internalSecret, `NODE_ENV=`, process.env.NODE_ENV, `VERCEL_ENV=`, process.env.VERCEL_ENV, `headers=`, req.headers);
+  if (
+    process.env.NODE_ENV !== "production" ||
+    (typeof process.env.VERCEL_ENV === "string" && process.env.VERCEL_ENV !== "production")
+  ) {
+    return true;
+  }
+  return Boolean(internalSecret) && clientSecret === internalSecret;
+}
+
 export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse,
+  req: import("next").NextApiRequest,
+  res: import("next").NextApiResponse,
 ) {
+  if (!isInternalRequest(req)) {
+    logger.warn(`[Audio API] 401 Unauthorized: Attempted access from non-internal source`);
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
   const { file } = req.query;
   if (!file || typeof file !== "string") {
     logger.info(`[Audio API] 400 Bad Request: File parameter is required`);

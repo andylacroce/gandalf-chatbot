@@ -1,15 +1,19 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import healthHandler from "../../pages/api/health";
 
-describe("Health API Handler", () => {
+beforeEach(() => {
+  process.env.INTERNAL_API_SECRET = process.env.INTERNAL_API_SECRET || "test-secret";
+});
+
+describe("/api/health", () => {
   it("should return 200 OK or 500 error depending on environment", async () => {
     // This test is only meaningful if valid credentials are set in the environment.
     // It will pass if status is 200 (healthy) or 500 (error, e.g. missing credentials).
-    const req = {} as NextApiRequest;
+    const req = { headers: { "x-internal-api-secret": process.env.INTERNAL_API_SECRET } } as unknown as NextApiRequest;
     const res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn(),
     } as unknown as NextApiResponse & { json: jest.Mock };
+    const healthHandler = (await import("../../pages/api/health")).default;
     await healthHandler(req, res);
     // Accept either 200 or 500 depending on environment
     expect(res.status).toHaveBeenCalledWith(expect.any(Number));
@@ -24,11 +28,12 @@ describe("Health API Handler", () => {
     const oldGoogle = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
     delete process.env.OPENAI_API_KEY;
     delete process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
-    const req = {} as NextApiRequest;
+    const req = { headers: { "x-internal-api-secret": process.env.INTERNAL_API_SECRET } } as unknown as NextApiRequest;
     const res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn(),
     } as unknown as NextApiResponse;
+    const healthHandler = (await import("../../pages/api/health")).default;
     await healthHandler(req, res);
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith(
@@ -41,5 +46,72 @@ describe("Health API Handler", () => {
     // Restore env vars
     if (oldOpenAI) process.env.OPENAI_API_KEY = oldOpenAI;
     if (oldGoogle) process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON = oldGoogle;
+  });
+
+  it("should return health status", async () => {
+    // Mock OpenAI and Google TTS to always succeed
+    process.env.OPENAI_API_KEY = "test-openai-key";
+    // Write fake credentials to a temp file and set the env var to its path
+    const fs = require("fs");
+    const path = require("path");
+    const tmpCredPath = path.join(__dirname, "fake-gcp-key.json");
+    fs.writeFileSync(tmpCredPath, JSON.stringify({
+      type: "service_account",
+      project_id: "test-project",
+      private_key_id: "test-key-id",
+      private_key: "-----BEGIN PRIVATE KEY-----\\ntest\\n-----END PRIVATE KEY-----\\n",
+      client_email: "test@test.iam.gserviceaccount.com",
+      client_id: "test-client-id",
+      auth_uri: "https://accounts.google.com/o/oauth2/auth",
+      token_uri: "https://oauth2.googleapis.com/token",
+      auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
+      client_x509_cert_url: "https://www.googleapis.com/robot/v1/metadata/x509/test@test.iam.gserviceaccount.com"
+    }));
+    process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON = tmpCredPath;
+    jest.resetModules();
+    jest.doMock("openai", () => {
+      return jest.fn().mockImplementation(() => ({
+        chat: {
+          completions: {
+            create: jest.fn().mockResolvedValue({
+              choices: [{ message: { content: "pong" } }],
+            }),
+          },
+        },
+      }));
+    });
+    jest.doMock("@google-cloud/text-to-speech", () => ({
+      TextToSpeechClient: jest.fn().mockImplementation(() => ({
+        synthesizeSpeech: jest.fn().mockResolvedValue([
+          { audioContent: Buffer.from("test-audio-content") },
+        ]),
+      })),
+      protos: {
+        google: {
+          cloud: {
+            texttospeech: {
+              v1: {
+                SsmlVoiceGender: { MALE: 1 },
+                AudioEncoding: { MP3: 2 },
+              },
+            },
+          },
+        },
+      },
+    }));
+    const healthHandler = (await import("../../pages/api/health")).default;
+    const req = { headers: { "x-internal-api-secret": process.env.INTERNAL_API_SECRET } } as unknown as NextApiRequest;
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    } as unknown as NextApiResponse;
+    await healthHandler(req, res);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        status: "ok",
+      }),
+    );
+    fs.unlinkSync(tmpCredPath);
   });
 });

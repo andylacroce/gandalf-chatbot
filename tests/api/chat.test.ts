@@ -88,12 +88,13 @@ describe("Chat API Handler", () => {
     // Mock environment variables
     process.env.OPENAI_API_KEY = "test-api-key";
     process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON = '{"test":"credentials"}';
+    process.env.INTERNAL_API_SECRET = process.env.INTERNAL_API_SECRET || "test-secret";
 
     // Setup request and response objects
     req = {
       method: "POST",
       body: { message: "Hello, Gandalf!" },
-      headers: { "x-forwarded-for": "127.0.0.1" },
+      headers: { "x-forwarded-for": "127.0.0.1", "x-internal-api-secret": process.env.INTERNAL_API_SECRET },
       connection: { remoteAddress: "127.0.0.1" } as unknown as Socket,
     } as Partial<NextApiRequest>;
 

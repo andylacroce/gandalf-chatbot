@@ -9,6 +9,10 @@ if (!global.TextDecoder) {
 import handler from "../../pages/api/log-message";
 import { createMocks } from "node-mocks-http";
 
+beforeEach(() => {
+  process.env.INTERNAL_API_SECRET = process.env.INTERNAL_API_SECRET || "test-secret";
+});
+
 describe("/api/log-message", () => {
   it("returns 200 for valid POST", async () => {
     const { req, res } = createMocks({
@@ -19,6 +23,7 @@ describe("/api/log-message", () => {
         sessionId: "abc12345",
         sessionDatetime: "2025-05-03T12-00-00",
       },
+      headers: { "x-internal-api-secret": process.env.INTERNAL_API_SECRET },
     });
     (req as any).env = {}; // Add missing env property
     await handler(req as any, res as any);
@@ -30,6 +35,7 @@ describe("/api/log-message", () => {
     const { req, res } = createMocks({
       method: "POST",
       body: { sender: "user" },
+      headers: { "x-internal-api-secret": process.env.INTERNAL_API_SECRET },
     });
     (req as any).env = {}; // Add missing env property
     await handler(req as any, res as any);
@@ -37,7 +43,10 @@ describe("/api/log-message", () => {
   });
 
   it("returns 405 for GET", async () => {
-    const { req, res } = createMocks({ method: "GET" });
+    const { req, res } = createMocks({
+      method: "GET",
+      headers: { "x-internal-api-secret": process.env.INTERNAL_API_SECRET },
+    });
     (req as any).env = {}; // Add missing env property
     await handler(req as any, res as any);
     expect(res._getStatusCode()).toBe(405);
