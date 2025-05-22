@@ -16,7 +16,7 @@
     "@trendmicro/react-toggle-switch": "^0.5.7",
     "@types/node-fetch": "^2.5.12",
     "@vercel/analytics": "^1.4.1",
-    "@vercel/blob": "^1.0.2",
+    "@vercel/blob": "^1.1.0",
     "@vercel/speed-insights": "^1.2.0",
     "axios": "^1.9.0",
     "critters": "^0.0.23",
