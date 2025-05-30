@@ -1,4 +1,3 @@
-import "openai/shims/node";
 import { NextApiRequest, NextApiResponse } from "next";
 import OpenAI from "openai";
 import textToSpeech, { protos } from "@google-cloud/text-to-speech";
