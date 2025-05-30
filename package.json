@@ -40,7 +40,7 @@
     "@types/react-dom": "^19.1.5",
     "@types/uuid": "^10.0.0",
     "autoprefixer": "^10.4.20",
-    "eslint": "^9.27.0",
+    "eslint": "^9.28.0",
     "eslint-config-next": "15.3.3",
     "express": "^5.1.0",
     "ipinfo": "^1.5.2",
