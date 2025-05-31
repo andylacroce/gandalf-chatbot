@@ -1,3 +1,10 @@
+// Polyfill clearImmediate for Node.js (needed for undici/Vercel Blob SDK in Jest)
+if (typeof global.clearImmediate === "undefined") {
+  global.clearImmediate = function (fn, ...args) {
+    return setImmediate(fn, ...args);
+  };
+}
+
 // Polyfill TextEncoder for Node.js before any other imports
 if (typeof global.TextEncoder === "undefined") {
   const { TextEncoder } = require("util");
@@ -34,3 +41,28 @@ console.warn = (...args) => {
   }
   originalWarn(...args);
 };
+
+// Polyfill performance.markResourceTiming for undici in Jest/jsdom
+global.performance = global.performance || {};
+global.performance.markResourceTiming = global.performance.markResourceTiming || (() => {});
+
+// Ensure all timers and mocks are cleaned up after each test to prevent open handles
+afterEach(() => {
+  jest.clearAllTimers();
+  jest.restoreAllMocks();
+});
+
+// Clean up undici's global dispatcher to close open TCP handles after all tests
+try {
+  const { globalDispatcher } = require("undici");
+  afterAll(() => {
+    if (
+      globalDispatcher &&
+      typeof globalDispatcher.close === "function"
+    ) {
+      globalDispatcher.close();
+    }
+  });
+} catch (e) {
+  // undici not used, ignore
+}

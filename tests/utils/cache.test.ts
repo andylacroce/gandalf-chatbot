@@ -10,28 +10,34 @@ describe("cache utility", () => {
     beforeEach(() => {
       process.env.VERCEL_ENV = "1";
       jest.resetModules();
-      // Clear in-memory cache
-      const memoryCache = require("../../src/utils/cache").__get__?.(
-        "memoryCache",
-      );
-      if (memoryCache)
-        Object.keys(memoryCache).forEach((k) => delete memoryCache[k]);
+      // Clear in-memory cache by resetting the module
+      const mod = require.cache[require.resolve("../../src/utils/cache")];
+      if (mod) delete require.cache[require.resolve("../../src/utils/cache")];
     });
     afterEach(() => {
       delete process.env.VERCEL_ENV;
     });
 
     it("set/get/delete works in memory", () => {
-      cache.setReplyCache(key, value);
-      expect(cache.getReplyCache(key)).toBe(value);
-      cache.deleteReplyCache(key);
-      expect(cache.getReplyCache(key)).toBeNull();
+      const cacheMod = require("../../src/utils/cache");
+      cacheMod.setReplyCache(key, value);
+      expect(cacheMod.getReplyCache(key)).toBe(value);
+      cacheMod.deleteReplyCache(key);
+      expect(cacheMod.getReplyCache(key)).toBeNull();
     });
     it("get returns null for missing key", () => {
-      expect(cache.getReplyCache("missing")).toBeNull();
+      const cacheMod = require("../../src/utils/cache");
+      expect(cacheMod.getReplyCache("missing")).toBeNull();
     });
     it("delete does not throw for missing key", () => {
-      expect(() => cache.deleteReplyCache("missing")).not.toThrow();
+      const cacheMod = require("../../src/utils/cache");
+      expect(() => cacheMod.deleteReplyCache("missing")).not.toThrow();
+    });
+    it("set overwrites existing key in memory", () => {
+      const cacheMod = require("../../src/utils/cache");
+      cacheMod.setReplyCache(key, value);
+      cacheMod.setReplyCache(key, "newValue");
+      expect(cacheMod.getReplyCache(key)).toBe("newValue");
     });
   });
 

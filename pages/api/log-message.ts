@@ -28,13 +28,15 @@ function escapeHtml(str: string): string {
  * @returns {boolean} True if the IP is public.
  */
 function isValidPublicIp(ip: string): boolean {
-  // Remove port if present
-  ip = ip.split(":")[0];
+  // Remove port if present (only for IPv4)
+  if (/^\d+\.\d+\.\d+\.\d+:\d+$/.test(ip)) {
+    ip = ip.split(":")[0];
+  }
   // IPv4 regex
   const ipv4 =
     /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
-  // IPv6 regex (simple, not exhaustive)
-  const ipv6 = /^([\da-fA-F]{1,4}:){7}[\da-fA-F]{1,4}$/;
+  // IPv6 regex (permissive, matches :: and full addresses)
+  const ipv6 = /^([\da-fA-F]{1,4}:){1,7}[\da-fA-F]{1,4}$|^::1$|^::$|^([\da-fA-F]{1,4}:){1,7}:$/;
   // Private IPv4 ranges
   const privateRanges = [
     /^10\./,
@@ -89,11 +91,7 @@ export default async function handler(
         });
     }
 
-    // Sanitize sender and text to prevent XSS in logs
-    const safeSender = escapeHtml(sender);
-    const safeText = escapeHtml(text);
-
-    // Validate input types and lengths
+    // Validate input types and lengths BEFORE sanitizing
     if (typeof sender !== "string" || sender.length > 100) {
       logger.info(`[Log API] 400 Bad Request: Invalid sender`);
       return res.status(400).json({ error: "Invalid sender" });
@@ -110,6 +108,10 @@ export default async function handler(
       logger.info(`[Log API] 400 Bad Request: Invalid sessionDatetime`);
       return res.status(400).json({ error: "Invalid sessionDatetime" });
     }
+
+    // Sanitize sender and text to prevent XSS in logs
+    const safeSender = escapeHtml(sender);
+    const safeText = escapeHtml(text);
 
     // Prevent log injection by removing newlines and control characters
     const cleanSender = safeSender.replace(/[\r\n\t\0\x0B\f]/g, "");
@@ -177,6 +179,7 @@ export default async function handler(
         });
       } catch (error) {
         logger.error("[Log API] Error appending to Vercel Blob:", error);
+        return res.status(500).json({ error: "Internal Server Error" });
       }
     } else {
       // Append to local file
@@ -186,7 +189,8 @@ export default async function handler(
 
         // Validate that filePath is within logDir to prevent path traversal
         const resolvedFilePath = path.resolve(filePath);
-        if (!resolvedFilePath.startsWith(logDir + path.sep)) {
+        const rel = path.relative(logDir, resolvedFilePath);
+        if (rel.startsWith('..') || path.isAbsolute(rel)) {
           throw new Error("Invalid log file path");
         }
 
@@ -194,6 +198,7 @@ export default async function handler(
         fs.appendFileSync(resolvedFilePath, logEntry, "utf8");
       } catch (error) {
         logger.error("[Log API] Error appending to local file:", error);
+        return res.status(500).json({ error: "Internal Server Error" });
       }
     }
     // --- End Append to Log ---
@@ -206,3 +211,5 @@ export default async function handler(
     logger.info(`[Log API] 500 Internal Server Error`);
   }
 }
+
+export { escapeHtml, isValidPublicIp };

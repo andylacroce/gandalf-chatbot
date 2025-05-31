@@ -118,4 +118,25 @@ describe("downloadTranscript", () => {
     expect(body.exportedAt).toMatch(/[A-Z]{2,4}/); // Should include a timezone abbreviation
     global.Date = realDate;
   });
+
+  it("calls revokeObjectURL and removes anchor after download", async () => {
+    jest.useFakeTimers();
+    const createObjectURL = jest.fn(() => "blob:url");
+    const revokeObjectURL = jest.fn();
+    if (!window.URL.createObjectURL) window.URL.createObjectURL = () => "";
+    if (!window.URL.revokeObjectURL) window.URL.revokeObjectURL = () => {};
+    jest.spyOn(window.URL, "createObjectURL").mockImplementation(createObjectURL);
+    jest.spyOn(window.URL, "revokeObjectURL").mockImplementation(revokeObjectURL);
+    const click = jest.fn();
+    const remove = jest.fn();
+    const anchor = document.createElement("a");
+    anchor.click = click;
+    anchor.remove = remove;
+    document.createElement = jest.fn(() => anchor) as any;
+    await downloadTranscript([{ role: "user", content: "hi" }]);
+    jest.runAllTimers();
+    expect(revokeObjectURL).toHaveBeenCalledWith("blob:url");
+    expect(remove).toHaveBeenCalled();
+    jest.useRealTimers();
+  });
 });

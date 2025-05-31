@@ -34,4 +34,57 @@ describe("/api/transcript", () => {
     },
     10000 // 10 seconds timeout
   );
+
+  it("should return 405 for non-POST methods", async () => {
+    const { req, res } = createMocks({
+      method: "GET",
+    });
+    await handler(req as any, res as any);
+    expect(res._getStatusCode()).toBe(405);
+    expect(res._getData()).toContain("Method GET Not Allowed");
+    expect(res.getHeader("Allow")).toContain("POST");
+  });
+
+  it("should return 400 if messages is missing", async () => {
+    const { req, res } = createMocks({
+      method: "POST",
+      body: {},
+    });
+    await handler(req as any, res as any);
+    expect(res._getStatusCode()).toBe(400);
+    expect(res._getData()).toContain("Messages array required");
+  });
+
+  it("should return 400 if messages is not an array", async () => {
+    const { req, res } = createMocks({
+      method: "POST",
+      body: { messages: "not-an-array" },
+    });
+    await handler(req as any, res as any);
+    expect(res._getStatusCode()).toBe(400);
+    expect(res._getData()).toContain("Messages array required");
+  });
+
+  it("should handle empty messages array", async () => {
+    const { req, res } = createMocks({
+      method: "POST",
+      body: { messages: [], exportedAt: undefined },
+    });
+    await handler(req as any, res as any);
+    expect(res._getStatusCode()).toBe(200);
+    expect(res._getData()).toContain("Messages: 0");
+  });
+
+  it("should encode filename and set headers", async () => {
+    const { req, res } = createMocks({
+      method: "POST",
+      body: { messages: [{ sender: "User", text: "Hi" }], exportedAt: undefined },
+    });
+    await handler(req as any, res as any);
+    expect(res.getHeader("Content-Type")).toContain("text/plain");
+    const contentDisposition = res.getHeader("Content-Disposition") as string;
+    expect(contentDisposition).toContain("attachment;");
+    expect(contentDisposition).toContain("filename=");
+    expect(contentDisposition).toContain("filename*=UTF-8''");
+  });
 });
