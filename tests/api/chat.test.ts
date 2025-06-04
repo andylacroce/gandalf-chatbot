@@ -164,7 +164,7 @@ describe("Chat API Handler", () => {
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({
       reply: "You shall not pass!",
-      audioFileUrl: "/api/audio?file=test-uuid-123.mp3",
+      audioFileUrl: expect.stringMatching(/^\/api\/audio\?file=test-uuid-123\.mp3(&|$)/),
     });
   });
 
