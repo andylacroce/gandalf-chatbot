@@ -157,7 +157,13 @@ const ChatPage = () => {
   useEffect(() => {
     axios
       .get("/api/health")
-      .then(() => setApiAvailable(true))
+      .then(() => {
+        setApiAvailable(true);
+        // Focus input if available after health check
+        if (inputRef.current) {
+          inputRef.current.focus();
+        }
+      })
       .catch(() => {
         setApiAvailable(false);
         setError(""); // Clear any previous error
