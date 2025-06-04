@@ -202,6 +202,18 @@ export default async function handler(
         .status(500)
         .json({ error: "Google Cloud TTS failed", details: errorMessage });
     }
+    // --- Ensure .txt file is always written and matches reply ---
+    try {
+      const txtFilePath = audioFilePath.replace(/\.mp3$/, ".txt");
+      if (
+        !fs.existsSync(txtFilePath) ||
+        fs.readFileSync(txtFilePath, "utf8").trim() !== gandalfReply.trim()
+      ) {
+        fs.writeFileSync(txtFilePath, gandalfReply, "utf8");
+      }
+    } catch (err) {
+      logger.error("Failed to ensure .txt file for audio reply:", err);
+    }
 
     logger.info(
       `${timestamp}|${userIp}|${userLocation}|${userMessage.replace(/"/g, '""')}|${gandalfReply.replace(/"/g, '""')}`,
