@@ -124,3 +124,5 @@ export async function synthesizeSpeechToFile({
   }
   throw lastError;
 }
+
+export { getGoogleAuthCredentials, getTTSClient };
