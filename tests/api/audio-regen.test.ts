@@ -273,3 +273,201 @@ jest.mock("openai", () => {
 function setOpenAIMock(mockImpl: any) {
   (global as any).__OPENAI_MOCK__ = mockImpl;
 }
+
+describe("edge cases and public dir fallback", () => {
+  const createTestObjects = () => {
+    const req = {
+      query: {},
+      headers: { "x-internal-api-secret": process.env.INTERNAL_API_SECRET },
+    } as Partial<NextApiRequest>;
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+      setHeader: jest.fn(),
+      send: jest.fn(),
+    } as unknown as NextApiResponse;
+    return { req, res };
+  };
+
+  it("should use .txt from public if not in /tmp and match expected text", async () => {
+    const { req, res } = createTestObjects();
+    req.query = { file: "publicfile.mp3", text: "MATCHING PUBLIC" };
+    const audioContent = Buffer.from("audio content");
+    const txtPathPublic = require("path").resolve("public", "publicfile.txt");
+    const mp3PathPublic = require("path").resolve("public", "publicfile.mp3");
+    jest.spyOn(require("fs"), "existsSync").mockImplementation((filePath) => {
+      if (filePath === mp3PathPublic) return true;
+      if (filePath === txtPathPublic) return true;
+      return false;
+    });
+    jest.spyOn(require("fs"), "realpathSync").mockImplementation((filePath) => {
+      if (filePath === mp3PathPublic) return mp3PathPublic;
+      if (filePath === txtPathPublic) return txtPathPublic;
+      throw new Error("ENOENT");
+    });
+    jest.spyOn(require("fs"), "readFileSync").mockImplementation((filePath, encoding) => {
+      if (filePath === txtPathPublic) return "MATCHING PUBLIC";
+      if (filePath === mp3PathPublic) return audioContent;
+      throw new Error("ENOENT");
+    });
+    await audioHandler(req as NextApiRequest, res as NextApiResponse);
+    expect(res.setHeader).toHaveBeenCalledWith("Content-Type", "audio/mpeg");
+    expect(res.send).toHaveBeenCalledWith(audioContent);
+  });
+
+  it("should regenerate if .txt in public does not match expected text", async () => {
+    const { req, res } = createTestObjects();
+    req.query = { file: "publicfile.mp3", text: "EXPECTED" };
+    const audioContent = Buffer.from("audio content");
+    const txtPathPublic = require("path").resolve("public", "publicfile.txt");
+    const mp3PathPublic = require("path").resolve("public", "publicfile.mp3");
+    jest.spyOn(require("fs"), "existsSync").mockImplementation((filePath) => {
+      if (filePath === mp3PathPublic) return true;
+      if (filePath === txtPathPublic) return true;
+      return false;
+    });
+    jest.spyOn(require("fs"), "realpathSync").mockImplementation((filePath) => {
+      if (filePath === mp3PathPublic) return mp3PathPublic;
+      if (filePath === txtPathPublic) return txtPathPublic;
+      throw new Error("ENOENT");
+    });
+    jest.spyOn(require("fs"), "readFileSync").mockImplementation((filePath, encoding) => {
+      if (filePath === txtPathPublic) return "OLD PUBLIC";
+      if (filePath === mp3PathPublic) return audioContent;
+      throw new Error("ENOENT");
+    });
+    const synthesizeSpy = jest.spyOn(require("../../src/utils/tts"), "synthesizeSpeechToFile").mockResolvedValue(undefined);
+    const writeFileSyncSpy = jest.spyOn(require("fs"), "writeFileSync").mockImplementation(() => {});
+    await audioHandler(req as NextApiRequest, res as NextApiResponse);
+    expect(synthesizeSpy).toHaveBeenCalledWith(expect.objectContaining({ text: expect.stringContaining("EXPECTED") }));
+    expect(writeFileSyncSpy).toHaveBeenCalledWith(expect.stringMatching(/publicfile\.txt$/), "EXPECTED", "utf8");
+    expect(res.setHeader).toHaveBeenCalledWith("Content-Type", "audio/mpeg");
+    expect(res.send).toHaveBeenCalledWith(audioContent);
+  });
+
+  it("should handle synthesizeSpeechToFile failure in fallback and log error", async () => {
+    const { req, res } = createTestObjects();
+    req.query = { file: "failregen.mp3" };
+    const txtPath = require("path").resolve("/tmp", "failregen.txt");
+    jest.spyOn(require("fs"), "existsSync").mockImplementation((filePath) => filePath === txtPath);
+    jest.spyOn(require("fs"), "realpathSync").mockImplementation((filePath) => filePath === txtPath ? txtPath : "");
+    jest.spyOn(require("fs"), "readFileSync").mockImplementation((filePath, encoding) => filePath === txtPath ? "Some text" : "");
+    const synthesizeSpy = jest.spyOn(require("../../src/utils/tts"), "synthesizeSpeechToFile").mockRejectedValue(new Error("tts fail"));
+    const logger = require("../../src/utils/logger").default;
+    const errorSpy = jest.spyOn(logger, "error");
+    await audioHandler(req as NextApiRequest, res as NextApiResponse);
+    expect(synthesizeSpy).toHaveBeenCalled();
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("Failed to regenerate audio from cached text"), expect.any(Error));
+    errorSpy.mockRestore();
+  });
+
+  it("should serve regenerated audio from /tmp if it appears there after regen", async () => {
+    const { req, res } = createTestObjects();
+    req.query = { file: "regentmp.mp3", text: "Some Gandalf reply" };
+    let regenDone = false;
+    // Simulate both .mp3 and .txt files for regentmp
+    jest.spyOn(require("fs"), "existsSync").mockImplementation((filePath) => {
+      if (typeof filePath === "string" && filePath.includes("regentmp.mp3")) {
+        return regenDone;
+      }
+      if (typeof filePath === "string" && filePath.includes("regentmp.txt")) {
+        return regenDone;
+      }
+      return false;
+    });
+    jest.spyOn(require("fs"), "realpathSync").mockImplementation((filePath) => {
+      if (regenDone && typeof filePath === "string" && (filePath.includes("regentmp.mp3") || filePath.includes("regentmp.txt"))) {
+        return filePath;
+      }
+      throw new Error("ENOENT");
+    });
+    jest.spyOn(require("fs"), "readFileSync").mockImplementation((filePath) => {
+      if (typeof filePath === "string" && filePath.includes("regentmp.mp3")) {
+        return Buffer.from("audio content");
+      }
+      if (typeof filePath === "string" && filePath.includes("regentmp.txt")) {
+        return "Some Gandalf reply";
+      }
+      throw new Error("ENOENT");
+    });
+    // Simulate synthesizeSpeechToFile sets regenDone to true (files appear in /tmp)
+    const synthesizeSpy = jest.spyOn(require("../../src/utils/tts"), "synthesizeSpeechToFile").mockImplementation(async () => { regenDone = true; });
+    await audioHandler(req as NextApiRequest, res as NextApiResponse);
+    expect(synthesizeSpy).toHaveBeenCalled();
+    expect(res.setHeader).toHaveBeenCalledWith("Content-Type", "audio/mpeg");
+    expect(res.send).toHaveBeenCalledWith(Buffer.from("audio content"));
+  });
+
+  it("should handle fs.writeFileSync error in fallback and log", async () => {
+    const { req, res } = createTestObjects();
+    req.query = { file: "failwrite.mp3", text: "SOME TEXT" };
+    const txtPath = require("path").resolve("/tmp", "failwrite.txt");
+    const mp3Path = require("path").resolve("/tmp", "failwrite.mp3");
+    jest.spyOn(require("fs"), "existsSync").mockImplementation((filePath) => {
+      if (filePath === mp3Path) return true;
+      if (filePath === txtPath) return false;
+      return false;
+    });
+    jest.spyOn(require("fs"), "realpathSync").mockImplementation((filePath) => {
+      if (filePath === mp3Path) return mp3Path;
+      throw new Error("ENOENT");
+    });
+    jest.spyOn(require("fs"), "readFileSync").mockImplementation((filePath) => {
+      if (filePath === mp3Path) return Buffer.from("audio content");
+      throw new Error("ENOENT");
+    });
+    jest.spyOn(require("fs"), "writeFileSync").mockImplementation(() => { throw new Error("fail write"); });
+    const logger = require("../../src/utils/logger").default;
+    const errorSpy = jest.spyOn(logger, "error");
+    await audioHandler(req as NextApiRequest, res as NextApiResponse);
+    // Accept either error message depending on which code path throws
+    expect(errorSpy).toHaveBeenCalledWith(
+      expect.stringMatching(/Failed to (synthesize audio from text param|ensure \.txt file for audio reply)/),
+      expect.any(Error)
+    );
+    errorSpy.mockRestore();
+  });
+
+  it("should handle fs.readFileSync error in fallback and log (or throw)", async () => {
+    const { req, res } = createTestObjects();
+    req.query = { file: "failreadtxt.mp3", text: "SOME TEXT" };
+    const txtPath = require("path").resolve("/tmp", "failreadtxt.txt");
+    const mp3Path = require("path").resolve("/tmp", "failreadtxt.mp3");
+    jest.spyOn(require("fs"), "existsSync").mockImplementation((filePath) => {
+      if (filePath === mp3Path) return true;
+      if (filePath === txtPath) return true;
+      return false;
+    });
+    jest.spyOn(require("fs"), "realpathSync").mockImplementation((filePath) => {
+      if (filePath === mp3Path) return mp3Path;
+      if (filePath === txtPath) return txtPath;
+      throw new Error("ENOENT");
+    });
+    jest.spyOn(require("fs"), "readFileSync").mockImplementation((filePath) => {
+      if (filePath === txtPath) throw new Error("fail read");
+      if (filePath === mp3Path) return Buffer.from("audio content");
+      throw new Error("ENOENT");
+    });
+    const logger = require("../../src/utils/logger").default;
+    const errorSpy = jest.spyOn(logger, "error");
+    let threw = false;
+    try {
+      await audioHandler(req as NextApiRequest, res as NextApiResponse);
+    } catch (e) {
+      threw = true;
+      if (e instanceof Error) {
+        expect(e.message).toMatch(/fail read/);
+      } else {
+        throw e;
+      }
+    }
+    // Accept either: error is logged, or error is thrown
+    if (!threw) {
+      expect(errorSpy).toHaveBeenCalledWith(
+        expect.stringMatching(/Failed to (synthesize audio from text param|ensure \.txt file for audio reply)/),
+        expect.any(Error)
+      );
+    }
+    errorSpy.mockRestore();
+  });
+});
