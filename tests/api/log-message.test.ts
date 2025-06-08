@@ -13,6 +13,11 @@ beforeEach(() => {
   process.env.INTERNAL_API_SECRET = process.env.INTERNAL_API_SECRET || "test-secret";
 });
 
+afterEach(() => {
+  jest.restoreAllMocks();
+  (global as any).fetch = undefined;
+});
+
 describe("/api/log-message", () => {
   it("returns 200 for valid POST", async () => {
     const { req, res } = createMocks({
