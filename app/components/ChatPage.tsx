@@ -26,6 +26,7 @@ import ApiUnavailableModal from "./ApiUnavailableModal";
 import ChatHeader from "./ChatHeader";
 import { Message } from "../../src/types/message";
 import { useChatScrollAndFocus } from "./useChatScrollAndFocus";
+import { useApiError } from "./useApiError";
 
 /**
  * ChatPage component that handles the chat interface and interactions with the Gandalf AI.
@@ -38,10 +39,10 @@ const ChatPage = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>("");
   const [audioEnabled, setAudioEnabled] = useState<boolean>(true);
   const [apiAvailable, setApiAvailable] = useState<boolean>(true);
   const [sessionId, sessionDatetime] = useSession(); // Use useSession hook
+  const { error, setError, handleApiError } = useApiError();
 
   // Refs
   const chatBoxRef = useRef<HTMLDivElement>(null);
@@ -81,8 +82,7 @@ const ChatPage = () => {
 
   const sendMessage = useCallback(async () => {
     if (!input.trim() || !apiAvailable || loading) return;
-
-    const userMessage: Message = { sender: "User", text: input }; // Define user message object
+    const userMessage: Message = { sender: "User", text: input };
     // Use functional update for adding user message to avoid stale state
     setMessages((prevMessages) => [...prevMessages, userMessage]);
     const currentInput = input; // Capture input before clearing
@@ -108,9 +108,8 @@ const ChatPage = () => {
       if (audioEnabledRef.current && gandalfReply.audioFileUrl) {
         await playAudio(gandalfReply.audioFileUrl);
       }
-    } catch (error) {
-      console.error("Error sending message:", error);
-      setError("Error sending message. Please try again.");
+    } catch (err) {
+      handleApiError(err);
     } finally {
       setLoading(false);
     }
@@ -121,7 +120,9 @@ const ChatPage = () => {
     playAudio,
     apiAvailable,
     logMessage,
-    loading
+    loading,
+    handleApiError,
+    setError // Added to satisfy exhaustive-deps lint rule
   ]); // input added back to dependencies per lint rule
 
   // Handle keyboard input (Enter key)
@@ -164,11 +165,11 @@ const ChatPage = () => {
           inputRef.current.focus();
         }
       })
-      .catch(() => {
+      .catch((err) => {
         setApiAvailable(false);
-        setError(""); // Clear any previous error
+        handleApiError(err);
       });
-  }, []);
+  }, [handleApiError]);
 
   // Download transcript handler - USE THE UTILITY
   const handleDownloadTranscript = async () => {

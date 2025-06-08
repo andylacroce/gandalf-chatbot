@@ -36,14 +36,14 @@
   font-weight: bold;
   color: var(--color-sender);
   font-family: var(--font-secondary), var(--font-primary), serif;
-  font-size: 2.2rem;
+  font-size: 1.4rem;
 }
 
 /* Gandalf sender name override */
 .gandalfSender {
   color: var(--gandalf-sender);
   font-family: var(--font-secondary), var(--font-primary), serif;
-  font-size: 2.2rem;
+  font-size: 1.4rem;
 }
 
 /* Make all message text inside chat bubbles large */

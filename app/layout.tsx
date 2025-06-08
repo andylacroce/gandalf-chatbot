@@ -23,6 +23,19 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
     <html lang="en" className="">
       <head>
         <title>Gandalf Chatbot</title>
+        <meta name="description" content="Chat with Gandalf the Grey, powered by AI and Google TTS. Enjoy a magical, voice-enabled chat experience!" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" href="/favicon.ico" />
+        {/* Open Graph / Facebook */}
+        <meta property="og:title" content="Gandalf Chatbot" />
+        <meta property="og:description" content="Chat with Gandalf the Grey, powered by AI and Google TTS." />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="/gandalf.jpg" />
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Gandalf Chatbot" />
+        <meta name="twitter:description" content="Chat with Gandalf the Grey, powered by AI and Google TTS." />
+        <meta name="twitter:image" content="/gandalf.jpg" />
       </head>
       <body>
         {/* Removed .container wrapper to allow sticky positioning to work */}

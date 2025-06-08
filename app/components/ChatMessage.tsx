@@ -43,9 +43,13 @@ const ChatMessage = React.memo(({ message }: { message: Message }) => {
   const senderClass = isUser ? styles.sender : `${styles.sender} ${styles.gandalfSender}`;
 
   return (
-    <div className={`${styles.message} ${messageClass} my-2`} role="article">
+    <div
+      className={`${styles.message} ${messageClass} my-2`}
+      role="article"
+      aria-label={isUser ? `Message from you: ${message.text}` : `Message from Gandalf: ${message.text}`}
+    >
       <div className="rounded p-2 text-sm">
-        <div className={`mb-1 ${senderClass} text-left`}>
+        <div className={`mb-1 ${senderClass} text-left`} style={{ fontSize: '1.4rem' }}>
           {isUser ? "Me" : "Gandalf"}
         </div>
         <div className="text-left">

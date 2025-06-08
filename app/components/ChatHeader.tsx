@@ -8,7 +8,7 @@ interface ChatHeaderProps {
 }
 
 const ChatHeader: React.FC<ChatHeaderProps> = ({ onDownloadTranscript, onHeaderLinkClick }) => (
-  <div className={styles.chatHeader} data-testid="chat-header">
+  <div className={styles.chatHeader} data-testid="chat-header" role="banner">
     <div className={styles.chatHeaderContent}>
       <div className={styles.headerLeft}>
         <div className="mt-2">
@@ -42,6 +42,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ onDownloadTranscript, onHeaderL
           target="_blank"
           rel="noopener noreferrer"
           onClick={onHeaderLinkClick}
+          aria-label="Visit Andy Lacroce on Mastodon"
         >
           <Image src="/mastodon.png" alt="Mastodon" width={50} height={50} />
         </a>
@@ -50,6 +51,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ onDownloadTranscript, onHeaderL
           target="_blank"
           rel="noopener noreferrer"
           onClick={onHeaderLinkClick}
+          aria-label="Visit Andy Lacroce's website"
         >
           <Image src="/dexter.webp" alt="Dexter" width={50} height={50} />
         </a>

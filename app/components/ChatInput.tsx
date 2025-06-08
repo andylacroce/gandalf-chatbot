@@ -25,7 +25,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
   onAudioToggle,
 }) => (
   <div className={styles.chatInputArea} data-testid="chat-input-area">
-    <div className={styles.chatInputContainer} data-testid="chat-input-container">
+    <div className={styles.chatInputContainer} data-testid="chat-input-container" role="group" aria-label="Chat input area">
       <input
         type="text"
         value={input}
@@ -37,6 +37,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
         disabled={loading || !apiAvailable}
         autoFocus
         data-testid="chat-input"
+        aria-label="Type your message"
+        aria-disabled={loading || !apiAvailable}
       />
       <button
         onClick={onSend}
@@ -47,6 +49,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
         }
         disabled={loading || !apiAvailable}
         data-testid="chat-send-button"
+        aria-label={loading || !apiAvailable ? "Send disabled" : "Send message"}
       >
         {loading || !apiAvailable ? "HOLD" : "Send"}
       </button>
