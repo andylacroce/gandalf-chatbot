@@ -8,33 +8,37 @@
    ============================= */
 
 /* --- Google Fonts Import --- */
-@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&family=Lato:wght@400;700&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;700&family=UnifrakturCook:wght@700&family=Roboto:wght@400;700&display=swap');
 
 :root {
   /* Typography variables */
-  --font-primary: "Open Sans", sans-serif;
-  --font-secondary: "Lato", sans-serif;
-  /* Color palette for backgrounds, text, and UI elements */
-  --color-background: #000000;
-  --color-text: #f7ecd6;
-  --color-sender: #e0c28c;
-  --card-body-bg: #2d1e12;
-  --chatbox-background: #000000;
-  --user-message-bg: #7c5e3c;
-  --gandalf-message-bg: #f7ecd6;
-  --button-bg: #7c5e3c;
-  --button-hover-bg: #a67c52;
-  --disabled-bg: #3e2a18;
-  --disabled-text: #e0c9a6;
-  --send-button-bg: #4b3826;
-  --send-button-hover-bg: #a67c52;
-  --send-button-text: #fff8e1;
-  --input-bg: #2d1e12;
-  --input-text: #f7ecd6;
-  --input-placeholder: #e0c28c;
-  --scrollbar-bg: #7c5e3c;
-  --scrollbar-thumb: #bfa77a;
-  --gandalf-sender: #7c5e3c;
+  --font-primary: 'Roboto', sans-serif;
+  --font-secondary: 'UnifrakturCook', cursive;
+  /* Gandalf-inspired color palette: black, silver, blue-grey, subtle accent */
+  --color-background: #000; /* true black for backgrounds */
+  --color-text: #e6e7e9; /* silver */
+  --color-sender: #7fa7c7; /* soft mystical blue */
+  --card-body-bg: #181a1b; /* very dark grey for cards */
+  --chatbox-background: #000;
+  --user-message-bg: #23272b; /* deep charcoal */
+  --gandalf-message-bg: #e6e7e9; /* silver */
+  --button-bg: #31363b; /* blue-grey */
+  --button-hover-bg: #4a5a6a; /* lighter blue-grey */
+  --disabled-bg: #23272b; /* muted dark */
+  --disabled-text: #b0b8c9;
+  --send-button-bg: #31363b;
+  --send-button-hover-bg: #4a5a6a;
+  --send-button-text: #fff;
+  --input-bg: #181a1b;
+  --input-text: #e6e7e9;
+  --input-placeholder: #7fa7c7;
+  --scrollbar-bg: #181a1b;
+  --scrollbar-thumb: #31363b;
+  --gandalf-sender: #7fa7c7;
+  --color-primary: #7fa7c7; /* blue accent */
+  --button-shadow: #000;
+  --button-shadow-hover: #181a1b;
+  --chat-message-font-size: 2.2rem;
 }
 
 /* --- CSS Reset and Base Styles --- */

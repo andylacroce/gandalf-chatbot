@@ -15,25 +15,39 @@
 /* User message bubble (right-aligned) */
 .userMessage {
   background-color: var(--user-message-bg);
+  color: var(--color-text);
+  font-family: var(--font-primary), serif;
   align-self: flex-end;
   text-align: right;
+  font-size: 2.2rem !important;
 }
 
 /* Gandalf message bubble (left-aligned, themed) */
 .gandalfMessage {
   background-color: var(--gandalf-message-bg);
+  color: var(--card-body-bg);
+  font-family: var(--font-primary), serif;
   align-self: flex-start;
-  color: var(--card-body-bg); /* Use variable for dark text */
+  font-size: 2.2rem !important;
 }
 
 /* Sender name styling */
 .sender {
   font-weight: bold;
   color: var(--color-sender);
-  margin-bottom: 5px;
+  font-family: var(--font-secondary), var(--font-primary), serif;
+  font-size: 2.2rem;
 }
 
 /* Gandalf sender name override */
 .gandalfSender {
   color: var(--gandalf-sender);
+  font-family: var(--font-secondary), var(--font-primary), serif;
+  font-size: 2.2rem;
+}
+
+/* Make all message text inside chat bubbles large */
+.message .text-left {
+  font-size: var(--chat-message-font-size) !important;
+  font-family: var(--font-primary), sans-serif !important;
 }

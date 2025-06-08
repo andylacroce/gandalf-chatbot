@@ -19,6 +19,8 @@
   max-height: 100vh;
   margin: 0;
   background: var(--color-background);
+  color: var(--color-text);
+  font-family: var(--font-primary), serif;
   min-height: 0; /* Ensure flex children can shrink for scrolling */
 }
 
@@ -39,6 +41,8 @@
   max-width: 800px;
   margin: 0 auto;
   background: var(--color-background);
+  color: var(--color-text);
+  font-family: var(--font-primary), serif;
   padding-left: 12px;
   padding-right: 12px;
   position: relative;
@@ -63,6 +67,7 @@
   margin: 0 auto;
   pointer-events: none;
   height: 38px; /* slightly taller than the spinner image, with a few px of padding */
+  background: #000;
 }
 
 /* --- Download Transcript Button --- */
@@ -101,8 +106,9 @@
   Styled for readability and accessibility.
 */
 .modalError {
-  background: var(--color-background, #fff);
-  color: var(--color-text, #222);
+  background: var(--color-background, #18141a);
+  color: var(--color-text, #f3f0e7);
+  font-family: var(--font-primary), serif;
   border-radius: 16px;
   box-shadow: 0 8px 32px #0008;
   padding: 2.5rem 2rem 2rem 2rem;
@@ -134,7 +140,8 @@
   font-size: 1.5rem;
   font-weight: bold;
   margin-bottom: 0.5rem;
-  color: var(--color-primary, #7c4dff);
+  color: var(--color-primary, #bfae7c);
+  font-family: var(--font-secondary), var(--font-primary), serif;
 }
 
 /* --- API Error Description --- */
@@ -144,5 +151,6 @@
 */
 .apiErrorDesc {
   font-size: 1.1rem;
-  color: var(--color-text, #222);
+  color: var(--color-text, #f3f0e7);
+  font-family: var(--font-primary), serif;
 }
