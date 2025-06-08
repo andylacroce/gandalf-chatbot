@@ -62,3 +62,66 @@ describe("synthesizeSpeechToFile", () => {
     process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON = orig;
   });
 });
+
+describe("tts utility edge cases", () => {
+  it("should handle file write errors gracefully", async () => {
+    jest.resetModules();
+    const fs = require("fs");
+    const origWriteFileSync = fs.writeFileSync;
+    fs.writeFileSync = jest.fn(() => { throw new Error("Disk full"); });
+    const { tts } = require("../../src/utils/tts");
+    await expect(tts("hello", "en"))
+      .rejects.toThrow("Disk full");
+    fs.writeFileSync = origWriteFileSync; // restore after test
+  });
+
+  it("should retry on temporary errors with correct timing", async () => {
+    jest.useFakeTimers();
+    jest.resetModules();
+    const setTimeoutSpy = jest.spyOn(global, "setTimeout");
+    const fetch = jest.fn()
+      .mockRejectedValueOnce(new Error("Temporary error"))
+      .mockResolvedValue({ ok: true, arrayBuffer: async () => new ArrayBuffer(8) });
+    jest.doMock("node-fetch", () => fetch);
+    const { tts } = require("../../src/utils/tts");
+    const promise = tts("retry", "en");
+    await Promise.resolve(); // let the first rejection happen
+    jest.advanceTimersByTime(500); // advance for first retry
+    await jest.runOnlyPendingTimersAsync(); // flush timers and microtasks
+    await promise;
+    expect(setTimeoutSpy).toHaveBeenCalled();
+    setTimeoutSpy.mockRestore();
+    jest.useRealTimers();
+  });
+
+  it("should clean up multiple temp files", async () => {
+    jest.resetModules();
+    const fs = require("fs");
+    const unlinkSync = jest.fn();
+    fs.unlinkSync = unlinkSync;
+    const { cleanupTempFiles } = require("../../src/utils/tts");
+    cleanupTempFiles(["file1.mp3", "file2.mp3"]);
+    expect(unlinkSync).toHaveBeenCalledWith("file1.mp3");
+    expect(unlinkSync).toHaveBeenCalledWith("file2.mp3");
+  });
+
+  it("should skip non-mp3 files in cleanup", async () => {
+    jest.resetModules();
+    const fs = require("fs");
+    const unlinkSync = jest.fn();
+    fs.unlinkSync = unlinkSync;
+    const { cleanupTempFiles } = require("../../src/utils/tts");
+    cleanupTempFiles(["file1.txt", "file2.wav", "file3.mp3"]);
+    expect(unlinkSync).toHaveBeenCalledWith("file3.mp3");
+    expect(unlinkSync).not.toHaveBeenCalledWith("file1.txt");
+    expect(unlinkSync).not.toHaveBeenCalledWith("file2.wav");
+  });
+
+  it("should throw on invalid or empty text input", async () => {
+    jest.resetModules();
+    const { tts } = require("../../src/utils/tts");
+    await expect(tts("", "en")).rejects.toThrow();
+    await expect(tts(null, "en")).rejects.toThrow();
+    await expect(tts(undefined, "en")).rejects.toThrow();
+  });
+});

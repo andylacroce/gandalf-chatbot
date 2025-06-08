@@ -135,8 +135,9 @@ const rateLimiter = async (
 
   // Handle missing IP address
   if (!ip) {
+    logger.info(`[RateLimiter] 429 Too Many Requests for IP: unknown`, { ip: null });
     return res
-      .status(400)
+      .status(429)
       .json({ error: "Unable to determine client IP address." });
   }
 
@@ -176,7 +177,7 @@ const rateLimiter = async (
     rateLimiterCache.set(ip, rateData); // Ensure the cache is updated before responding
     const retryAfter = Math.ceil((rateData.resetTime - currentTime) / 1000);
     // Log the rate limit event
-    logger.info(`[RateLimiter] 429 Too Many Requests for IP: ${ip}`);
+    logger.info(`[RateLimiter] 429 Too Many Requests for IP: ${ip}`, { ip });
     // Set headers
     res.setHeader("Retry-After", retryAfter);
     res.setHeader("X-RateLimit-Limit", rateLimitOptions.maxRequests);

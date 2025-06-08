@@ -5,6 +5,9 @@
  * @throws {Error} If the transcript fetch fails.
  */
 export async function downloadTranscript(messages: any[]) {
+  if (!Array.isArray(messages)) {
+    throw new Error("Transcript must be an array");
+  }
   const now = new Date();
   const pad = (n: number) => n.toString().padStart(2, "0");
   const datetime = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}_${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`;
@@ -16,16 +19,28 @@ export async function downloadTranscript(messages: any[]) {
     minute: "2-digit",
     second: "2-digit",
     hour12: true,
-    timeZoneName: "short" // Include timezone abbreviation
+    timeZoneName: "short"
   });
-  const response = await fetch("/api/transcript", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ messages, exportedAt: friendlyTime }),
-  });
+  let response;
+  try {
+    response = await fetch("/api/transcript", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages, exportedAt: friendlyTime }),
+    });
+  } catch (err) {
+    // Network error
+    throw err;
+  }
   if (!response.ok) throw new Error("Failed to fetch transcript");
+  let blob;
+  try {
+    blob = await response.blob();
+  } catch (err) {
+    throw err;
+  }
   const filename = `Gandalf Chat Transcript ${datetime}.txt`;
-  const blob = await response.blob();
+  if (!window.URL || !window.URL.createObjectURL) throw new Error("window.URL.createObjectURL is not available");
   const url = window.URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
@@ -33,7 +48,7 @@ export async function downloadTranscript(messages: any[]) {
   document.body.appendChild(a);
   a.click();
   setTimeout(() => {
-    window.URL.revokeObjectURL(url);
-    a.remove();
+    if (window.URL && window.URL.revokeObjectURL) window.URL.revokeObjectURL(url);
+    if (a.remove) a.remove();
   }, 100);
 }

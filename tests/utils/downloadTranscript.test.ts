@@ -139,4 +139,106 @@ describe("downloadTranscript", () => {
     expect(remove).toHaveBeenCalled();
     jest.useRealTimers();
   });
+
+  it("throws if fetch throws a network error", async () => {
+    (global.fetch as any).mockImplementationOnce(() => Promise.reject(new Error("network fail")));
+    await expect(
+      downloadTranscript([{ role: "user", content: "hi" }]),
+    ).rejects.toThrow("network fail");
+  });
+
+  it("throws if blob creation fails", async () => {
+    (global.fetch as any).mockImplementationOnce(() => Promise.resolve({
+      ok: true,
+      blob: () => Promise.reject(new Error("blob fail")),
+      status: 200,
+    }));
+    await expect(
+      downloadTranscript([{ role: "user", content: "hi" }]),
+    ).rejects.toThrow("blob fail");
+  });
+
+  it("removes anchor after download", async () => {
+    jest.useFakeTimers();
+    const createObjectURL = jest.fn(() => "blob:url");
+    const revokeObjectURL = jest.fn();
+    jest.spyOn(window.URL, "createObjectURL").mockImplementation(createObjectURL);
+    jest.spyOn(window.URL, "revokeObjectURL").mockImplementation(revokeObjectURL);
+    const anchor = document.createElement("a");
+    anchor.setAttribute = jest.fn();
+    anchor.click = jest.fn();
+    anchor.remove = jest.fn();
+    document.createElement = jest.fn(() => anchor) as any;
+    await downloadTranscript([{ role: "user", content: "hi" }]);
+    jest.runAllTimers();
+    expect(anchor.remove).toHaveBeenCalled();
+    jest.useRealTimers();
+  });
+
+  it("handles large transcript arrays", async () => {
+    const createObjectURL = jest.fn(() => "blob:url");
+    jest.spyOn(window.URL, "createObjectURL").mockImplementation(createObjectURL);
+    const anchor = document.createElement("a");
+    anchor.setAttribute = jest.fn();
+    anchor.click = jest.fn();
+    anchor.remove = jest.fn();
+    document.createElement = jest.fn(() => anchor) as any;
+    const largeTranscript = Array.from({ length: 1000 }, (_, i) => ({ role: "user", content: `msg${i}` }));
+    await downloadTranscript(largeTranscript);
+    expect(anchor.click).toHaveBeenCalled();
+  });
+
+  // Additional robustness and edge case tests
+  it("handles empty transcript array", async () => {
+    const createObjectURL = jest.fn(() => "blob:url");
+    jest.spyOn(window.URL, "createObjectURL").mockImplementation(createObjectURL);
+    const anchor = document.createElement("a");
+    anchor.setAttribute = jest.fn();
+    anchor.click = jest.fn();
+    anchor.remove = jest.fn();
+    document.createElement = jest.fn(() => anchor) as any;
+    await expect(downloadTranscript([])).resolves.not.toThrow();
+    expect(anchor.click).toHaveBeenCalled();
+  });
+
+  it("throws if transcript is not an array", async () => {
+    await expect(downloadTranscript(undefined as any)).rejects.toThrow();
+    await expect(downloadTranscript(null as any)).rejects.toThrow();
+    await expect(downloadTranscript(123 as any)).rejects.toThrow();
+  });
+
+  it("works if anchor is not appended to DOM", async () => {
+    jest.useFakeTimers();
+    const createObjectURL = jest.fn(() => "blob:url");
+    jest.spyOn(window.URL, "createObjectURL").mockImplementation(createObjectURL);
+    const anchor = document.createElement("a");
+    anchor.setAttribute = jest.fn();
+    anchor.click = jest.fn();
+    anchor.remove = jest.fn();
+    // Do not append anchor to DOM
+    document.createElement = jest.fn(() => anchor) as any;
+    await downloadTranscript([{ role: "user", content: "hi" }]);
+    jest.runAllTimers();
+    expect(anchor.click).toHaveBeenCalled();
+    expect(anchor.remove).toHaveBeenCalled();
+    jest.useRealTimers();
+  });
+
+  it("handles missing window.URL gracefully", async () => {
+    const originalURL = window.URL;
+    // @ts-ignore
+    delete window.URL;
+    const anchor = document.createElement("a");
+    anchor.setAttribute = jest.fn();
+    anchor.click = jest.fn();
+    anchor.remove = jest.fn();
+    document.createElement = jest.fn(() => anchor) as any;
+    await expect(downloadTranscript([{ role: "user", content: "hi" }])).rejects.toThrow();
+    window.URL = originalURL;
+  });
+
+  it("restores all mocks and spies after each test", () => {
+    // This is a meta-test to ensure afterEach works
+    expect(document.createElement).toBe(originalCreateElement);
+  });
 });

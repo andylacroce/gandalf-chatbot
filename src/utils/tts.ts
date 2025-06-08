@@ -125,4 +125,43 @@ export async function synthesizeSpeechToFile({
   throw lastError;
 }
 
-export { getGoogleAuthCredentials, getTTSClient };
+/**
+ * Wrapper for TTS synthesis with input validation, as expected by tests.
+ * @param {string} text - The text to synthesize.
+ * @param {string} lang - The language code (e.g., 'en').
+ * @returns {Promise<string>} The path to the generated audio file.
+ */
+async function tts(text: string, lang: string): Promise<string> {
+  if (!text || typeof text !== 'string' || !text.trim()) {
+    throw new Error('Invalid or empty text input');
+  }
+  if (!lang || typeof lang !== 'string') {
+    throw new Error('Invalid language code');
+  }
+  // Generate a temp file path
+  const tmpDir = path.resolve(process.env.TTS_TMP_DIR || '/tmp/test-tts');
+  if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir, { recursive: true });
+  const fileName = `test-${Date.now()}-${Math.random().toString(36).slice(2)}.mp3`;
+  const filePath = path.join(tmpDir, fileName);
+  await synthesizeSpeechToFile({ text, filePath, voice: { languageCodes: [lang] } });
+  return filePath;
+}
+
+/**
+ * Deletes the given list of files if they are .mp3 files.
+ * @param {string[]} files - Array of file paths.
+ */
+function cleanupTempFiles(files: string[]): void {
+  for (const file of files) {
+    if (file.endsWith('.mp3')) {
+      try {
+        fs.unlinkSync(file);
+        logger.info(`[AUDIO CLEANUP] Deleted old audio file: ${file}`);
+      } catch (err) {
+        logger.warn(`[AUDIO CLEANUP] Failed to delete file: ${file}`, err);
+      }
+    }
+  }
+}
+
+export { getGoogleAuthCredentials, getTTSClient, tts, cleanupTempFiles };

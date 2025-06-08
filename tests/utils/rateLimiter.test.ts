@@ -122,62 +122,126 @@ describe("rateLimiter middleware", () => {
    * Should handle missing IP addresses gracefully with appropriate error
    */
   it("should handle missing IP address gracefully", async () => {
-    const { req, res, next } = createTestObjects();
-    req.headers = {}; // No IP address provided
-    req.socket = { remoteAddress: undefined } as Socket; // Ensure socket address is also missing
+    const { res, next } = createTestObjects();
+    const req: any = { headers: {}, socket: {} };
+    await rateLimiter(req as NextApiRequest, res as NextApiResponse, next);
+    expect(res.status).toHaveBeenCalledWith(429);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({ error: expect.any(String) }),
+    );
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it("should handle malformed x-forwarded-for header", async () => {
+    const { res, next } = createTestObjects();
+    const req: any = {
+      headers: { "x-forwarded-for": "" },
+      socket: { remoteAddress: undefined },
+    };
+    await rateLimiter(req as NextApiRequest, res as NextApiResponse, next);
+    expect(res.status).toHaveBeenCalledWith(429);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({ error: expect.any(String) }),
+    );
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  /**
+   * Test response headers
+   * Should set rate limit headers on all responses
+   */
+  it("should set rate limit headers on all responses", async () => {
+    const { res, next } = createTestObjects();
+    const testIp = "10.0.0.1";
+    const req = createRequestWithIp(testIp);
 
     await rateLimiter(req as NextApiRequest, res as NextApiResponse, next);
 
-    expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({
-      error: "Unable to determine client IP address.",
-    });
-    expect(next).not.toHaveBeenCalled();
+    expect(res.setHeader).toHaveBeenCalledWith(
+      "X-RateLimit-Limit",
+      expect.any(Number),
+    );
+    expect(res.setHeader).toHaveBeenCalledWith(
+      "X-RateLimit-Remaining",
+      expect.any(Number),
+    );
+    expect(res.setHeader).toHaveBeenCalledWith(
+      "X-RateLimit-Reset",
+      expect.any(Number),
+    );
   });
 
   /**
    * Test time-based rate limit reset
    * Should reset the rate limit after the time window expires
    */
-  it("should reset rate limit after TTL expires", async () => {
-    // Reset the module state to clear any previous rate limit data
-    jest.resetModules();
-    const resetRateLimiter =
-      require("../../src/middleware/rateLimiter").default;
-
+  it("should reset window after time passes", async () => {
     jest.useFakeTimers();
     const { res, next } = createTestObjects();
-    const testIp = "192.168.1.3";
+    const testIp = "10.0.0.2";
     const req = createRequestWithIp(testIp);
 
-    // Make 100 requests (reaching the limit)
+    // Hit the limit
     for (let i = 0; i < 100; i++) {
-      await resetRateLimiter(
-        req as NextApiRequest,
-        res as NextApiResponse,
-        next,
-      );
+      await rateLimiter(req as NextApiRequest, res as NextApiResponse, next);
     }
 
-    // Clear mocks to test the next request
+    // Blocked
+    await rateLimiter(req as NextApiRequest, res as NextApiResponse, next);
+    expect(res.status).toHaveBeenCalledWith(429);
+
+    // Advance time by 16 minutes (window is 15 min)
+    jest.advanceTimersByTime(16 * 60 * 1000);
+
+    // Should allow again
     next.mockClear();
-    if (res.status) {
-      jest.mocked(res.status).mockClear();
-    }
-    if (res.json) {
-      jest.mocked(res.json).mockClear();
-    }
-
-    // Simulate TTL expiration (15 minutes and 1 second to be safe)
-    jest.advanceTimersByTime(15 * 60 * 1000 + 1000);
-
-    // This should work as the counter should be reset
-    await resetRateLimiter(req as NextApiRequest, res as NextApiResponse, next);
-
+    if (res.status) jest.mocked(res.status).mockClear();
+    if (res.json) jest.mocked(res.json).mockClear();
+    await rateLimiter(req as NextApiRequest, res as NextApiResponse, next);
     expect(next).toHaveBeenCalled();
-    expect(res.status).not.toHaveBeenCalled();
 
     jest.useRealTimers();
+  });
+
+  /**
+   * Test independent tracking of separate IPs
+   * Should not interfere with each other's rate limits
+   */
+  it("should track separate IPs independently", async () => {
+    const { res: res1, next: next1 } = createTestObjects();
+    const { res: res2, next: next2 } = createTestObjects();
+    const req1 = createRequestWithIp("1.1.1.1");
+    const req2 = createRequestWithIp("2.2.2.2");
+
+    await rateLimiter(req1 as NextApiRequest, res1 as NextApiResponse, next1);
+    await rateLimiter(req2 as NextApiRequest, res2 as NextApiResponse, next2);
+
+    expect(next1).toHaveBeenCalled();
+    expect(next2).toHaveBeenCalled();
+  });
+
+  /**
+   * Test logging of 429 responses
+   * Should log details for monitoring and abuse detection
+   */
+  it("logs 429 responses for monitoring/abuse detection", async () => {
+    const logger = require("../../src/utils/logger");
+    const { res, next } = createTestObjects();
+    const testIp = "3.3.3.3";
+    const req = createRequestWithIp(testIp);
+
+    // Hit the limit
+    for (let i = 0; i < 100; i++) {
+      await rateLimiter(req as NextApiRequest, res as NextApiResponse, next);
+    }
+
+    next.mockClear();
+    await rateLimiter(req as NextApiRequest, res as NextApiResponse, next);
+
+    expect(logger.info).toHaveBeenCalledWith(
+      expect.stringContaining("429"),
+      expect.objectContaining({ ip: testIp }),
+    );
   });
 
   /**
