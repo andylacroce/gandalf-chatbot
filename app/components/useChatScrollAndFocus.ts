@@ -35,7 +35,22 @@ export function useChatScrollAndFocus({
       scrollToBottom();
     };
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+
+    // Add visualViewport resize listener for Firefox on Android only
+    const isFirefoxAndroid = typeof navigator !== "undefined" &&
+      navigator.userAgent.includes("Firefox") &&
+      navigator.userAgent.includes("Android");
+    let vvHandler: (() => void) | null = null;
+    if (isFirefoxAndroid && window.visualViewport) {
+      vvHandler = () => scrollToBottom();
+      window.visualViewport.addEventListener("resize", vvHandler);
+    }
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      if (isFirefoxAndroid && window.visualViewport && vvHandler) {
+        window.visualViewport.removeEventListener("resize", vvHandler);
+      }
+    };
   }, [scrollToBottom]);
 
   // Focus input field on mount
