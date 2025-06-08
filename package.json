@@ -30,8 +30,10 @@
     "winston": "^3.8.2"
   },
   "devDependencies": {
+    "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
+    "@testing-library/react-hooks": "^8.0.1",
     "@types/express": "^5.0.1",
     "@types/jest": "^29.5.14",
     "@types/lru-cache": "^7.10.9",
