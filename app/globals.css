@@ -143,3 +143,8 @@ html, body, #__next {
   background-color: var(--send-button-text) !important;
   border-color: var(--disabled-bg) !important;
 }
+
+/* --- Firefox Android input focus workaround --- */
+.ff-android-input-focus .chatMessagesScroll {
+  padding-bottom: 220px !important;
+}

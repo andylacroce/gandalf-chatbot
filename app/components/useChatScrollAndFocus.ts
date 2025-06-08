@@ -70,14 +70,24 @@ export function useChatScrollAndFocus({
     const handleFocus = () => {
       scrollToBottom();
       if (isFirefoxAndroid) {
-        // Force input into view for Firefox Android
         setTimeout(() => {
           input.scrollIntoView({ block: "end", behavior: "smooth" });
+          window.scrollTo(0, document.body.scrollHeight);
+          document.body.classList.add("ff-android-input-focus");
         }, 100);
       }
     };
+    const handleBlur = () => {
+      if (isFirefoxAndroid) {
+        document.body.classList.remove("ff-android-input-focus");
+      }
+    };
     input.addEventListener("focus", handleFocus);
-    return () => input.removeEventListener("focus", handleFocus);
+    input.addEventListener("blur", handleBlur);
+    return () => {
+      input.removeEventListener("focus", handleFocus);
+      input.removeEventListener("blur", handleBlur);
+    };
   }, [inputRef, scrollToBottom]);
 
   // Re-focus input field after loading completes
