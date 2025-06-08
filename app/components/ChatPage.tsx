@@ -189,8 +189,6 @@ const ChatPage = () => {
   return (
     <div className={styles.chatLayout} data-testid="chat-layout">
       <ChatHeader
-        audioEnabled={audioEnabled}
-        onAudioToggle={handleAudioToggle}
         onDownloadTranscript={handleDownloadTranscript}
         onHeaderLinkClick={handleHeaderLinkClick}
       />
@@ -211,6 +209,8 @@ const ChatPage = () => {
         loading={loading}
         apiAvailable={apiAvailable && !(!apiAvailable)} // disables input if API is unavailable
         inputRef={inputRef}
+        audioEnabled={audioEnabled}
+        onAudioToggle={handleAudioToggle}
       />
       <ChatStatus error={error} />
       <ApiUnavailableModal show={!apiAvailable} />

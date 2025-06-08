@@ -69,6 +69,30 @@
   box-shadow: none;
 }
 
+.audioToggleButton {
+  flex: 0 0 auto;
+  background: none;
+  border: none;
+  padding: 0.7rem 0.7rem 0.7rem 0.5rem;
+  margin-left: 0.1rem;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.2s;
+  color: var(--button-bg);
+}
+
+.audioToggleButton:focus, .audioToggleButton:hover {
+  background: var(--button-hover-bg, #a67c52);
+}
+
+.audioToggleButton svg {
+  display: block;
+  width: 24px;
+  height: 24px;
+}
+
 @media (max-width: 600px) {
   .chatInputArea {
     padding-left: 2vw;

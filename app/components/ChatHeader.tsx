@@ -1,23 +1,16 @@
 import React from "react";
 import styles from "./styles/ChatHeader.module.css";
-import ToggleSwitch from "@trendmicro/react-toggle-switch";
 import Image from "next/image";
 
 interface ChatHeaderProps {
-  audioEnabled: boolean;
-  onAudioToggle: () => void;
   onDownloadTranscript: () => void;
   onHeaderLinkClick?: () => void;
 }
 
-const ChatHeader: React.FC<ChatHeaderProps> = ({ audioEnabled, onAudioToggle, onDownloadTranscript, onHeaderLinkClick }) => (
+const ChatHeader: React.FC<ChatHeaderProps> = ({ onDownloadTranscript, onHeaderLinkClick }) => (
   <div className={styles.chatHeader} data-testid="chat-header">
     <div className={styles.chatHeaderContent}>
       <div className={styles.headerLeft}>
-        <div data-testid="toggle-container" className="flex items-center">
-          <ToggleSwitch checked={audioEnabled} onChange={onAudioToggle} />
-          <span className={styles.toggleLabel}>Audio</span>
-        </div>
         <div className="mt-2">
           <button
             className={`${styles.downloadTranscriptLink} flex items-center gap-1 ml-0`}

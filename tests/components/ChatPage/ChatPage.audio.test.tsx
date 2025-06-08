@@ -66,6 +66,11 @@ describe("ChatPage Audio Integration", () => {
     audioInstances.length = 0;
   });
 
+  function toggleAudio(getByTestId: any) {
+    const audioToggle = getByTestId("chat-audio-toggle");
+    fireEvent.click(audioToggle);
+  }
+
   it("plays audio when a reply with an audio URL is received", async () => {
     jest.mocked(axios.post).mockResolvedValue({
       data: {
@@ -103,22 +108,9 @@ describe("ChatPage Audio Integration", () => {
       });
     });
 
-    const { getByTestId, getByText, queryByTestId, container } = render(
-      <ChatPage />,
-    );
+    const { getByTestId, queryByTestId } = render(<ChatPage />);
     const input = getByTestId("chat-input");
     const sendButton = getByTestId("chat-send-button");
-
-    // Ensure audio is toggled ON if toggle exists
-    const toggleContainer = getByTestId("toggle-container");
-    const audioLabel = getByText("Audio");
-    expect(audioLabel).toBeInTheDocument();
-    const toggleElement = toggleContainer.querySelector(
-      "[class*='toggle-switch']",
-    );
-    if (toggleElement && !toggleElement.className.includes("checked")) {
-      fireEvent.click(toggleElement);
-    }
 
     // Send first message
     fireEvent.change(input, { target: { value: "Hello" } });
@@ -132,7 +124,6 @@ describe("ChatPage Audio Integration", () => {
     // If error message is shown, dismiss it before sending next message
     const errorMessage = queryByTestId?.("error-message");
     if (errorMessage) {
-      // Optionally, simulate user dismissing the error if your UI allows
       // fireEvent.click(errorMessage); // Uncomment if dismissable
     }
 
@@ -162,21 +153,14 @@ describe("ChatPage Audio Integration", () => {
       // Default fallback
       return Promise.resolve({ data: { reply: "Other", audioFileUrl: "/api/audio?file=other.mp3" } });
     });
-    const { getByTestId, getByText } = render(<ChatPage />);
+    const { getByTestId } = render(<ChatPage />);
     const input = getByTestId("chat-input");
     const sendButton = getByTestId("chat-send-button");
     fireEvent.change(input, { target: { value: "Hello" } });
     fireEvent.click(sendButton);
     await waitFor(() => expect(audioInstances.length).toBe(1));
     // Toggle audio off
-    const toggleContainer = getByTestId("toggle-container");
-    const audioLabel = getByText("Audio");
-    expect(toggleContainer).not.toBeNull();
-    expect(audioLabel).toBeInTheDocument();
-    const toggleElement = toggleContainer.querySelector(
-      "[class*='toggle-switch']",
-    );
-    fireEvent.click(toggleElement!);
+    toggleAudio(getByTestId);
     // Send another message
     fireEvent.change(input, { target: { value: "Another message" } });
     fireEvent.click(sendButton);
@@ -193,20 +177,13 @@ describe("ChatPage Audio Integration", () => {
         audioFileUrl: "/api/audio?file=race.mp3",
       },
     });
-    const { getByTestId, getByText } = render(<ChatPage />);
+    const { getByTestId } = render(<ChatPage />);
     const input = getByTestId("chat-input");
     const sendButton = getByTestId("chat-send-button");
-    // Toggle audio ON if not already
-    const toggleContainer = getByTestId("toggle-container");
-    const audioLabel = getByText("Audio");
-    const toggleElement = toggleContainer.querySelector("[class*='toggle-switch']");
-    if (toggleElement && !toggleElement.className.includes("checked")) {
-      fireEvent.click(toggleElement);
-    }
     // Simulate user typing and clicking send
     fireEvent.change(input, { target: { value: "Test race" } });
     // Immediately toggle audio OFF just before sending
-    fireEvent.click(toggleElement!);
+    toggleAudio(getByTestId);
     fireEvent.click(sendButton);
     // Wait to ensure no audio is played
     await waitFor(() => {
@@ -246,20 +223,13 @@ describe("ChatPage Audio Integration", () => {
       return audioMock as unknown as HTMLAudioElement;
     } as any;
     try {
-      const { getByTestId, getByText } = render(<ChatPage />);
+      const { getByTestId } = render(<ChatPage />);
       const input = getByTestId("chat-input");
       const sendButton = getByTestId("chat-send-button");
-      // Toggle audio ON if not already
-      const toggleContainer = getByTestId("toggle-container");
-      const audioLabel = getByText("Audio");
-      const toggleElement = toggleContainer.querySelector("[class*='toggle-switch']");
-      if (toggleElement && !toggleElement.className.includes("checked")) {
-        fireEvent.click(toggleElement);
-      }
       fireEvent.change(input, { target: { value: "Delayed audio" } });
       fireEvent.click(sendButton);
       // Toggle audio OFF before play resolves
-      fireEvent.click(toggleElement!);
+      toggleAudio(getByTestId);
       // Now resolve the delayed play
       if (playResolve) playResolve();
       // Wait to ensure no audio is played (allow 0 or 1 instance, but if 1, it must be paused)
@@ -289,28 +259,25 @@ describe("ChatPage Audio Integration", () => {
       // Default fallback
       return Promise.resolve({ data: { reply: "Other", audioFileUrl: "/api/audio?file=other.mp3" } });
     });
-    const { getByTestId, getByText } = render(<ChatPage />);
+    const { getByTestId } = render(<ChatPage />);
     const input = getByTestId("chat-input");
     const sendButton = getByTestId("chat-send-button");
-    const toggleContainer = getByTestId("toggle-container");
-    const audioLabel = getByText("Audio");
-    const toggleElement = toggleContainer.querySelector("[class*='toggle-switch']");
     // Send first message with audio ON
     fireEvent.change(input, { target: { value: "First" } });
     fireEvent.click(sendButton);
     await waitFor(() => expect(audioInstances.length).toBe(1));
     // Toggle audio OFF
-    fireEvent.click(toggleElement!);
+    toggleAudio(getByTestId);
     // Send second message with audio OFF
     fireEvent.change(input, { target: { value: "Second" } });
     fireEvent.click(sendButton);
     // Wait to ensure no new audio is created
     await waitFor(() => expect(audioInstances.length).toBe(1));
     // Toggle audio ON
-    fireEvent.click(toggleElement!);
+    toggleAudio(getByTestId);
     // Wait for the toggle to be ON before sending the third message
     await waitFor(() => {
-      expect(toggleElement?.className).toMatch(/checked/);
+      expect(getByTestId("chat-audio-toggle")).toHaveAttribute("aria-pressed", "true");
     });
     // Allow React state to flush
     await new Promise(r => setTimeout(r, 0));
@@ -328,12 +295,9 @@ describe("ChatPage Audio Integration", () => {
         audioFileUrl: "/api/audio?file=pause.mp3",
       },
     });
-    const { getByTestId, getByText } = render(<ChatPage />);
+    const { getByTestId } = render(<ChatPage />);
     const input = getByTestId("chat-input");
     const sendButton = getByTestId("chat-send-button");
-    const toggleContainer = getByTestId("toggle-container");
-    const audioLabel = getByText("Audio");
-    const toggleElement = toggleContainer.querySelector("[class*='toggle-switch']");
     // Send message with audio ON
     fireEvent.change(input, { target: { value: "Pause test" } });
     fireEvent.click(sendButton);
@@ -341,7 +305,7 @@ describe("ChatPage Audio Integration", () => {
     // Pause audio manually
     audioInstances[0].pause();
     // Toggle audio OFF
-    fireEvent.click(toggleElement!);
+    toggleAudio(getByTestId);
     // Ensure audio remains paused and does not play
     expect(audioInstances[0]._paused).toBe(true);
     expect(audioInstances[0].play).not.toHaveBeenCalledTimes(2);
@@ -354,16 +318,13 @@ describe("ChatPage Audio Integration", () => {
         audioFileUrl: "/api/audio?file=rapid.mp3",
       },
     });
-    const { getByTestId, getByText } = render(<ChatPage />);
+    const { getByTestId } = render(<ChatPage />);
     const input = getByTestId("chat-input");
     const sendButton = getByTestId("chat-send-button");
-    const toggleContainer = getByTestId("toggle-container");
-    const audioLabel = getByText("Audio");
-    const toggleElement = toggleContainer.querySelector("[class*='toggle-switch']");
     // Rapidly toggle audio ON/OFF/ON/OFF
-    fireEvent.click(toggleElement!); // OFF
-    fireEvent.click(toggleElement!); // ON
-    fireEvent.click(toggleElement!); // OFF
+    toggleAudio(getByTestId); // OFF
+    toggleAudio(getByTestId); // ON
+    toggleAudio(getByTestId); // OFF
     // Send message while audio is OFF
     fireEvent.change(input, { target: { value: "Rapid toggle" } });
     fireEvent.click(sendButton);
