@@ -64,7 +64,18 @@ export function useChatScrollAndFocus({
   useEffect(() => {
     const input = inputRef.current;
     if (!input) return;
-    const handleFocus = () => scrollToBottom();
+    const isFirefoxAndroid = typeof navigator !== "undefined" &&
+      navigator.userAgent.includes("Firefox") &&
+      navigator.userAgent.includes("Android");
+    const handleFocus = () => {
+      scrollToBottom();
+      if (isFirefoxAndroid) {
+        // Force input into view for Firefox Android
+        setTimeout(() => {
+          input.scrollIntoView({ block: "end", behavior: "smooth" });
+        }, 100);
+      }
+    };
     input.addEventListener("focus", handleFocus);
     return () => input.removeEventListener("focus", handleFocus);
   }, [inputRef, scrollToBottom]);
