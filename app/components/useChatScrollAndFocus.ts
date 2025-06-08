@@ -66,18 +66,9 @@ export function useChatScrollAndFocus({
     if (!input) return;
     const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
     const isFirefoxAndroid = ua.includes("Firefox") && ua.includes("Android");
-    const isFocusPrivate =
-      isFirefoxAndroid &&
-      (ua.includes("Focus") || ua.includes("Fennec") || ua.includes("Private"));
     const handleFocus = () => {
       scrollToBottom();
-      if (isFocusPrivate) {
-        setTimeout(() => {
-          input.scrollIntoView({ block: "end", behavior: "smooth" });
-          window.scrollTo(0, document.body.scrollHeight);
-          document.body.classList.add("ff-focus-android");
-        }, 100);
-      } else if (isFirefoxAndroid) {
+      if (isFirefoxAndroid) {
         setTimeout(() => {
           input.scrollIntoView({ block: "end", behavior: "smooth" });
           window.scrollTo(0, document.body.scrollHeight);
@@ -86,9 +77,7 @@ export function useChatScrollAndFocus({
       }
     };
     const handleBlur = () => {
-      if (isFocusPrivate) {
-        document.body.classList.remove("ff-focus-android");
-      } else if (isFirefoxAndroid) {
+      if (isFirefoxAndroid) {
         document.body.classList.remove("ff-android-input-focus");
       }
     };
