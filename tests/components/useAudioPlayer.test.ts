@@ -113,22 +113,14 @@ describe("useAudioPlayer", () => {
     expect(audioMock.currentTime).toBe(0);
   });
 
-  // Remove this test: it cannot reliably simulate the exact timing needed for the final branch in a synchronous test environment.
-  // it("returns early at the final check if audioEnabledRef is toggled off just before play", async () => {
-  //   const audioEnabledRef = { current: true };
-  //   const { result } = renderHook(() => useAudioPlayer(audioEnabledRef));
-  //   const { play, audioMock } = setupAudioMock();
-  //   // Patch Audio to toggle audioEnabledRef after construction but before play
-  //   const origAudio = global.Audio;
-  //   global.Audio = jest.fn((...args) => {
-  //     // Simulate normal construction
-  //     setTimeout(() => { audioEnabledRef.current = false; }, 0);
-  //     return audioMock;
-  //   }) as any;
-  //   await act(async () => {
-  //     await result.current.playAudio("test.mp3");
-  //   });
-  //   expect(play).not.toHaveBeenCalled();
-  //   global.Audio = origAudio;
-  // });
+  it("returns the audio object when played", async () => {
+    const audioEnabledRef = { current: true };
+    const { result } = renderHook(() => useAudioPlayer(audioEnabledRef));
+    const { audioMock } = setupAudioMock();
+    let returnedAudio;
+    await act(async () => {
+      returnedAudio = await result.current.playAudio("test.mp3");
+    });
+    expect(returnedAudio).toBe(audioMock);
+  });
 });

@@ -124,4 +124,25 @@ describe("/api/transcript", () => {
     // The output should contain the raw HTML, since escapeHtml is not used
     expect(data).toContain("<b>bold</b> & <i>italic</i>");
   });
+
+  it("should handle exportedAt undefined and set datetime", async () => {
+    const { req, res } = createMocks({
+      method: "POST",
+      body: { messages: [{ sender: "User", text: "Hi" }], exportedAt: undefined },
+    });
+    await handler(req as any, res as any);
+    const data = res._getData();
+    expect(data).toMatch(/Exported: \d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}/);
+  });
+
+  it("should handle message with missing sender and text", async () => {
+    const { req, res } = createMocks({
+      method: "POST",
+      body: { messages: [{}], exportedAt: undefined },
+    });
+    await handler(req as any, res as any);
+    const data = res._getData();
+    expect(data).toContain("undefined: undefined");
+    expect(res._getStatusCode()).toBe(200);
+  });
 });

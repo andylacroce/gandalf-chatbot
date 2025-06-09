@@ -62,7 +62,7 @@ export default async function handler(
 }
 
 // Helper for HTML escaping
-function escapeHtml(str: string): string {
+export function escapeHtml(str: string): string {
   return str.replace(/[&<>"']/g, function (tag) {
     const chars: { [key: string]: string } = {
       "&": "&amp;",
