@@ -471,3 +471,104 @@ describe("edge cases and public dir fallback", () => {
     errorSpy.mockRestore();
   });
 });
+
+describe("additional edge cases for audio regen", () => {
+  const createTestObjects = () => {
+    const req = {
+      query: {},
+      headers: { "x-internal-api-secret": process.env.INTERNAL_API_SECRET },
+    } as Partial<NextApiRequest>;
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+      setHeader: jest.fn(),
+      send: jest.fn(),
+    } as unknown as NextApiResponse;
+    return { req, res };
+  };
+
+  it("should wait for file to appear on the 5th poll after regen", async () => {
+    const { req, res } = createTestObjects();
+    req.query = { file: "latefile.mp3" };
+    const txtPath = require("path").resolve("/tmp", "latefile.txt");
+    const mp3Path = require("path").resolve("/tmp", "latefile.mp3");
+    let pollCount = 0;
+    let mp3Exists = false;
+    jest.spyOn(require("fs"), "existsSync").mockImplementation((filePath) => {
+      if (filePath === txtPath) return true;
+      if (filePath === mp3Path) {
+        if (!mp3Exists && pollCount < 4) {
+          pollCount++;
+          return false;
+        }
+        mp3Exists = true;
+        return true;
+      }
+      return false;
+    });
+    jest.spyOn(require("fs"), "realpathSync").mockImplementation((filePath) => {
+      if (filePath === mp3Path && mp3Exists) return mp3Path;
+      if (filePath === txtPath) return txtPath;
+      throw new Error("ENOENT");
+    });
+    jest.spyOn(require("fs"), "readFileSync").mockImplementation((filePath) => {
+      if (filePath === txtPath) return "Some Gandalf reply";
+      if (filePath === mp3Path) return Buffer.from("audio content");
+      throw new Error("ENOENT");
+    });
+    jest.spyOn(require("fs"), "writeFileSync").mockImplementation(() => {});
+    jest.spyOn(require("../../src/utils/tts"), "synthesizeSpeechToFile").mockResolvedValue(undefined);
+    await audioHandler(req as NextApiRequest, res as NextApiResponse);
+    expect(res.setHeader).toHaveBeenCalledWith("Content-Type", "audio/mpeg");
+    expect(res.send).toHaveBeenCalledWith(Buffer.from("audio content"));
+    expect(pollCount).toBe(4); // 5th poll triggers file found
+  });
+
+  it("should return 403 if both /tmp and /public are forbidden", async () => {
+    const { req, res } = createTestObjects();
+    req.query = { file: "forbidden.mp3" };
+    const mp3Path = require("path").resolve("/tmp", "forbidden.mp3");
+    const mp3PathPublic = require("path").resolve("public", "forbidden.mp3");
+    jest.spyOn(require("fs"), "existsSync").mockImplementation((filePath) => {
+      if (filePath === mp3Path) return true;
+      if (filePath === mp3PathPublic) return true;
+      return false;
+    });
+    jest.spyOn(require("fs"), "realpathSync").mockImplementation((filePath) => {
+      if (filePath === mp3Path) return "/notallowed/forbidden.mp3";
+      if (filePath === mp3PathPublic) return "/notallowed/forbidden.mp3";
+      throw new Error("ENOENT");
+    });
+    jest.spyOn(require("fs"), "readFileSync").mockImplementation((filePath) => Buffer.from("audio content"));
+    await audioHandler(req as NextApiRequest, res as NextApiResponse);
+    expect(res.status).toHaveBeenCalledWith(403);
+    expect(res.json).toHaveBeenCalledWith({ error: "Access forbidden" });
+  });
+
+  it("should trigger regen if .txt is only in public and missing", async () => {
+    const { req, res } = createTestObjects();
+    req.query = { file: "missingpublic.mp3", text: "NEW TEXT" };
+    const mp3PathPublic = require("path").resolve("public", "missingpublic.mp3");
+    const txtPathPublic = require("path").resolve("public", "missingpublic.txt");
+    jest.spyOn(require("fs"), "existsSync").mockImplementation((filePath) => {
+      if (filePath === mp3PathPublic) return true;
+      // .txt does not exist in public or /tmp
+      return false;
+    });
+    jest.spyOn(require("fs"), "realpathSync").mockImplementation((filePath) => {
+      if (filePath === mp3PathPublic) return mp3PathPublic;
+      throw new Error("ENOENT");
+    });
+    jest.spyOn(require("fs"), "readFileSync").mockImplementation((filePath, encoding) => {
+      if (filePath === mp3PathPublic) return Buffer.from("audio content");
+      throw new Error("ENOENT");
+    });
+    const synthesizeSpy = jest.spyOn(require("../../src/utils/tts"), "synthesizeSpeechToFile").mockResolvedValue(undefined);
+    const writeFileSyncSpy = jest.spyOn(require("fs"), "writeFileSync").mockImplementation(() => {});
+    await audioHandler(req as NextApiRequest, res as NextApiResponse);
+    expect(synthesizeSpy).toHaveBeenCalledWith(expect.objectContaining({ text: expect.stringContaining("NEW TEXT") }));
+    expect(writeFileSyncSpy).toHaveBeenCalledWith(expect.stringMatching(/missingpublic\.txt$/), "NEW TEXT", "utf8");
+    expect(res.setHeader).toHaveBeenCalledWith("Content-Type", "audio/mpeg");
+    expect(res.send).toHaveBeenCalledWith(Buffer.from("audio content"));
+  });
+});
