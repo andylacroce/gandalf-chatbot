@@ -25,7 +25,11 @@ dist/
 /docs/
 docs/
 
-# Test
+# GitHub Actions workflows (do NOT ignore)
+!.github/
+!.github/workflows/
+
+# Test coverage and Jest cache (already present, but clarify)
 coverage/
 .jest/
 .jest-cache/

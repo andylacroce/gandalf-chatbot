@@ -34,6 +34,7 @@ jobs:
       - run: npm run lint
       - run: npm run type-check
       - run: npm test -- --coverage
+        # Jest will fail if coverage is below the threshold set in jest.config.cjs
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         with:
