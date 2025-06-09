@@ -2,6 +2,12 @@ import { renderHook } from "@testing-library/react";
 import { useChatScrollAndFocus } from "../../app/components/useChatScrollAndFocus";
 
 describe("useChatScrollAndFocus", () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+  });
+  afterEach(() => {
+    jest.useRealTimers();
+  });
   function createInputMock(): HTMLInputElement {
     const input = document.createElement("input");
     input.focus = jest.fn();
@@ -73,12 +79,17 @@ describe("useChatScrollAndFocus", () => {
     // Simulate focus
     document.body.classList.remove("ff-android-input-focus");
     input.dispatchEvent(new Event("focus"));
+    // Fast-forward setTimeout
     jest.advanceTimersByTime(100);
+    expect(input.scrollIntoView).toHaveBeenCalledWith({ block: "end", behavior: "smooth" });
+    expect(window.scrollY).toBeDefined(); // window.scrollTo is called, but can't easily assert in JSDOM
+    expect(document.body.classList.contains("ff-android-input-focus")).toBe(true);
     // Simulate blur
     input.dispatchEvent(new Event("blur"));
     expect(document.body.classList.contains("ff-android-input-focus")).toBe(false);
     // Clean up
     Object.defineProperty(window.navigator, "userAgent", { value: originalUA, configurable: true });
+    jest.useRealTimers();
   });
   it("re-focuses input after loading completes", () => {
     const chatBoxRef = { current: null };

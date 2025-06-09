@@ -9,6 +9,9 @@ import logger from "./logger";
  * @throws {Error} If credentials are missing or invalid.
  */
 function getGoogleAuthCredentials() {
+  if ((getGoogleAuthCredentials as any).override) {
+    return (getGoogleAuthCredentials as any).override();
+  }
   if (!process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
     throw new Error(
       "Missing GOOGLE_APPLICATION_CREDENTIALS_JSON environment variable",
@@ -161,6 +164,16 @@ function cleanupTempFiles(files: string[]): void {
         logger.warn(`[AUDIO CLEANUP] Failed to delete file: ${file}`, err);
       }
     }
+  }
+}
+
+// TEST-ONLY: Reset singletons and allow credential override
+export function __resetSingletonsForTest(overrideCredsFn?: (() => any) | null) {
+  ttsClient = null;
+  if (overrideCredsFn) {
+    (getGoogleAuthCredentials as any).override = overrideCredsFn;
+  } else if ((getGoogleAuthCredentials as any).override) {
+    delete (getGoogleAuthCredentials as any).override;
   }
 }
 
