@@ -87,4 +87,41 @@ describe("/api/transcript", () => {
     expect(contentDisposition).toContain("filename=");
     expect(contentDisposition).toContain("filename*=UTF-8''");
   });
+
+  it("should handle messages with special characters and non-User sender", async () => {
+    const { req, res } = createMocks({
+      method: "POST",
+      body: {
+        messages: [
+          { sender: "User", text: "Hello <world> & everyone!" },
+          { sender: "Gandalf", text: "It's dangerous to go alone! & <magic>" },
+          { sender: "Frodo", text: "'Ring' > \"Sword\" & <Shire>" },
+        ],
+        exportedAt: undefined,
+      },
+    });
+    await handler(req as any, res as any);
+    const data = res._getData();
+    expect(data).toContain("Me: Hello <world> & everyone!");
+    expect(data).toContain("Gandalf: It's dangerous to go alone! & <magic>");
+    expect(data).toContain("Frodo: 'Ring' > \"Sword\" & <Shire>");
+    expect(res._getStatusCode()).toBe(200);
+  });
+
+  // Test escapeHtml indirectly by checking transcript output for HTML special chars
+  it("should not escape HTML in transcript output (escapeHtml is unused)", async () => {
+    const { req, res } = createMocks({
+      method: "POST",
+      body: {
+        messages: [
+          { sender: "User", text: "<b>bold</b> & <i>italic</i>" },
+        ],
+        exportedAt: undefined,
+      },
+    });
+    await handler(req as any, res as any);
+    const data = res._getData();
+    // The output should contain the raw HTML, since escapeHtml is not used
+    expect(data).toContain("<b>bold</b> & <i>italic</i>");
+  });
 });
