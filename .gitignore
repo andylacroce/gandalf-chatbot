@@ -35,6 +35,9 @@ coverage/
 .jest-cache/
 .jest-test-results.json
 
+# Test keys and secrets
+/tests/api/fake-gcp-key.json
+
 # Misc
 *.local
 *.log

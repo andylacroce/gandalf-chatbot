@@ -46,10 +46,16 @@ console.warn = (...args) => {
 global.performance = global.performance || {};
 global.performance.markResourceTiming = global.performance.markResourceTiming || (() => {});
 
+// Mock global fetch to prevent undici TCPWRAP handle leaks in tests
+if (typeof global.fetch === 'undefined') {
+  global.fetch = async () => ({ ok: true, status: 200, json: async () => ({}) });
+}
+
 // Ensure all timers and mocks are cleaned up after each test to prevent open handles
 afterEach(() => {
   jest.clearAllTimers();
   jest.restoreAllMocks();
+  jest.useRealTimers(); // Ensure no fake timers leak between tests
 });
 
 // Clean up undici's global dispatcher to close open TCP handles after all tests
@@ -58,9 +64,9 @@ try {
   afterAll(() => {
     if (
       globalDispatcher &&
-      typeof globalDispatcher.close === "function"
+      typeof globalDispatcher.destroy === "function"
     ) {
-      globalDispatcher.close();
+      globalDispatcher.destroy();
     }
   });
 } catch (e) {
