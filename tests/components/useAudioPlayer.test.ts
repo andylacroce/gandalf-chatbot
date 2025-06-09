@@ -123,4 +123,24 @@ describe("useAudioPlayer", () => {
     });
     expect(returnedAudio).toBe(audioMock);
   });
+
+  it("returns early if audioEnabledRef.current is toggled off after audio is created", async () => {
+    const audioEnabledRef = { current: true };
+    const { result } = renderHook(() => useAudioPlayer(audioEnabledRef));
+    const { audioMock } = setupAudioMock();
+    // Simulate toggling off after audio is created but before event listeners
+    (global.Audio as any) = jest.fn(() => {
+      // Toggle off right after audio is constructed
+      audioEnabledRef.current = false;
+      return audioMock;
+    });
+    let returnedAudio;
+    await act(async () => {
+      returnedAudio = await result.current.playAudio("test.mp3");
+    });
+    expect(returnedAudio).toBeUndefined();
+    // Should not add event listeners or play
+    expect(audioMock.addEventListener).not.toHaveBeenCalled();
+    expect(audioMock.play).not.toHaveBeenCalled();
+  });
 });
