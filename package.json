@@ -46,7 +46,7 @@
     "express": "^5.1.0",
     "ipinfo": "^1.5.2",
     "jest": "^30.0.2",
-    "jest-environment-jsdom": "^30.0.0",
+    "jest-environment-jsdom": "^30.0.2",
     "node-mocks-http": "^1.17.2",
     "postcss": "^8.5.6",
     "supertest": "^7.1.1",
