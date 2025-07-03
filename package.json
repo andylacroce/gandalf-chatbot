@@ -45,7 +45,7 @@
     "eslint-config-next": "15.3.4",
     "express": "^5.1.0",
     "ipinfo": "^1.5.2",
-    "jest": "^30.0.3",
+    "jest": "^30.0.4",
     "jest-environment-jsdom": "^30.0.4",
     "node-mocks-http": "^1.17.2",
     "postcss": "^8.5.6",
