@@ -19,7 +19,7 @@
     "@vercel/blob": "^1.1.1",
     "@vercel/speed-insights": "^1.2.0",
     "axios": "^1.10.0",
-    "critters": "^0.0.23",
+    "critters": "^0.0.25",
     "lru-cache": "^11.1.0",
     "next": "^15.3.5",
     "node-fetch": "^2.6.7",
