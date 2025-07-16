@@ -42,7 +42,7 @@
     "@types/uuid": "^10.0.0",
     "autoprefixer": "^10.4.20",
     "eslint": "^9.31.0",
-    "eslint-config-next": "15.3.5",
+    "eslint-config-next": "15.4.1",
     "express": "^5.1.0",
     "ipinfo": "^1.5.2",
     "jest": "^30.0.4",
